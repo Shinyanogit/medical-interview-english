@@ -250,9 +250,10 @@
             .settings-button {
                 top: 10px;
                 right: 10px;
-                width: 45px;
-                height: 45px;
-                font-size: 20px;
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+                border-width: 1.5px;
             }
 
             .settings-content {
@@ -285,8 +286,8 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background-color: var(--container-bg);
-            border: 2px solid var(--border-color);
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(52, 152, 219, 0.5);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -295,11 +296,27 @@
             box-shadow: 0 2px 10px var(--shadow);
             transition: all 0.3s ease;
             z-index: 1000;
+            opacity: 0.6;
+            backdrop-filter: blur(10px);
         }
 
         .settings-button:hover {
             transform: rotate(90deg);
             box-shadow: 0 4px 15px var(--shadow);
+            opacity: 1;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-color: var(--border-color);
+        }
+
+        /* ダークモードでの設定ボタン */
+        [data-theme="dark"] .settings-button {
+            background-color: rgba(10, 10, 10, 0.7);
+            border-color: rgba(74, 158, 255, 0.5);
+        }
+
+        [data-theme="dark"] .settings-button:hover {
+            background-color: rgba(10, 10, 10, 0.9);
+            border-color: var(--border-color);
         }
 
         /* 設定モーダル */
@@ -446,10 +463,6 @@
 
     <div class="container">
         <h1>医療面接対策 - 英語質問集</h1>
-
-        <div class="info-box">
-            <p>💡 各質問文をクリックすると音声で読み上げられます</p>
-        </div>
 
         <div class="section">
             <h2>OPQRST (症状聴取の基本フレームワーク)</h2>
