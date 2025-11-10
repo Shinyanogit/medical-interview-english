@@ -288,19 +288,28 @@
             border-radius: 50%;
             background-color: rgba(255, 255, 255, 0.7);
             border: 2px solid rgba(52, 152, 219, 0.5);
-            cursor: pointer;
+            cursor: move;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
             box-shadow: 0 2px 10px var(--shadow);
-            transition: all 0.3s ease;
+            transition: opacity 0.3s ease, box-shadow 0.3s ease, transform 0.1s ease;
             z-index: 1000;
             opacity: 0.6;
             backdrop-filter: blur(10px);
+            user-select: none;
+            -webkit-user-select: none;
         }
 
-        .settings-button:hover {
+        .settings-button.dragging {
+            cursor: grabbing;
+            opacity: 0.9;
+            transform: scale(1.1);
+            transition: none;
+        }
+
+        .settings-button:hover:not(.dragging) {
             transform: rotate(90deg);
             box-shadow: 0 4px 15px var(--shadow);
             opacity: 1;
@@ -314,7 +323,7 @@
             border-color: rgba(74, 158, 255, 0.5);
         }
 
-        [data-theme="dark"] .settings-button:hover {
+        [data-theme="dark"] .settings-button:hover:not(.dragging) {
             background-color: rgba(10, 10, 10, 0.9);
             border-color: var(--border-color);
         }
@@ -1151,12 +1160,127 @@
             });
         }
 
+        // 設定ボタンのドラッグ&ドロップ機能（PCのみ）
+        function initDragAndDrop(button) {
+            // タッチデバイスでは無効
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                return;
+            }
+
+            let isDragging = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+            let xOffset = 0;
+            let yOffset = 0;
+
+            // 保存された位置を読み込む
+            const savedPosition = localStorage.getItem('settingsButtonPosition');
+            if (savedPosition) {
+                const pos = JSON.parse(savedPosition);
+                xOffset = pos.x;
+                yOffset = pos.y;
+                button.style.left = pos.x + 'px';
+                button.style.top = pos.y + 'px';
+                button.style.right = 'auto';
+            }
+
+            button.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragEnd);
+
+            function dragStart(e) {
+                // 設定モーダルが開いている場合はドラッグしない
+                const settingsModal = document.getElementById('settingsModal');
+                if (settingsModal && settingsModal.classList.contains('active')) {
+                    return;
+                }
+
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+
+                if (e.target === button || button.contains(e.target)) {
+                    isDragging = true;
+                    button.classList.add('dragging');
+                }
+            }
+
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+
+                    xOffset = currentX;
+                    yOffset = currentY;
+
+                    // 画面外に出ないように制限
+                    const rect = button.getBoundingClientRect();
+                    const maxX = window.innerWidth - rect.width;
+                    const maxY = window.innerHeight - rect.height;
+
+                    xOffset = Math.max(0, Math.min(xOffset, maxX));
+                    yOffset = Math.max(0, Math.min(yOffset, maxY));
+
+                    button.style.left = xOffset + 'px';
+                    button.style.top = yOffset + 'px';
+                    button.style.right = 'auto';
+                }
+            }
+
+            function dragEnd(e) {
+                if (isDragging) {
+                    initialX = currentX;
+                    initialY = currentY;
+                    isDragging = false;
+                    button.classList.remove('dragging');
+
+                    // 位置を保存
+                    localStorage.setItem('settingsButtonPosition', JSON.stringify({
+                        x: xOffset,
+                        y: yOffset
+                    }));
+                }
+            }
+
+            // クリックイベントとドラッグを区別
+            let clickStartTime = 0;
+            let clickStartX = 0;
+            let clickStartY = 0;
+
+            button.addEventListener('mousedown', (e) => {
+                clickStartTime = Date.now();
+                clickStartX = e.clientX;
+                clickStartY = e.clientY;
+            });
+
+            button.addEventListener('click', (e) => {
+                const clickDuration = Date.now() - clickStartTime;
+                const moveDistance = Math.sqrt(
+                    Math.pow(e.clientX - clickStartX, 2) +
+                    Math.pow(e.clientY - clickStartY, 2)
+                );
+
+                // 短時間で移動距離が小さい場合のみクリックとして扱う
+                if (clickDuration < 200 && moveDistance < 5) {
+                    const settingsModal = document.getElementById('settingsModal');
+                    if (settingsModal && !settingsModal.classList.contains('active')) {
+                        settingsModal.classList.add('active');
+                    }
+                }
+            });
+        }
+
         // 設定機能
         function initSettings() {
             const settingsButton = document.getElementById('settingsButton');
             const settingsModal = document.getElementById('settingsModal');
             const closeSettings = document.getElementById('closeSettings');
             const darkModeToggle = document.getElementById('darkModeToggle');
+
+            // ドラッグ&ドロップ機能を初期化（PCのみ）
+            initDragAndDrop(settingsButton);
 
             // 保存されたテーマ設定を読み込む（デフォルトは'auto'でシステム設定に従う）
             let savedTheme = localStorage.getItem('theme') || 'auto';
@@ -1184,10 +1308,12 @@
                 }
             });
 
-            // 設定ボタンをクリック
-            settingsButton.addEventListener('click', () => {
-                settingsModal.classList.add('active');
-            });
+            // 設定ボタンをクリック（タッチデバイスの場合のみ）
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                settingsButton.addEventListener('click', () => {
+                    settingsModal.classList.add('active');
+                });
+            }
 
             // 閉じるボタンをクリック
             closeSettings.addEventListener('click', () => {
