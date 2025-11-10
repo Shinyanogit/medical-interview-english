@@ -1,0 +1,26 @@
+# APIキーを含む可能性のあるファイル
+.env
+*.key
+*.pem
+
+# Python関連
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# 環境変数ファイル
+.env.local
+.env.*.local
+
+# IDE関連
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS関連
+.DS_Store
+Thumbs.db
