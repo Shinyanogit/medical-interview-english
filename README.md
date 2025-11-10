@@ -56,6 +56,15 @@
 - `readyState`をチェックして再生可能な状態を確認
 - `canplaythrough`イベントを待ってから再生することで、確実に音声が再生されるように改善
 
+### 7. GitHub Pagesへのデプロイ
+- GitHubリポジトリを作成し、コードをプッシュ
+- GitHubのPush Protection機能により、APIキーがコードに含まれていることを検出
+- APIキーを環境変数（`OPENAI_API_KEY`）に移動し、コードから削除
+- `.gitignore`ファイルを作成して、機密情報が誤ってコミットされないように設定
+- Git履歴を書き換えて、APIキーを含む古いコミットを削除
+- GitHub Pagesを有効化し、Webアプリとして公開
+- 公開URL: `https://Shinyanogit.github.io/medical-interview-english/`
+
 ## 使用方法
 
 ### 基本的な使い方
@@ -87,6 +96,11 @@
 - Netlifyで公開（無料、簡単）
 - どこからでもアクセス可能
 
+**現在の公開URL:**
+- https://Shinyanogit.github.io/medical-interview-english/
+
+このURLから、PC・スマートフォン・タブレットのどのデバイスからでもアクセスできます。
+
 ### 音声ファイルの再生成
 
 音声ファイルを再生成する場合：
@@ -115,9 +129,40 @@ python generate_audio.py --md-file note.md --output-dir audio --voice alloy --ov
 
 ## 注意事項
 
-- OpenAI APIキーが必要です（`generate_audio.py`に設定）
+- OpenAI APIキーが必要です（環境変数`OPENAI_API_KEY`として設定）
 - 音声ファイルは`audio/`ディレクトリに保存されます
 - `index.html`は`file://`プロトコルで直接開いても動作します（CORS問題を回避済み）
+- APIキーはコードに含めず、環境変数として管理してください（セキュリティのため）
+
+## GitHub Pagesでの公開
+
+### サイトの更新方法
+
+`main`ブランチを更新すると、GitHub Pagesのサイトも自動的に更新されます：
+
+```bash
+# 1. ファイルを編集
+
+# 2. 変更をコミット
+git add .
+git commit -m "更新内容"
+
+# 3. GitHubにプッシュ
+git push origin main
+
+# 4. 数分待つと、サイトが自動的に更新される
+```
+
+### GitHub Pagesの制約
+
+- **ファイルサイズ**: リポジトリ全体で推奨1GB以下、1ファイル100MB以下
+- **帯域幅**: Publicリポジトリは無制限
+- **ビルド時間**: 初回1〜5分、更新時1〜3分
+- **静的サイトのみ**: サーバーサイド処理（PHP、Python、データベースなど）は不可
+- **HTTPS**: 自動でHTTPS対応（無料）
+- **公開範囲**: Publicリポジトリは誰でもアクセス可能
+
+現在のプロジェクトはこれらの制約内で問題なく動作します。
 
 ## 今後の改善案
 
