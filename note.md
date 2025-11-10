@@ -36,6 +36,32 @@
 - "Is the symptom constant, or does it come and go (intermittent)?"
 - "Is there any particular time of day when the symptom is better or worse?"
 
+## 相槌・共感表現 (Empathetic Responses & Acknowledgments)
+
+### 共感を示す (Showing empathy)
+
+- "I'm sorry to hear that. That must be difficult for you."
+- "That sounds really challenging. I can understand how that would affect you."
+- "I can imagine how distressing this must be for you."
+
+### 理解を示す (Showing understanding)
+
+- "I understand. Thank you for sharing that with me."
+- "I hear what you're saying. That makes sense."
+- "I see. Let me make sure I understand correctly."
+
+### 励まし・安心させる (Reassurance)
+
+- "I'm here to help you, and we'll work through this together."
+- "Thank you for being so open with me. This information is very helpful."
+- "We'll do our best to figure out what's going on and find the right treatment for you."
+
+### 傾聴を示す (Active listening)
+
+- "Please, go on. I'm listening."
+- "Tell me more about that."
+- "Is there anything else you'd like to add?"
+
 ## 便・尿・体重・食欲・睡眠(流れで聞きたい)
 
 **便 (Bowel movements):**

@@ -92,6 +92,27 @@
             margin-bottom: 15px;
             font-size: 20px;
             transition: color 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 30px;
+        }
+
+        h3::after {
+            content: "▼";
+            position: absolute;
+            right: 0;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+            color: var(--border-color);
+        }
+
+        h3.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        h3:hover {
+            color: var(--border-color);
         }
 
         h4 {
@@ -101,6 +122,27 @@
             font-size: 18px;
             font-weight: 600;
             transition: color 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 30px;
+        }
+
+        h4::after {
+            content: "▼";
+            position: absolute;
+            right: 0;
+            font-size: 12px;
+            transition: transform 0.3s ease;
+            color: var(--border-color);
+        }
+
+        h4.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        h4:hover {
+            color: var(--border-color);
         }
 
         .question-item {
@@ -153,6 +195,17 @@
         ul {
             list-style: none;
             padding-left: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 0;
+            margin: 0;
+        }
+
+        ul.expanded {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
         }
 
         .section {
@@ -481,6 +534,62 @@
         </div>
 
         <div class="section">
+            <h2>相槌・共感表現 (Empathetic Responses & Acknowledgments)</h2>
+
+            <h3>共感を示す (Showing empathy)</h3>
+            <ul>
+                <li class="question-item" data-text="I'm sorry to hear that. That must be difficult for you.">
+                    <div class="question-text">"I'm sorry to hear that. That must be difficult for you."</div>
+                </li>
+                <li class="question-item" data-text="That sounds really challenging. I can understand how that would affect you.">
+                    <div class="question-text">"That sounds really challenging. I can understand how that would affect you."</div>
+                </li>
+                <li class="question-item" data-text="I can imagine how distressing this must be for you.">
+                    <div class="question-text">"I can imagine how distressing this must be for you."</div>
+                </li>
+            </ul>
+
+            <h3>理解を示す (Showing understanding)</h3>
+            <ul>
+                <li class="question-item" data-text="I understand. Thank you for sharing that with me.">
+                    <div class="question-text">"I understand. Thank you for sharing that with me."</div>
+                </li>
+                <li class="question-item" data-text="I hear what you're saying. That makes sense.">
+                    <div class="question-text">"I hear what you're saying. That makes sense."</div>
+                </li>
+                <li class="question-item" data-text="I see. Let me make sure I understand correctly.">
+                    <div class="question-text">"I see. Let me make sure I understand correctly."</div>
+                </li>
+            </ul>
+
+            <h3>励まし・安心させる (Reassurance)</h3>
+            <ul>
+                <li class="question-item" data-text="I'm here to help you, and we'll work through this together.">
+                    <div class="question-text">"I'm here to help you, and we'll work through this together."</div>
+                </li>
+                <li class="question-item" data-text="Thank you for being so open with me. This information is very helpful.">
+                    <div class="question-text">"Thank you for being so open with me. This information is very helpful."</div>
+                </li>
+                <li class="question-item" data-text="We'll do our best to figure out what's going on and find the right treatment for you.">
+                    <div class="question-text">"We'll do our best to figure out what's going on and find the right treatment for you."</div>
+                </li>
+            </ul>
+
+            <h3>傾聴を示す (Active listening)</h3>
+            <ul>
+                <li class="question-item" data-text="Please, go on. I'm listening.">
+                    <div class="question-text">"Please, go on. I'm listening."</div>
+                </li>
+                <li class="question-item" data-text="Tell me more about that.">
+                    <div class="question-text">"Tell me more about that."</div>
+                </li>
+                <li class="question-item" data-text="Is there anything else you'd like to add?">
+                    <div class="question-text">"Is there anything else you'd like to add?"</div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="section">
             <h2>便・尿・体重・食欲・睡眠(流れで聞きたい)</h2>
 
             <h4>便 (Bowel movements):</h4>
@@ -751,6 +860,18 @@
           "How long does the symptom last when it occurs?": "b101594c927886e08f521304e40d148b.mp3",
           "Is the symptom constant, or does it come and go (intermittent)?": "9654b7931075e07ea8519541b4cf2665.mp3",
           "Is there any particular time of day when the symptom is better or worse?": "9bea49288b4add253773a9dfa5d1034a.mp3",
+          "I'm sorry to hear that. That must be difficult for you.": "43f430eac3132788d1bb4a95bed39e4c.mp3",
+          "That sounds really challenging. I can understand how that would affect you.": "a468522edb129c6071726848cd404a65.mp3",
+          "I can imagine how distressing this must be for you.": "d35b547fa4277e56049ec759808d2685.mp3",
+          "I understand. Thank you for sharing that with me.": "6e2d59a25b046507621aa3a4f17464e9.mp3",
+          "I hear what you're saying. That makes sense.": "29316a4658303b5bd700b0fcdf3c8eb3.mp3",
+          "I see. Let me make sure I understand correctly.": "cb6d518042433d34c86454cd1713feb4.mp3",
+          "I'm here to help you, and we'll work through this together.": "879242fb229ff1f0abf3ac97a32c5600.mp3",
+          "Thank you for being so open with me. This information is very helpful.": "6203c272f6a95336e873c45c5808f003.mp3",
+          "We'll do our best to figure out what's going on and find the right treatment for you.": "00316bdcb267fafe466e5a6adf649360.mp3",
+          "Please, go on. I'm listening.": "ca8a92ca3242c3b83bdd70e8cf3e1145.mp3",
+          "Tell me more about that.": "78f015a76f52ab02aa1b4fed5a10724c.mp3",
+          "Is there anything else you'd like to add?": "1e9d23026653b17e8bc8f8c25317bafb.mp3",
           "How often do you have bowel movements?": "1f3aae9e96f168db3c9f4c0177042926.mp3",
           "Have you noticed any changes in your bowel habits, such as diarrhea or constipation?": "4c27a9a87e9166cc9b74a9540c71b883.mp3",
           "Is there any blood or unusual color in your stool?": "6e5793b48bb1c7bf209d3905e72ad9f9.mp3",
@@ -968,6 +1089,33 @@
             window.speechSynthesis.speak(utterance);
         }
 
+        // セクションのトグル機能
+        function initSectionToggle() {
+            // h3とh4の両方にトグル機能を追加
+            const sectionHeaders = document.querySelectorAll('h3, h4');
+
+            sectionHeaders.forEach(header => {
+                // 次のul要素を取得
+                const questionList = header.nextElementSibling;
+
+                if (questionList && questionList.tagName === 'UL') {
+                    // デフォルトで非表示
+                    questionList.classList.remove('expanded');
+                    header.classList.add('collapsed');
+
+                    // ヘッダーをクリックしたときの処理
+                    header.addEventListener('click', (e) => {
+                        // 質問項目のクリックイベントと競合しないように
+                        e.stopPropagation();
+
+                        // トグル
+                        questionList.classList.toggle('expanded');
+                        header.classList.toggle('collapsed');
+                    });
+                }
+            });
+        }
+
         // 設定機能
         function initSettings() {
             const settingsButton = document.getElementById('settingsButton');
@@ -1020,13 +1168,19 @@
 
         // すべての質問項目にクリックイベントを追加
         document.addEventListener('DOMContentLoaded', () => {
+            // セクションのトグル機能を初期化
+            initSectionToggle();
+
             // 設定機能を初期化
             initSettings();
 
             const questionItems = document.querySelectorAll('.question-item');
 
             questionItems.forEach(item => {
-                item.addEventListener('click', () => {
+                item.addEventListener('click', (e) => {
+                    // h3のクリックイベントと競合しないように
+                    e.stopPropagation();
+
                     const text = item.getAttribute('data-text');
                     if (text) {
                         // 引用符を除去
