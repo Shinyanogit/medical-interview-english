@@ -1116,6 +1116,28 @@
             });
         }
 
+        // システム設定に基づいてテーマを適用
+        function applyTheme(theme) {
+            if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        }
+
+        // システム設定の変更を監視
+        function watchSystemTheme() {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+            mediaQuery.addEventListener('change', (e) => {
+                const savedTheme = localStorage.getItem('theme') || 'auto';
+                // 'auto'の場合のみシステム設定に従う
+                if (savedTheme === 'auto') {
+                    applyTheme('auto');
+                }
+            });
+        }
+
         // 設定機能
         function initSettings() {
             const settingsButton = document.getElementById('settingsButton');
@@ -1123,12 +1145,31 @@
             const closeSettings = document.getElementById('closeSettings');
             const darkModeToggle = document.getElementById('darkModeToggle');
 
-            // 保存されたテーマ設定を読み込む
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            if (savedTheme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                darkModeToggle.checked = true;
-            }
+            // 保存されたテーマ設定を読み込む（デフォルトは'auto'でシステム設定に従う）
+            let savedTheme = localStorage.getItem('theme') || 'auto';
+
+            // トグルスイッチの状態を設定
+            // 'dark'の場合のみON、それ以外（'auto'または'light'）はOFF
+            darkModeToggle.checked = (savedTheme === 'dark');
+
+            // テーマを適用
+            applyTheme(savedTheme);
+
+            // システム設定の変更を監視開始
+            watchSystemTheme();
+
+            // トグルスイッチの変更を監視
+            darkModeToggle.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    // ON: ダークモードに手動設定
+                    localStorage.setItem('theme', 'dark');
+                    applyTheme('dark');
+                } else {
+                    // OFF: システム設定に従う（デフォルト）
+                    localStorage.setItem('theme', 'auto');
+                    applyTheme('auto');
+                }
+            });
 
             // 設定ボタンをクリック
             settingsButton.addEventListener('click', () => {
@@ -1150,11 +1191,15 @@
             // ダークモード切り替え
             darkModeToggle.addEventListener('change', (e) => {
                 if (e.target.checked) {
-                    document.documentElement.setAttribute('data-theme', 'dark');
+                    // 手動でダークモードをONにした場合
                     localStorage.setItem('theme', 'dark');
+                    applyTheme('dark');
+                    updateThemeStatus('dark');
                 } else {
-                    document.documentElement.setAttribute('data-theme', 'light');
+                    // 手動でダークモードをOFFにした場合
                     localStorage.setItem('theme', 'light');
+                    applyTheme('light');
+                    updateThemeStatus('light');
                 }
             });
 
