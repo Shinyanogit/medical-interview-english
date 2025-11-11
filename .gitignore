@@ -24,3 +24,6 @@ __pycache__/
 # OS関連
 .DS_Store
 Thumbs.db
+
+# サンプル資料（参考資料のためGitに含めない）
+サンプル資料/

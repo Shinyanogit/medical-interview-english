@@ -3,24 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>頭頸部診察 - 医療面接・身体診察対策</title>
+    <title>頭頸部診察 - 英語表現集</title>
     <style>
         /* CSS変数でテーマカラーを管理 */
         :root {
             --bg-color: #f5f5f5;
             --container-bg: #ffffff;
             --text-color: #333;
+            --text-color-secondary: #555;
+            --text-color-tertiary: #666;
             --heading-color: #2c3e50;
+            --heading-color-secondary: #34495e;
             --border-color: #3498db;
+            --question-bg: #f8f9fa;
+            --question-hover-bg: #e8f4f8;
+            --question-playing-bg: #d4edda;
+            --info-box-bg: #e7f3ff;
+            --info-box-text: #1976D2;
             --shadow: rgba(0,0,0,0.1);
         }
 
+        /* ダークモード */
         [data-theme="dark"] {
             --bg-color: #000000;
             --container-bg: #0a0a0a;
             --text-color: #e0e0e0;
+            --text-color-secondary: #b0b0b0;
+            --text-color-tertiary: #999;
             --heading-color: #ffffff;
+            --heading-color-secondary: #e0e0e0;
             --border-color: #4a9eff;
+            --question-bg: #1a1a1a;
+            --question-hover-bg: #2a2a2a;
+            --question-playing-bg: #1a3a2a;
+            --info-box-bg: #0a1a2a;
+            --info-box-text: #64b5f6;
             --shadow: rgba(0,0,0,0.8);
         }
 
@@ -40,13 +57,318 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background-color: var(--container-bg);
-            padding: 40px;
+            padding: 30px;
             border-radius: 10px;
             box-shadow: 0 2px 10px var(--shadow);
+            position: relative;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* 広い画面で2段組レイアウト */
+        @media (min-width: 1024px) {
+            .container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+                align-items: start;
+                grid-auto-flow: row;
+            }
+
+            .container > h1 {
+                grid-column: 1 / -1;
+                margin-bottom: 20px;
+            }
+
+            .section {
+                margin-bottom: 15px;
+                min-height: 0;
+                overflow: visible;
+            }
+
+            /* h2の間隔を詰める */
+            .section h2 {
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+
+            /* 2段組の最初のセクションのh2のマージンを調整 */
+            .section:first-of-type h2 {
+                margin-top: 0;
+            }
+
+            /* 右カラムの最初のセクションのh2のマージンを調整 */
+            .section:nth-of-type(2) h2 {
+                margin-top: 0;
+            }
+        }
+
+        h1 {
+            color: var(--heading-color);
+            margin-bottom: 30px;
+            font-size: 28px;
+            border-bottom: 3px solid var(--border-color);
+            padding-bottom: 10px;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        h2 {
+            color: var(--heading-color-secondary);
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 24px;
+            padding-left: 10px;
+            border-left: 4px solid var(--border-color);
+            transition: color 0.3s ease, border-color 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 30px;
+        }
+
+        h2::after {
+            content: "▼";
+            position: absolute;
+            right: 0;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+            color: var(--border-color);
+        }
+
+        h2.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        h2:hover {
+            color: var(--border-color);
+        }
+
+        h3 {
+            color: var(--text-color-secondary);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 20px;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 30px;
+        }
+
+        h3::after {
+            content: "▼";
+            position: absolute;
+            right: 0;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+            color: var(--border-color);
+        }
+
+        h3.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        h3:hover {
+            color: var(--border-color);
+        }
+
+        h4 {
+            color: var(--text-color-tertiary);
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 30px;
+        }
+
+        h4::after {
+            content: "▼";
+            position: absolute;
+            right: 0;
+            font-size: 12px;
+            transition: transform 0.3s ease;
+            color: var(--border-color);
+        }
+
+        h4.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        h4:hover {
+            color: var(--border-color);
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 0;
+            margin: 0;
+        }
+
+        ul.expanded {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
+        }
+
+        /* h2で展開されている場合、h2の直下のulを表示（優先度を高く） */
+        .section:not(.section-collapsed) > h2 + ul {
+            max-height: 1000px !important;
+            opacity: 1 !important;
+            margin: 15px 0 !important;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        /* h2単位でセクション全体を折りたたむ */
+        .section.section-collapsed > h3,
+        .section.section-collapsed > h4,
+        .section.section-collapsed > p {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+        }
+
+        /* h2の直下のulも折りたたむ */
+        .section.section-collapsed > h2 + ul {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden;
+            margin: 0 !important;
+        }
+
+        /* h3やh4が折りたたまれたとき、その直後のpも非表示（優先度を高く） */
+        h3.collapsed + p,
+        h4.collapsed + p {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+        }
+
+        /* h3やh4が折りたたまれたとき、その直後のulも非表示 */
+        h3.collapsed + ul,
+        h4.collapsed + ul {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+        }
+
+        /* h2で展開されている場合でも、h3やh4がcollapsedならその下の要素は非表示 */
+        .section:not(.section-collapsed) > h3.collapsed + p,
+        .section:not(.section-collapsed) > h4.collapsed + p {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* h3やh4が展開されている場合、その直後のpは表示 */
+        .section:not(.section-collapsed) > h3:not(.collapsed) + p,
+        .section:not(.section-collapsed) > h4:not(.collapsed) + p {
+            max-height: none;
+            opacity: 1;
+            overflow: visible;
+            margin: 15px 0;
+            padding: 10px;
+        }
+
+        /* h2で展開されている場合、h3やh4の個別トグルが動作するように */
+        .section:not(.section-collapsed) > h3 + ul.expanded,
+        .section:not(.section-collapsed) > h4 + ul.expanded {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .question-item {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: var(--question-bg);
+            border-left: 3px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .question-item:hover {
+            background-color: var(--question-hover-bg);
+            transform: translateX(5px);
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+
+        .question-item:active {
+            transform: translateX(3px);
+        }
+
+        .question-item::before {
+            content: "🔊";
+            position: absolute;
+            left: 15px;
+            font-size: 18px;
+            opacity: 0.6;
+        }
+
+        .question-item.playing {
+            background-color: var(--question-playing-bg);
+            border-left-color: #28a745;
+        }
+
+        .question-item.playing::before {
+            content: "▶️";
+            opacity: 1;
+        }
+
+        .question-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--heading-color);
+            transition: color 0.3s ease;
+        }
+
+        .paraphrase {
+            opacity: 0.5;
+            font-size: 0.95em;
+        }
+
+        .info-box {
+            background-color: var(--info-box-bg);
+            border-left: 4px solid var(--border-color);
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: var(--info-box-text);
+            font-size: 14px;
+            transition: color 0.3s ease;
         }
 
         .back-link {
@@ -62,41 +384,1009 @@
             opacity: 0.7;
         }
 
-        h1 {
-            color: var(--heading-color);
-            margin-bottom: 30px;
-            font-size: 28px;
-            border-bottom: 3px solid var(--border-color);
-            padding-bottom: 10px;
-            transition: color 0.3s ease, border-color 0.3s ease;
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            h3 {
+                font-size: 18px;
+            }
+
+            .question-item {
+                padding: 12px;
+                padding-left: 45px;
+            }
+
+            .question-text {
+                font-size: 15px;
+            }
+
+            .settings-button {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+                border-width: 1.5px;
+            }
+
+            .settings-content {
+                padding: 20px;
+                max-width: 90%;
+            }
         }
 
-        .empty-message {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-color);
+        .info-box {
+            background-color: var(--info-box-bg);
+            border-left: 4px solid var(--border-color);
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: var(--info-box-text);
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        /* 設定ボタン */
+        .settings-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(52, 152, 219, 0.5);
+            cursor: move;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 2px 10px var(--shadow);
+            transition: opacity 0.3s ease, box-shadow 0.3s ease, transform 0.1s ease;
+            z-index: 1000;
             opacity: 0.6;
-            font-size: 18px;
+            backdrop-filter: blur(10px);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .settings-button.dragging {
+            cursor: grabbing;
+            opacity: 0.9;
+            transform: scale(1.1);
+            transition: none;
+        }
+
+        .settings-button:hover:not(.dragging) {
+            transform: rotate(90deg);
+            box-shadow: 0 4px 15px var(--shadow);
+            opacity: 1;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-color: var(--border-color);
+        }
+
+        /* ダークモードでの設定ボタン */
+        [data-theme="dark"] .settings-button {
+            background-color: rgba(10, 10, 10, 0.7);
+            border-color: rgba(74, 158, 255, 0.5);
+        }
+
+        [data-theme="dark"] .settings-button:hover:not(.dragging) {
+            background-color: rgba(10, 10, 10, 0.9);
+            border-color: var(--border-color);
+        }
+
+        /* 設定モーダル */
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-modal.active {
+            display: flex;
+        }
+
+        .settings-content {
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 4px 20px var(--shadow);
+            transition: background-color 0.3s ease;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .settings-header h2 {
+            margin: 0;
+            font-size: 24px;
+            border: none;
+            padding: 0;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+
+        .close-button:hover {
+            color: var(--border-color);
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--question-bg);
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-label {
+            font-size: 16px;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+
+        /* トグルスイッチ */
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--border-color);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .description {
+            color: var(--text-color-secondary);
+            font-style: italic;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: var(--question-bg);
+            border-radius: 5px;
+        }
+
+        .placeholder {
+            color: var(--text-color-tertiary);
+            font-style: italic;
+            padding: 10px;
+            background-color: var(--question-bg);
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="index.html" class="back-link">← トップページに戻る</a>
+
         <h1>頭頸部診察 (Head and Neck Examination)</h1>
-        <div class="empty-message">
-            このセクションは準備中です。<br>
-            今後、内容を追加予定です。
+
+        <!-- 頭部・顔面 -->
+        <div class="section">
+            <h2>頭部・顔面 (Head and Face)</h2>
+            <p class="description">顔貌は全身状態や精神状態などがよく反映されます。頭皮の観察は頭髪を掻き分けて行います。</p>
+
+            <h3>顔・顔貌の観察 (Observation of Face and Facial Expression)</h3>
+            <p class="description">顔色、表情および左右差、浮腫（特に眼瞼）、皮疹などの有無を調べる</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+
+            <h3>頭髪の観察 (Observation of Hair)</h3>
+            <p class="description">脱毛、色調の変化の有無を調べる</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+
+            <h3>頭皮の観察 (Observation of Scalp)</h3>
+            <p class="description">皮疹、腫瘤などの有無を調べる</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+
+            <h3>頭皮・頭蓋の触診 (Palpation of Scalp and Skull)</h3>
+            <p class="description">変形、腫瘤、圧痛などの有無を調べる</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+        </div>
+
+        <!-- 眼 -->
+        <div class="section">
+            <h2>眼 (Eyes)</h2>
+            <p class="description">眼球・外眼部の観察の他、眼球運動や対光反射の診察も行います。必ず両側を診察します。</p>
+
+            <h3>眼瞼結膜の観察 (Palpebral Conjunctiva)</h3>
+            <p class="description">充血、浮腫、貧血の有無などを調べる</p>
+            <ul>
+                <li class="question-item" data-text="I'm going to ask that you slip your glasses off if you would.">
+                    <div class="question-text">"I'm going to ask that you <b>slip your glasses off</b> <span class="paraphrase">(take off your glasses, remove your glasses)</span> if you would."</div>
+                </li>
+                <li class="question-item" data-text="I also want to look at the conjunctiva. I'm just going to touch down here at the bottom part of your cheek.">
+                    <div class="question-text">"I also want to <b>look at the conjunctiva</b>. I'm just going to <b>touch down here</b> at the <b>bottom part of your cheek</b>."</div>
+                </li>
+            </ul>
+
+            <h3>眼球結膜の観察 (Bulbar Conjunctiva)</h3>
+            <p class="description">充血、黄染、出血の有無などを調べる</p>
+            <ul>
+                <li class="placeholder">（眼瞼結膜の観察と同様の手順）</li>
+            </ul>
+
+            <h3>眼球突出の観察 (Exophthalmos)</h3>
+            <p class="description">眼球突出が疑われたら両側方または後上方から確認する</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+
+            <h3>瞳孔・虹彩の観察 (Pupil and Iris)</h3>
+            <p class="description">左右差および色・形、水晶体の混濁などを調べる</p>
+            <ul>
+                <li class="question-item" data-text="I'm going to bring the light in from the outside and just have you look at my nose.">
+                    <div class="question-text">"I'm going to <b>bring the light in</b> from the outside and just have you <b>look at my nose</b>."</div>
+                </li>
+                <li class="question-item" data-text="I'm going to ask you to look at the corner of the room.">
+                    <div class="question-text">"I'm going to ask you to <b>look at the corner of the room</b>."</div>
+                </li>
+                <li class="question-item" data-text="I'm going to put my finger about 10 inches from your nose. I want you to look far and then focusing on my finger.">
+                    <div class="question-text">"I'm going to put my <b>finger</b> about 10 inches from your nose. I want you to <b>look far</b> <span class="paraphrase">(look away, look into the distance)</span> and then <b>focusing on my finger</b> <span class="paraphrase">(look at my finger, look close)</span>."</div>
+                </li>
+            </ul>
+
+            <h3>視野の検査 (Visual Field Test)</h3>
+            <p class="description">対座法で視野を確認（脳神経の診察を参照）</p>
+            <ul>
+                <li class="question-item" data-text="I'd like to start off just by testing your visual acuity. We can test visual acuity both close and near vision.">
+                    <div class="question-text">"I'd like to <b>start off</b> <span class="paraphrase">(begin)</span> just by testing your <b>visual acuity</b> <span class="paraphrase">(vision, eyesight)</span>. We can test visual acuity both <b>close</b> and <b>near vision</b>."</div>
+                </li>
+                <li class="question-item" data-text="Mary would you hold this card for me about 14 inches or so in front and then I'm going to ask you to close one or cover one eye with your left hand and then read for me if you would the lowest line that you can read on this card.">
+                    <div class="question-text">"Would you <b>hold this card</b> for me about 14 inches or so <b>in front</b> and then I'm going to ask you to <b>close one</b> <span class="paraphrase">(shut one eye)</span> or <b>cover one eye</b> with your left hand and then <b>read for me</b> if you would the <b>lowest line</b> that you can read on this card."</div>
+                </li>
+                <li class="question-item" data-text="Let's do the same thing on the other side. So we'll switch our hands around.">
+                    <div class="question-text">"Let's do the <b>same thing on the other side</b>. So we'll <b>switch our hands around</b>."</div>
+                </li>
+                <li class="question-item" data-text="I'm going to position myself about two feet in front of you. I'd like you just to look in my eyes and I'll return your gaze.">
+                    <div class="question-text">"I'm going to <b>position myself</b> about two feet in front of you. I'd like you just to <b>look in my eyes</b> <span class="paraphrase">(look at my eyes)</span> and I'll <b>return your gaze</b> <span class="paraphrase">(look back at you)</span>."</div>
+                </li>
+                <li class="question-item" data-text="Tell me if you see one of them moving to the left, to my left, to my right.">
+                    <div class="question-text">"Tell me if you see <b>one of them moving</b> to the left, to my left, to my right."</div>
+                </li>
+            </ul>
+
+            <h3>眼球運動の検査 (Extraocular Movements)</h3>
+            <p class="description">H型パターンで眼球運動を確認（脳神経の診察を参照）</p>
+            <ul>
+                <li class="question-item" data-text="Using the H pattern, what I'd like you to do is just watch my finger.">
+                    <div class="question-text">"Using the <b>H pattern</b>, what I'd like you to do is just <b>watch my finger</b> <span class="paraphrase">(follow my finger with your eyes)</span>."</div>
+                </li>
+            </ul>
+
+            <h3>対光反射の検査 (Pupillary Light Reflex)</h3>
+            <p class="description">直接・間接対光反射を確認（脳神経の診察を参照）</p>
+            <ul>
+                <li class="question-item" data-text="As I bring the light in, I watch for a constriction of the pupil as the light strikes her pupil on this side.">
+                    <div class="question-text">"As I bring the light in, I watch for a <b>constriction</b> <span class="paraphrase">(narrowing, shrinking)</span> of the <b>pupil</b> as the light <b>strikes</b> <span class="paraphrase">(hits)</span> her pupil on this side."</div>
+                </li>
+            </ul>
+
+            <h3>眼底の検査 (Fundoscopic Examination)</h3>
+            <p class="description">眼底鏡を用いた検査（脳神経の診察を参照）</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+        </div>
+
+        <!-- 耳 -->
+        <div class="section">
+            <h2>耳 (Ears)</h2>
+            <p class="description">耳介とその周囲の観察の他、耳鏡を用いて外耳道と鼓膜を観察します。必ず両側を診察します。</p>
+
+            <h3>耳介およびその周囲の観察 (Observation of Auricle)</h3>
+            <p class="description">変形、結節、皮疹などの有無を調べる</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+
+            <h3>耳介およびその周囲の触診 (Palpation of Auricle)</h3>
+            <p class="description">耳介の牽引による痛み、耳介前部・後部の圧痛を確認する</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+
+            <h3>聴力検査 (Hearing Test)</h3>
+            <p class="description">ささやき声法、指こすり法など（脳神経の診察を参照）</p>
+            <ul>
+                <li class="question-item" data-text="I'd like you to take your left hand if you would, just plug one ear.">
+                    <div class="question-text">"I'd like you to take your left hand if you would, just <b>plug one ear</b> <span class="paraphrase">(block one ear, cover one ear)</span>."</div>
+                </li>
+                <li class="question-item" data-text="I'm just going to whisper over on this side. Bird, bird, very good.">
+                    <div class="question-text">"I'm just going to <b>whisper</b> over on this side. Bird, bird, very good."</div>
+                </li>
+                <li class="question-item" data-text="I'd like you to close your eyes. Can you hear this? Good.">
+                    <div class="question-text">"I'd like you to <b>close your eyes</b>. Can you <b>hear this</b>? Good."</div>
+                </li>
+                <li class="question-item" data-text="I'm going to ask you if you hear the vibration, please tell me when you no longer hear it.">
+                    <div class="question-text">"I'm going to ask you if you <b>hear the vibration</b>, please tell me when you <b>no longer hear it</b>."</div>
+                </li>
+                <li class="question-item" data-text="I'm going to place this on the top middle of your head. Do you hear that on one side, both sides, or right down the middle?">
+                    <div class="question-text">"I'm going to <b>place this</b> on the top middle of your head. Do you hear that on <b>one side</b>, <b>both sides</b>, or <b>right down the middle</b>?"</div>
+                </li>
+            </ul>
+
+            <h3>外耳道・鼓膜の観察 (Otoscopic Examination)</h3>
+            <p class="description">耳鏡を用いて発赤、腫脹などの有無を調べる</p>
+            <ul>
+                <li class="question-item" data-text="I'm going to just bring my finger and put it right on your cheek here.">
+                    <div class="question-text">"I'm going to just <b>bring my finger</b> and <b>put it right on your cheek</b> here."</div>
+                </li>
+                <li class="question-item" data-text="As I'm here I want you just to turn your head towards me now.">
+                    <div class="question-text">"As I'm here I want you just to <b>turn your head towards me</b> now."</div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 鼻・副鼻腔 -->
+        <div class="section">
+            <h2>鼻・副鼻腔 (Nose and Paranasal Sinuses)</h2>
+            <p class="description">形状や皮膚の状態の観察、副鼻腔の診察、鼻閉塞の確認、鼻腔の観察を行います。必ず両側を診察します。</p>
+
+            <h3>鼻全体の観察 (Observation of Nose)</h3>
+            <p class="description">変形、皮疹などの有無を調べる</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+
+            <h3>副鼻腔の診察 (Examination of Paranasal Sinuses)</h3>
+            <p class="description">上顎洞・前頭洞の圧痛、叩打痛の有無を調べる</p>
+            <ul>
+                <li class="question-item" data-text="I'm going to palpate your sinuses. I'll place my hands on the side of your head.">
+                    <div class="question-text">"I'm going to <b>palpate</b> <span class="paraphrase">(feel, press on, examine)</span> your <b>sinuses</b>. I'll <b>place my hands</b> on the side of your head."</div>
+                </li>
+                <li class="question-item" data-text="The maxillary sinuses. I wonder if you tell me, is this painful in any way on one side or the other?">
+                    <div class="question-text">"The <b>maxillary sinuses</b>. I wonder if you tell me, is this <b>painful</b> <span class="paraphrase">(tender, sore)</span> in any way on one side or the other?"</div>
+                </li>
+            </ul>
+
+            <h3>鼻閉塞の確認 (Nasal Obstruction Test)</h3>
+            <p class="description">片方ずつ行い、鼻腔の閉塞の有無を調べる</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+
+            <h3>鼻腔の観察 (Nasal Cavity Examination)</h3>
+            <p class="description">鼻鏡を用いて観察する</p>
+            <ul>
+                <li class="question-item" data-text="I'll ask you to look up just slightly. You want to be careful not to touch the nasal septum because that's a very sensitive area of the nose.">
+                    <div class="question-text">"I'll ask you to <b>look up just slightly</b>. You want to be careful not to <b>touch the nasal septum</b> because that's a very <b>sensitive area</b> of the nose."</div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 口唇・口腔・咽頭 -->
+        <div class="section">
+            <h2>口唇・口腔・咽頭 (Lips, Oral Cavity, and Pharynx)</h2>
+            <p class="description">比較的自覚症状が出やすいので、観察と同時に自覚症状の有無を忘れずに確認します。</p>
+
+            <h3>口唇の観察 (Observation of Lips)</h3>
+            <p class="description">チアノーゼ、水疱、色素沈着などの有無を調べる</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+
+            <h3>歯の観察 (Observation of Teeth)</h3>
+            <p class="description">欠損、う歯、色素沈着などの有無を調べる</p>
+            <ul>
+                <li class="question-item" data-text="I'll ask you to open up please. Open up your mouth, thank you.">
+                    <div class="question-text">"I'll ask you to <b>open up</b> please. <b>Open up your mouth</b>, thank you."</div>
+                </li>
+            </ul>
+
+            <h3>歯肉の観察 (Observation of Gingiva)</h3>
+            <p class="description">発赤、腫脹、出血などの有無を調べる</p>
+            <ul>
+                <li class="placeholder">（口腔内の一般的な観察と共通）</li>
+            </ul>
+
+            <h3>頬粘膜の観察 (Observation of Buccal Mucosa)</h3>
+            <p class="description">潰瘍、出血、白苔などの有無を調べる</p>
+            <ul>
+                <li class="placeholder">（口腔内の一般的な観察と共通）</li>
+            </ul>
+
+            <h3>舌の観察 (Observation of Tongue)</h3>
+            <p class="description">腫瘤、潰瘍、舌乳頭萎縮などの有無を調べる</p>
+            <ul>
+                <li class="question-item" data-text="Stick your tongue back out, very good.">
+                    <div class="question-text">"<b>Stick your tongue back out</b> <span class="paraphrase">(put your tongue out again, show me your tongue)</span>, very good."</div>
+                </li>
+            </ul>
+
+            <h3>口腔底・舌下面の観察 (Observation of Floor of Mouth)</h3>
+            <p class="description">腫瘤、舌小帯短縮などの有無を調べる</p>
+            <ul>
+                <li class="question-item" data-text="If you can lift your tongue up, I can see underneath it. Very good.">
+                    <div class="question-text">"If you can <b>lift your tongue up</b>, I can see underneath it. Very good."</div>
+                </li>
+                <li class="question-item" data-text="May I look under your tongue please? Very good.">
+                    <div class="question-text">"May I <b>look under your tongue</b> please? Very good."</div>
+                </li>
+            </ul>
+
+            <h3>硬口蓋の観察 (Observation of Hard Palate)</h3>
+            <p class="description">腫瘤、潰瘍、出血斑などの有無を調べる</p>
+            <ul>
+                <li class="question-item" data-text="If you stay open, I'll look over to this side.">
+                    <div class="question-text">"If you <b>stay open</b> <span class="paraphrase">(keep your mouth open)</span>, I'll look over to this side."</div>
+                </li>
+            </ul>
+
+            <h3>軟口蓋・咽頭後壁の観察 (Observation of Soft Palate and Posterior Pharynx)</h3>
+            <p class="description">発赤、腫脹、リンパ濾胞の腫大などの有無を調べる</p>
+            <ul>
+                <li class="question-item" data-text="Now if you can say 'ah', 'ah', very good.">
+                    <div class="question-text">"Now if you can say '<b>ah</b>', '<b>ah</b>', very good."</div>
+                </li>
+            </ul>
+
+            <h3>口蓋扁桃の観察 (Observation of Palatine Tonsils)</h3>
+            <p class="description">腫脹、左右差、発赤、白苔などの有無を調べる</p>
+            <ul>
+                <li class="placeholder">（軟口蓋・咽頭後壁の観察と共通）</li>
+            </ul>
+        </div>
+
+        <!-- 唾液腺 -->
+        <div class="section">
+            <h2>唾液腺 (Salivary Glands)</h2>
+            <p class="description">症状が自覚されやすいため、まず問診が重要です。触診は片側ずつ行い、必ず両側を診察します。</p>
+
+            <h3>耳下腺の触診 (Palpation of Parotid Gland)</h3>
+            <p class="description">圧痛、腫瘤の有無を調べる</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+
+            <h3>顎下腺の触診 (Palpation of Submandibular Gland)</h3>
+            <p class="description">圧痛、腫瘤の有無を調べる</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+        </div>
+
+        <!-- 頭頸部リンパ節 -->
+        <div class="section">
+            <h2>頭頸部リンパ節 (Lymph Nodes)</h2>
+            <p class="description">各リンパ節を系統的に触診します。触診は片側ずつ行い、必ず両側を診察します。腫脹、圧痛の有無などを調べます。</p>
+
+            <h3>鎖骨上窩リンパ節 (Supraclavicular Nodes)</h3>
+            <ul>
+                <li class="question-item" data-text="I'd like to ask you to put your hands on your hips and then just bring your shoulders forward.">
+                    <div class="question-text">"I'd like to ask you to <b>put your hands on your hips</b> and then just <b>bring your shoulders forward</b>."</div>
+                </li>
+                <li class="question-item" data-text="I'm going to lift your hair up out of the way. You can see a triangle appear as she does this.">
+                    <div class="question-text">"I'm going to <b>lift your hair up</b> out of the way. You can see a <b>triangle appear</b> as she does this."</div>
+                </li>
+                <li class="question-item" data-text="You can relax your shoulders.">
+                    <div class="question-text">"You can <b>relax your shoulders</b>."</div>
+                </li>
+            </ul>
+
+            <h3>その他のリンパ節 (Other Lymph Nodes)</h3>
+            <p class="description">後頭、耳介後、耳介前、顎下、オトガイ下、下顎角直下、浅頸、深頸、後頸三角リンパ節の触診</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+        </div>
+
+        <!-- 甲状腺 -->
+        <div class="section">
+            <h2>甲状腺 (Thyroid Gland)</h2>
+            <p class="description">甲状腺は性別によって位置が異なるため、正しい解剖学的な認識が必要です。</p>
+
+            <h3>甲状腺の視診 (Inspection of Thyroid)</h3>
+            <p class="description">腫大の有無を確認</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+
+            <h3>甲状腺峡部の触診 (Palpation of Thyroid Isthmus)</h3>
+            <p class="description">腫大、圧痛、表面の状態や硬さ、結節の有無などを調べる</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+
+            <h3>甲状腺葉部の触診 (Palpation of Thyroid Lobes)</h3>
+            <p class="description">腫大、圧痛、表面の状態や硬さ、結節の有無などを調べる</p>
+            <ul>
+                <li class="question-item" data-text="I'm going to ask you if you could swallow for me please. Good.">
+                    <div class="question-text">"I'm going to ask you if you could <b>swallow</b> for me please. Good."</div>
+                </li>
+            </ul>
+
+            <h3>甲状腺の聴診 (Auscultation of Thyroid)</h3>
+            <p class="description">甲状腺腫が疑われるときは、甲状腺を聴診し血管雑音の有無を調べる</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+        </div>
+
+        <!-- 気管 -->
+        <div class="section">
+            <h2>気管 (Trachea)</h2>
+            <p class="description">肺や縦隔に異常があると気管の偏位などが起こります。</p>
+
+            <h3>気管の観察 (Observation of Trachea)</h3>
+            <p class="description">短縮、偏位などについて評価する</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+        </div>
+
+        <!-- 脳神経検査 -->
+        <div class="section">
+            <h2>脳神経検査 (Cranial Nerve Examination)</h2>
+            <p class="description">頭頸部診察の一環として、三叉神経、顔面神経、副神経などを検査します。</p>
+
+            <h3>三叉神経の感覚検査 (Trigeminal Nerve - Sensation)</h3>
+            <p class="description">V1, V2, V3の領域で感覚を確認</p>
+            <ul>
+                <li class="question-item" data-text="I'm going to test for sensation in the three divisions of the trigeminal nerve. V1 over the forehead, do you feel this here? Good.">
+                    <div class="question-text">"I'm going to <b>test for sensation</b> in the three <b>divisions</b> of the <b>trigeminal nerve</b>. <b>V1</b> over the <b>forehead</b>, do you feel this here? Good."</div>
+                </li>
+                <li class="question-item" data-text="Is it the same on both sides? V2 here, do you feel that? Good.">
+                    <div class="question-text">"Is it the <b>same on both sides</b>? <b>V2</b> here, do you feel that? Good."</div>
+                </li>
+            </ul>
+
+            <h3>顔面神経の運動検査 (Facial Nerve - Motor)</h3>
+            <p class="description">顔面表情筋の動きを確認</p>
+            <ul>
+                <li class="question-item" data-text="Smile for me. Good.">
+                    <div class="question-text">"<b>Smile</b> for me. Good."</div>
+                </li>
+                <li class="question-item" data-text="Would you puff your cheeks out like this for me? Good.">
+                    <div class="question-text">"Would you <b>puff your cheeks out</b> like this for me? Good."</div>
+                </li>
+            </ul>
+
+            <h3>副神経の検査 (Accessory Nerve)</h3>
+            <p class="description">僧帽筋、胸鎖乳突筋の筋力を確認</p>
+            <ul>
+                <li class="question-item" data-text="I'd like to test this. I'd like you to shrug your shoulders.">
+                    <div class="question-text">"I'd like to test this. I'd like you to <b>shrug your shoulders</b> <span class="paraphrase">(raise your shoulders up)</span>."</div>
+                </li>
+                <li class="question-item" data-text="Can you move it left? Good. Move it right, very good.">
+                    <div class="question-text">"Can you <b>move it left</b>? Good. <b>Move it right</b>, very good."</div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 頸部血管 -->
+        <div class="section">
+            <h2>頸部血管 (Neck Vessels)</h2>
+            <p class="description">頸静脈と頸動脈を診察します。詳細は「胸部診察（頸部血管）」を参照してください。</p>
+            <ul>
+                <li class="placeholder">（例文を追加予定）</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 設定ボタン -->
+    <button class="settings-button" id="settingsButton" aria-label="設定">
+        ⚙️
+    </button>
+
+    <!-- 設定モーダル -->
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2>設定</h2>
+                <button class="close-button" id="closeSettings">&times;</button>
+            </div>
+            <div class="settings-item">
+                <span class="settings-label">ダークモード</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="darkModeToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
         </div>
     </div>
 
     <script>
-        // ダークモード設定を読み込む
-        const savedTheme = localStorage.getItem('theme') || 'auto';
-        if (savedTheme === 'dark' || (savedTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-            document.documentElement.setAttribute('data-theme', 'light');
+        // セクションのトグル機能
+        function initSectionToggle() {
+            // h2単位のトグル機能を追加
+            const sectionH2s = document.querySelectorAll('.section > h2');
+
+            sectionH2s.forEach(h2 => {
+                const section = h2.parentElement;
+
+                // デフォルトでセクション全体を折りたたむ
+                section.classList.add('section-collapsed');
+                h2.classList.add('collapsed');
+
+                // h2をクリックしたときの処理
+                h2.addEventListener('click', (e) => {
+                    e.stopPropagation();
+
+                    // セクション全体のトグル
+                    section.classList.toggle('section-collapsed');
+                    h2.classList.toggle('collapsed');
+                });
+            });
+
+            // h3、h4の個別トグル機能を追加
+            const subsectionHeaders = document.querySelectorAll('h3, h4');
+
+            subsectionHeaders.forEach(header => {
+                // デフォルトでcollapsed状態にする
+                header.classList.add('collapsed');
+
+                // 次の要素を取得
+                let nextElement = header.nextElementSibling;
+                let pElement = null;
+                let ulElement = null;
+
+                // 次の要素がpの場合
+                if (nextElement && nextElement.tagName === 'P') {
+                    pElement = nextElement;
+                    // pの次の要素がulの場合
+                    let nextAfterP = pElement.nextElementSibling;
+                    if (nextAfterP && nextAfterP.tagName === 'UL') {
+                        ulElement = nextAfterP;
+                        // デフォルトで非表示
+                        ulElement.classList.remove('expanded');
+                    }
+                } else if (nextElement && nextElement.tagName === 'UL') {
+                    // 直接ulが来る場合
+                    ulElement = nextElement;
+                    // デフォルトで非表示
+                    ulElement.classList.remove('expanded');
+                }
+
+                // ヘッダーをクリックしたときの処理
+                header.addEventListener('click', (e) => {
+                    // 質問項目のクリックイベントと競合しないように
+                    e.stopPropagation();
+
+                    // トグル
+                    header.classList.toggle('collapsed');
+
+                    // ul要素がある場合はトグル
+                    if (ulElement) {
+                        ulElement.classList.toggle('expanded');
+                    }
+                    // p要素はCSSで制御される（collapsedクラスに応じて表示/非表示）
+                });
+            });
+        }
+
+        // システム設定に基づいてテーマを適用
+        function applyTheme(theme) {
+            if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        }
+
+        // システム設定の変更を監視
+        function watchSystemTheme() {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+            mediaQuery.addEventListener('change', (e) => {
+                const savedTheme = localStorage.getItem('theme') || 'auto';
+                // 'auto'の場合のみシステム設定に従う
+                if (savedTheme === 'auto') {
+                    applyTheme('auto');
+                }
+            });
+        }
+
+        // 設定ボタンのドラッグ&ドロップ機能（PCのみ）
+        function initDragAndDrop(button) {
+            // タッチデバイスでは無効
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                return;
+            }
+
+            let isDragging = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+            let xOffset = 0;
+            let yOffset = 0;
+
+            // 保存された位置を読み込む
+            const savedPosition = localStorage.getItem('settingsButtonPosition');
+            if (savedPosition) {
+                const pos = JSON.parse(savedPosition);
+                xOffset = pos.x;
+                yOffset = pos.y;
+                button.style.left = pos.x + 'px';
+                button.style.top = pos.y + 'px';
+                button.style.right = 'auto';
+            }
+
+            button.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragEnd);
+
+            function dragStart(e) {
+                // 設定モーダルが開いている場合はドラッグしない
+                const settingsModal = document.getElementById('settingsModal');
+                if (settingsModal && settingsModal.classList.contains('active')) {
+                    return;
+                }
+
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+
+                if (e.target === button || button.contains(e.target)) {
+                    isDragging = true;
+                    button.classList.add('dragging');
+                }
+            }
+
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+
+                    xOffset = currentX;
+                    yOffset = currentY;
+
+                    // 画面外に出ないように制限
+                    const rect = button.getBoundingClientRect();
+                    const maxX = window.innerWidth - rect.width;
+                    const maxY = window.innerHeight - rect.height;
+
+                    xOffset = Math.max(0, Math.min(xOffset, maxX));
+                    yOffset = Math.max(0, Math.min(yOffset, maxY));
+
+                    button.style.left = xOffset + 'px';
+                    button.style.top = yOffset + 'px';
+                    button.style.right = 'auto';
+                }
+            }
+
+            function dragEnd(e) {
+                if (isDragging) {
+                    initialX = currentX;
+                    initialY = currentY;
+                    isDragging = false;
+                    button.classList.remove('dragging');
+
+                    // 位置を保存
+                    localStorage.setItem('settingsButtonPosition', JSON.stringify({
+                        x: xOffset,
+                        y: yOffset
+                    }));
+                }
+            }
+
+            // クリックイベントとドラッグを区別
+            let clickStartTime = 0;
+            let clickStartX = 0;
+            let clickStartY = 0;
+
+            button.addEventListener('mousedown', (e) => {
+                clickStartTime = Date.now();
+                clickStartX = e.clientX;
+                clickStartY = e.clientY;
+            });
+
+            button.addEventListener('click', (e) => {
+                const clickDuration = Date.now() - clickStartTime;
+                const moveDistance = Math.sqrt(
+                    Math.pow(e.clientX - clickStartX, 2) +
+                    Math.pow(e.clientY - clickStartY, 2)
+                );
+
+                // 短時間で移動距離が小さい場合のみクリックとして扱う
+                if (clickDuration < 200 && moveDistance < 5) {
+                    const settingsModal = document.getElementById('settingsModal');
+                    if (settingsModal && !settingsModal.classList.contains('active')) {
+                        settingsModal.classList.add('active');
+                    }
+                }
+            });
+        }
+
+        // 設定機能
+        function initSettings() {
+            const settingsButton = document.getElementById('settingsButton');
+            const settingsModal = document.getElementById('settingsModal');
+            const closeSettings = document.getElementById('closeSettings');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+
+            // ドラッグ&ドロップ機能を初期化（PCのみ）
+            initDragAndDrop(settingsButton);
+
+            // 保存されたテーマ設定を読み込む（デフォルトは'auto'でシステム設定に従う）
+            let savedTheme = localStorage.getItem('theme') || 'auto';
+
+            // トグルスイッチの状態を設定
+            // 'dark'の場合のみON、それ以外（'auto'または'light'）はOFF
+            darkModeToggle.checked = (savedTheme === 'dark');
+
+            // テーマを適用
+            applyTheme(savedTheme);
+
+            // システム設定の変更を監視開始
+            watchSystemTheme();
+
+            // トグルスイッチの変更を監視
+            darkModeToggle.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    // ON: ダークモードに手動設定
+                    localStorage.setItem('theme', 'dark');
+                    applyTheme('dark');
+                } else {
+                    // OFF: システム設定に従う（デフォルト）
+                    localStorage.setItem('theme', 'auto');
+                    applyTheme('auto');
+                }
+            });
+
+            // 設定ボタンをクリック（タッチデバイスの場合のみ）
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                settingsButton.addEventListener('click', () => {
+                    settingsModal.classList.add('active');
+                });
+            }
+
+            // 閉じるボタンをクリック
+            closeSettings.addEventListener('click', () => {
+                settingsModal.classList.remove('active');
+            });
+
+            // モーダルの背景をクリック
+            settingsModal.addEventListener('click', (e) => {
+                if (e.target === settingsModal) {
+                    settingsModal.classList.remove('active');
+                }
+            });
+
+            // ESCキーでモーダルを閉じる
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && settingsModal.classList.contains('active')) {
+                    settingsModal.classList.remove('active');
+                }
+            });
+        }
+
+        // すべての質問項目にクリックイベントを追加
+        document.addEventListener('DOMContentLoaded', () => {
+            // セクションのトグル機能を初期化
+            initSectionToggle();
+
+            // 設定機能を初期化
+            initSettings();
+
+            const questionItems = document.querySelectorAll('.question-item');
+
+            questionItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    // h3のクリックイベントと競合しないように
+                    e.stopPropagation();
+
+                    const text = item.getAttribute('data-text');
+                    if (text) {
+                        // 引用符を除去
+                        const cleanText = text.replace(/^["']|["']$/g, '');
+                        // まず音声ファイルを試す
+                        playAudioFile(cleanText, item);
+                    }
+                });
+            });
+        });
+
+        // 音声ファイルを使用して再生（フォールバック用）
+        function playAudioFile(text, element) {
+            // 音声ファイルが存在する場合はここで再生処理を実装
+            // 現時点ではWeb Speech APIにフォールバック
+            speakText(text, element);
+        }
+
+        // Web Speech APIを使用して音声読み上げ（フォールバック用）
+        function speakText(text, element) {
+            if (window.speechSynthesis) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+
+                utterance.onstart = () => {
+                    element.classList.add('playing');
+                };
+
+                utterance.onend = () => {
+                    element.classList.remove('playing');
+                };
+
+                window.speechSynthesis.speak(utterance);
+            }
         }
     </script>
 </body>

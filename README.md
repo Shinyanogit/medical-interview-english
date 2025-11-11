@@ -198,6 +198,94 @@ git push origin main
 
 **参考**: [Capacitor公式サイト](https://capacitorjs.com/)
 
+## YouTube文字起こしデータについて
+
+### Wisconsin身体診察動画の文字起こし
+
+YouTubeの再生リスト（[Wisconsin身体診察シリーズ](https://www.youtube.com/watch?v=REJrguhSig4&list=PL58EB7187C918A367&index=2)）から文字起こしデータを取得し、`サンプル資料/Data/Wisconsin/身体診察/`ディレクトリに保存しました。
+
+**取得方法**:
+```bash
+python3 download_youtube_transcripts.py
+```
+
+**取得内容**:
+- 29個の動画の文字起こしデータ（英語）
+- 各ファイルには動画ID、タイトル、言語情報が含まれます
+- 生データ: `サンプル資料/Data/Wisconsin/身体診察/`
+- 整形済み: `サンプル資料/Data/Wisconsin/身体診察_整形済み/`
+
+**文字起こしの整形**:
+```bash
+python3 format_transcripts.py
+```
+- YouTube字幕の短い行を結合し、読みやすい段落に整形
+- 文末記号（ピリオド、疑問符、感嘆符）で適切に段落を分割
+- 2-3文ごと、または200-250文字程度で段落を区切る
+
+**患者への指示の抽出**:
+```bash
+python3 extract_patient_instructions.py
+```
+- 文字起こしから「患者への呼びかけ・指示」のみを抽出
+- 視聴者への説明と患者への指示を自動的に区別
+- 出力先: `サンプル資料/Data/Wisconsin/患者への指示/`
+- 約215個の患者への指示を抽出（全29動画から）
+
+**注意事項**:
+- YouTubeのレート制限により、連続して大量のリクエストを送るとIPブロックされる可能性があります
+- スクリプトは各リクエスト間に3秒の待機時間を設けています
+- 既に保存されたファイルは自動的にスキップされます
+
+### 追加の動画プレイリスト（取得待機中）
+
+以下の3つのプレイリストからも文字起こしと患者への指示を抽出予定です：
+
+1. **Head and Neck Examination Series**
+   - URL: https://www.youtube.com/watch?v=iUCHCTOKiA8&list=PL7BA2576027185DF3
+   - 説明: 頭頸部診察の詳細シリーズ
+
+2. **Physical Examination Series**
+   - URL: https://www.youtube.com/watch?v=2umCjR2vRhU&list=PLC7C8F7FBEC35295D
+   - 説明: 身体診察の包括的なシリーズ
+
+3. **Clinical Skills Series**
+   - URL: https://www.youtube.com/playlist?list=PLi9o6OEHhWUgfQ86kx5mKkRdaSJJfgFI1
+   - 説明: 臨床スキルの実践シリーズ
+
+**現在の状況**: IPブロックにより取得待機中。しばらく時間を置いてから再試行予定。
+
+## 復元文書について
+
+### 1AM1100の復元
+
+`サンプル資料`フォルダ内の1AM1100のHTML文書を復元し、`サンプル資料/restored/1AM1100/`ディレクトリに配置しました。
+
+**復元内容**:
+- **Section 0**: 導入 (Introduction) - 4ファイル
+- **Section A**: 身体診察総論 (General Physical Examination) - 10ファイル
+- **Section B**: 頭頸部・胸部・腹部の身体診察 (Head, Neck, Chest, and Abdomen) - 42ファイル
+- **Section C**: 神経系の身体診察 (Neurological Examination) - 47ファイル
+- **Section D**: 筋・骨格系の身体診察 (Musculoskeletal Examination) - 19ファイル
+- **Section E**: 心肺蘇生法 (Cardiopulmonary Resuscitation) - 10ファイル
+- **Section Z**: 資料 (Reference) - 1ファイル
+- **合計**: 133個のHTMLファイル
+- 関連するCSS、JavaScript、画像、アイコンファイル、メニューファイル
+
+**復元方法**:
+```bash
+python3 restore_1AM1100.py
+```
+
+**閲覧方法**:
+1. `サンプル資料/restored/1AM1100/S1/index.html`をブラウザで開く（個別ファイル一覧）
+2. `サンプル資料/restored/1AM1100/S1/integrated.html`をブラウザで開く（統合ビューアー）
+3. または、各HTMLファイルを直接開く（例: `サンプル資料/restored/1AM1100/S1/B/S1BP001.html`）
+
+**注意事項**:
+- 元のHTMLファイルは相対パス（`../css/`, `../js/`, `../icon/`）を使用しているため、ディレクトリ構造を維持する必要があります
+- 復元文書は元の構造を保ったまま、現在のWebサイトへの組み込み方法を考察するための参考資料として使用できます
+
 ## 今後の改善案
 
 - 音声の速度調整機能
