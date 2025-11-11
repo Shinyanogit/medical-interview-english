@@ -377,6 +377,56 @@
             margin: 15px 0 !important;
         }
 
+        /* h2がcollapsed状態のとき、そのセクション内のすべてのul.expandedを強制的に非表示 */
+        .section.section-collapsed ul.expanded {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+        }
+
+        /* h2がcollapsed状態のとき、そのセクション内のすべてのulとliを非表示 */
+        .section.section-collapsed ul,
+        .section.section-collapsed ul li {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* h3、h4がcollapsed状態のとき、直後のul（liを含む）も折りたたむ */
+        h3.collapsed + ul,
+        h4.collapsed + ul,
+        h3.collapsed + p + ul,
+        h4.collapsed + p + ul {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+        }
+
+        /* h3、h4がcollapsed状態のとき、直後のpタグも折りたたむ */
+        h3.collapsed + p,
+        h4.collapsed + p {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+        }
+
+        /* h3、h4が展開されているとき、直後のpタグを表示 */
+        h3:not(.collapsed) + p,
+        h4:not(.collapsed) + p {
+            max-height: 500px;
+            opacity: 1;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+        }
+
         .description {
             color: var(--text-color-tertiary);
             font-style: italic;
@@ -1134,10 +1184,31 @@
                 section.classList.add('section-collapsed');
                 h2.classList.add('collapsed');
 
+                // h2をクリックしたときの処理
                 h2.addEventListener('click', (e) => {
                     e.stopPropagation();
+
+                    // セクション全体のトグル
+                    const isCollapsing = section.classList.contains('section-collapsed');
                     section.classList.toggle('section-collapsed');
                     h2.classList.toggle('collapsed');
+
+                    // セクションを閉じるとき、そのセクション内のすべてのh3、h4をcollapsed状態に戻す
+                    if (!isCollapsing) {
+                        // セクションを閉じる場合
+                        const subsections = section.querySelectorAll('h3, h4');
+                        subsections.forEach(sub => {
+                            sub.classList.add('collapsed');
+                            // 次のul要素を取得してexpandedクラスを削除
+                            let nextEl = sub.nextElementSibling;
+                            if (nextEl && nextEl.tagName === 'P') {
+                                nextEl = nextEl.nextElementSibling;
+                            }
+                            if (nextEl && nextEl.tagName === 'UL') {
+                                nextEl.classList.remove('expanded');
+                            }
+                        });
+                    }
                 });
             });
 
