@@ -378,12 +378,15 @@
         }
 
         .description {
-            color: var(--text-color-secondary);
+            color: var(--text-color-tertiary);
             font-style: italic;
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: var(--question-bg);
-            border-radius: 5px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background-color: transparent;
+            border-left: 2px solid var(--border-color);
+            border-radius: 3px;
+            opacity: 0.7;
         }
 
         ul {
@@ -1169,9 +1172,587 @@
             });
         }
 
+                // 音声マッピングを直接定義（CORSエラーを回避するため）
+        const audioMap = {
+          "Are there any other symptoms that come along with this, such as nausea, sweating, or shortness of breath?": "b3c1bcfb2d626663772f0e8ff5e2c6cc.mp3",
+          "Are there any prominent veins?": "ebd1c9a951166eb83ba55bc4f19b09ed.mp3",
+          "Are you currently sexually active?": "0598c40bef6c922243c8e10209c72197.mp3",
+          "Are you currently taking any medications, including over-the-counter drugs or supplements?": "595a02030662e52b0672ab13bcf409f1.mp3",
+          "Are you eating less or more than usual?": "eff5bac80b1cdcb92d618ceaa2414076.mp3",
+          "Are you using any accessory muscles to breathe?": "94f31fe12166712f04e15fd316d8ee59.mp3",
+          "Are your parents still alive? If not, what did they pass away from?": "5d3abfcaf355f4bacce83df7a7ae355d.mp3",
+          "Are your periods regular? How many days does your cycle last?": "3165a8c8352fa42398c9cae01c791211.mp3",
+          "As I bring the light in, I watch for a constriction of the pupil as the light strikes her pupil on this side.": "70f8df848603cdd4dba8f497cd0ab4e4.mp3",
+          "As I'm here I want you just to turn your head towards me now.": "48ac395204378401c4d66f75d06dc5ad.mp3",
+          "Breathe in and out slowly.": "938d54819751e3dd4800e759a6a79efa.mp3",
+          "Breathe in deeply.": "3dea4120e6b4c9040fe93d5d600c8402.mp3",
+          "Breathe in through your mouth.": "bb8261349a87fc017ee98c8056998833.mp3",
+          "Bring your knee up towards your chest.": "6fd491235cf8ff5ae35caa7322a569ff.mp3",
+          "Can you move it left? Good. Move it right, very good.": "ba73c31433ab93346bcb3a0f0aa7a9f4.mp3",
+          "Can you tell me the names and dosages of your medications?": "799cc16808f3ad0cea4deb510d3e44ac.mp3",
+          "Can you walk heel to toe?": "e9bab3af3aa72bb2b08fef41cf238bb6.mp3",
+          "Close your eyes tight.": "f5df9da146ea0bf31ddb2993ca913537.mp3",
+          "Close your eyes.": "d4213c519911e7079cfa5382c215a638.mp3",
+          "Do any of your siblings or close relatives have similar symptoms or conditions?": "a7083028daf4b07b5acc1827bf9094f8.mp3",
+          "Do both sides feel equally sharp?": "ffbefc89584aa732a9fa68ce60c747b2.mp3",
+          "Do you drink alcohol? If so, how often and how much do you drink?": "3272fb0a311ae93a9662edd0389ea2b4.mp3",
+          "Do you experience any pain, heavy bleeding, or other symptoms during your period?": "007329e6b09b1a8d2d7bab22cddf9f77.mp3",
+          "Do you feel this?": "a36fd7c7291466793d6da5e9b18cbc30.mp3",
+          "Do you feel well-rested when you wake up in the morning?": "fb8dc382fc87e4a52894a2d8a9c058fd.mp3",
+          "Do you have any allergies to medications?": "dd240dbd14f07f8cec4b74b6390518ff.mp3",
+          "Do you have any chronic medical conditions, such as diabetes, hypertension, or asthma?": "e4cddfbbedd353b3ba9d78357c704c1f.mp3",
+          "Do you have any concerns or worries about your condition?": "8948e3506c48ba15f3b3cc2384dc8e61.mp3",
+          "Do you have any difficulty falling asleep or staying asleep?": "4ebe721f86f77557ee09b21fa75c1c0a.mp3",
+          "Do you have any difficulty swallowing or nausea after eating?": "f1fa63d01a2b1a8b69a35b084fe5ced4.mp3",
+          "Do you have any pain, burning sensation, or difficulty when urinating?": "7310b2e8b3a0308b17590fea68b06dc7.mp3",
+          "Do you have any rashes or skin lesions?": "a95f8f25d6871ec8401f780ff7db056d.mp3",
+          "Do you notice any tremors or shaking?": "c8fbb39287b88989b7b0a97a0c60120c.mp3",
+          "Do you see this finger out of the corner of your eye?": "b1846f62050fd042eba23c6ca329c25d.mp3",
+          "Do you smoke? If so, how many cigarettes do you smoke per day?": "f5493207e50d246a61da48f5686592db.mp3",
+          "Do you snore or has anyone noticed you stop breathing during sleep?": "9244add3ca477776239b036f56c68fb4.mp3",
+          "Do you take any medications or supplements to help you sleep?": "6e46cd537a6ec97071fd95ec74cdb1d6.mp3",
+          "Do you use any form of contraception or protection?": "3c3c8d0d03bdfa1f30438663d25baa0e.mp3",
+          "Does it hurt more when I press or when I release?": "7e2a8acff6b9d43cbc485c5746f69c38.mp3",
+          "Does rest, activity, or certain positions affect the symptoms?": "00bc46098eb3de5f136412119d015e42.mp3",
+          "Does the pain radiate anywhere?": "bdb9353f981b0b78943c3f389ef9d99c.mp3",
+          "Does the symptom occur with exertion or at rest?": "07bfa1b1c28e97c5baa33970185ad859.mp3",
+          "Does the symptom spread or move to any other areas?": "fa536396f7b4bf6cbee476a17207ce39.mp3",
+          "Does this area feel tender?": "42d4057e67dda56fad1deed964c14419.mp3",
+          "Does this feel the same on both sides?": "e6f33ca4250d2e5ee1db7988d66dfc36.mp3",
+          "Does this hurt?": "447d9555abfbb2a18c35357301b9babe.mp3",
+          "Does your work involve any physical labor or exposure to chemicals or hazardous materials?": "5c02547c34e09edd96700f1f9ecc7ee2.mp3",
+          "Don't let me push your arms down.": "4d1864de6d18b0362463d7f3549cacfe.mp3",
+          "Don't let me push your leg down.": "6b147e6360197e8a80e6f50543fc47b0.mp3",
+          "Don't let me squeeze them together.": "ac8c7252964304d6a724de1932741676.mp3",
+          "Don't let me turn your head.": "9cd36c5da52b5b5d7fed15c369273ce7.mp3",
+          "First, I'll look at the outer part of your ears to check for any abnormalities.": "f501058ceb78e5f3f6c7d4f4cb6ce6aa.mp3",
+          "First, I'll look at your facial expression and skin color to see if everything is fine.": "abe8e5ef5aff38956f6b639ef1e93a65.mp3",
+          "First, I'll look at your lips to check their color and condition.": "a9f9bf3c92d4bbc27c00bb1fec3c065e.mp3",
+          "First, I'll look at your neck to check for any visible swelling.": "7576e1bff61faecd2cf277f1b2d45e62.mp3",
+          "Go faster.": "06ec14ac622c324c29045a7bffaf2cc2.mp3",
+          "Have you been under a lot of stress recently?": "0b947402d87962213f3f43c0b90f1ba5.mp3",
+          "Have you done anything to treat or manage these symptoms?": "41d303bccf28f03ef51ebac7bd700933.mp3",
+          "Have you ever been diagnosed with or treated for sexually transmitted infections?": "51ef8ed9a65fc904dd2ccfc36e721dc1.mp3",
+          "Have you ever been diagnosed with this condition before?": "bd7119937d34542117d5642209506f74.mp3",
+          "Have you ever tried to quit smoking?": "fd71cd2d155e56672f7999fefcd77d39.mp3",
+          "Have you experienced any weight loss or weight gain recently?": "bffb5a1edeec852f902f1f0ec2aa9acc.mp3",
+          "Have you had any major illnesses, surgeries, or hospitalizations in the past?": "7431a764c8fae2ca1326e078544036ab.mp3",
+          "Have you had any recent blood tests, X-rays, or other screening tests?": "c253524ca037ace834ba5cca80b7f540.mp3",
+          "Have you noticed any changes in the color or smell of your urine?": "339328c55995936904655116406f3599.mp3",
+          "Have you noticed any changes in your bowel habits, such as diarrhea or constipation?": "4c27a9a87e9166cc9b74a9540c71b883.mp3",
+          "Have you traveled abroad recently? If so, where and when?": "cc5065661da92dff1083a9acac13c75c.mp3",
+          "Have you tried any home remedies or alternative treatments?": "c16b0cc18b8f427e40ba5b98c6d1b356.mp3",
+          "Have you tried anything that helped relieve the symptoms?": "262d6ff6bee60b8db3b5ae73859c776b.mp3",
+          "Hold your elbows up in the air.": "b1d74dedb0adfc73561d8346073e4df5.mp3",
+          "Hold your leg out straight.": "c857695bb921ee3d972260980b57685a.mp3",
+          "How can I help you today?": "609d008804d9ec98ab0969d0325bc1e2.mp3",
+          "How do you usually cope with stress?": "0d6a0543e81e8fdd101c00c6944a536b.mp3",
+          "How is your appetite? Have you noticed any changes?": "6a1f1d8739064eacb9444d47cd85a278.mp3",
+          "How long does the symptom last when it occurs?": "b101594c927886e08f521304e40d148b.mp3",
+          "How many hours of sleep do you get per night?": "d353e9528a07151d6a5950d65c41bab3.mp3",
+          "How many years have you been drinking?": "7f7e12edd00146d8d3618d30dd03223b.mp3",
+          "How many years have you been smoking, or when did you quit?": "760de177f9c16cdb7a0f0c8f241d0643.mp3",
+          "How much does this symptom interfere with your daily activities?": "62f70c774e362837860126c884a67954.mp3",
+          "How often do you have bowel movements?": "1f3aae9e96f168db3c9f4c0177042926.mp3",
+          "How often do you urinate during the day and night?": "babe96ee0d5da413c7ec3b0b66fa8d0b.mp3",
+          "How stressful is your job, and does it affect your health?": "ac371113885969b46f9ba257627f08a6.mp3",
+          "How would you describe the quality of your sleep?": "45be9ed2038141e7ad3c0de28d9fa69b.mp3",
+          "How would you describe the symptom? For example, is it sharp, dull, burning, or aching?": "d87f8903db1f8b5c1c0a19e7dc746151.mp3",
+          "I also want to look at the conjunctiva. I'm just going to touch down here at the bottom part of your cheek.": "c18da580da8cb5a4fba16f8869fae164.mp3",
+          "I can see a surgical scar here.": "32b47572637977e54dd1c98ce21ae534.mp3",
+          "I don't hear any bowel sounds.": "1a4fff86ac2edeb4658120fd9d0d4661.mp3",
+          "I don't hear any bruits.": "6924d366e3242b96dd1a1c51f61904b8.mp3",
+          "I hear a murmur.": "91fdf38aac185a27a1688f02c09a4e43.mp3",
+          "I hear some crackles.": "2da15eaf97a0a39bc88c3a9fb7bae858.mp3",
+          "I hear some wheezing.": "f8c7a8132149002d0e927b2d9c614256.mp3",
+          "I hear what you're saying.": "877362adcb97d865b0223354c282641f.mp3",
+          "I need to use this ophthalmoscope.": "b0e3d0cf412f100e5e30efa42ce5b455.mp3",
+          "I understand.": "e6743827d260b141f8f4915daa38d1bf.mp3",
+          "I want you to flip your hands over like this.": "4981ffa7c61c1020f2f36cb42dc01e78.mp3",
+          "I'd like to ask you to put your hands on your hips and then just bring your shoulders forward.": "84ca6a62fbecd5d07425e888065ab693.mp3",
+          "I'd like to start off just by testing your visual acuity. We can test visual acuity both close and near vision.": "83c6763659c9a321934127a4dcb80cd3.mp3",
+          "I'd like to test this. I'd like you to shrug your shoulders.": "44de23b5c0faa2ac9ad89612845119ee.mp3",
+          "I'd like you to close your eyes. Can you hear this? Good.": "07a7a0422cb149fa5b2709222ba06202.mp3",
+          "I'd like you to take your left hand if you would, just plug one ear.": "7f05324af42ba99cf738ef417621b9f4.mp3",
+          "I'd like you to walk across the room.": "0881932932e675077dbc46a6bf5272a9.mp3",
+          "I'll ask you to look up just slightly. You want to be careful not to touch the nasal septum because that's a very sensitive area of the nose.": "7957d83dd92ca442e9f5361034b0e43b.mp3",
+          "I'll ask you to open up please. Open up your mouth, thank you.": "f1532695e5b1538760ccbb299e6f1ef5.mp3",
+          "I'll examine the painful area last.": "13d10d2636234eb028a4cf58bf7d5192.mp3",
+          "I'll gently feel the center of your neck to make sure your trachea is in the midline.": "1e155cefb6ab1c3999f1871341ad2210.mp3",
+          "I'll gently pull your cheek out a little to see better.": "1197f137fd17accc2d40aa0ba724ba67.mp3",
+          "I'll listen at several different spots.": "acc603ba8a8a8a4934f1572b3edad2f5.mp3",
+          "I'll look at the shape and skin of your nose to check for any abnormalities.": "922cbdb1e0ea2936cb05d09c59ccdfb6.mp3",
+          "I'll look to see if there's any swelling or redness.": "333abbcd3951aef8f89b0873a836417d.mp3",
+          "I'll only check one side at a time.": "5554e324bda76868c6d1e1a65d5a7acd.mp3",
+          "I'll place my fingers on the front of your neck and ask you to swallow again.": "a4122f935e4ed2614031ce63e9ed19d1.mp3",
+          "I'll press gently along different areas to check for any swelling.": "120610ab141a246661026e4a02e1d38d.mp3",
+          "I'll press gently on the area in front of your ears.": "d96de19f83aff9a1bd9302c5a41d80f5.mp3",
+          "I'm checking for a Babinski sign.": "346b00106ab1b1024dcd277f4893545b.mp3",
+          "I'm checking for any abnormalities in the lungs.": "e38fa247f92394bf3df652e13995df8a.mp3",
+          "I'm checking for any thrills.": "671b2fa83e068c00f2399dd38edf9615.mp3",
+          "I'm checking for any unusual sounds from blood vessels.": "c5655494ee9cced7adf2dd677414d2c2.mp3",
+          "I'm checking for any visible masses or bulges.": "23d3f34f90267954956e2e1e6e6267d4.mp3",
+          "I'm checking for any visible pulsations.": "e1bd6939fa86979832f015afb5b43474.mp3",
+          "I'm checking for bruits.": "e32633d24b63afcd89ae08a1c9b90e3d.mp3",
+          "I'm checking for jugular venous distention.": "3c5c867074bbd838eea808ad4ce722f5.mp3",
+          "I'm checking for splenomegaly.": "915206d6aec1b7834e34db3586b5e82a.mp3",
+          "I'm checking for striae.": "516ba6de3b526efa98b37f1b9e88dde4.mp3",
+          "I'm checking if both sides move symmetrically.": "a762fefe34b6dd5c9afec3041410ff72.mp3",
+          "I'm checking the aorta.": "095bb5616a2a3e2050ced8685876000f.mp3",
+          "I'm checking the liver span.": "0cf1c57d403e7e1eb9f57f4f6af35447.mp3",
+          "I'm checking your ankle reflex.": "cee4717d0bcfcb0799a54aaf4ecc3d04.mp3",
+          "I'm checking your biceps reflex.": "db90ba26393de866f94d05561228212b.mp3",
+          "I'm checking your triceps reflex.": "70e4b5282b8e3248cc475f3de6bc5ffe.mp3",
+          "I'm feeling for any masses.": "ab576fae8cca7e674c549010ed1aa1e4.mp3",
+          "I'm feeling for the liver edge.": "2a3a88cb5798f9c39433e59f9d2a4429.mp3",
+          "I'm feeling for your spleen under the left rib cage.": "329c1bb956028677c03be2c1f65f622d.mp3",
+          "I'm finding the level of the diaphragm.": "ee19bbf588d1a8b8beea7e8c62bb683d.mp3",
+          "I'm going to ask that you slip your glasses off if you would.": "1ae064664ab466102820698cede0a4ac.mp3",
+          "I'm going to ask you if you could swallow for me please. Good.": "af819922944aaed2a32acdbef498cff9.mp3",
+          "I'm going to ask you if you hear the vibration, please tell me when you no longer hear it.": "572a53a32ce57764fa3fd009fb7eecd7.mp3",
+          "I'm going to ask you to look at the corner of the room.": "c894b575bbe0c04b174a0f8a08925d2d.mp3",
+          "I'm going to bring the light in from the outside and just have you look at my nose.": "8c6be3543b305967112fc781f167dfd8.mp3",
+          "I'm going to check for any swelling, especially around your eyes.": "db202ef34bfdca6d4303b7301f344403.mp3",
+          "I'm going to check if your nasal passages are clear.": "f7edcd541706d6a8a79cce24f0cbc337.mp3",
+          "I'm going to check your eyes from the side to see if there's any bulging.": "99830681ddf228b8c84c3d98642a8936.mp3",
+          "I'm going to check your gums for any redness or swelling.": "46f138cae66a80ce8c8613ab6d060b55.mp3",
+          "I'm going to check your muscle tone.": "6f5901b6182dbb1cb2c1fd30de439055.mp3",
+          "I'm going to check your pupil reflexes.": "d791dd37c17e25bbe4f2640856613006.mp3",
+          "I'm going to check your reflexes.": "e1734d40a800062435b7fb539457681a.mp3",
+          "I'm going to check your tonsils now. Please say 'ah' again.": "26e15f7ef45885467e6f72580d0e1769.mp3",
+          "I'm going to examine your abdomen.": "a08422e54e2f2638d15af2959c76d651.mp3",
+          "I'm going to examine your chest.": "8e46390a03f7d28b212583e1f6487e95.mp3",
+          "I'm going to feel for your heart beat.": "d1be70443c8487aa1a6e3e543519ac95.mp3",
+          "I'm going to feel for your liver.": "6badfd8e24782cf07453ad0030a00523.mp3",
+          "I'm going to gently feel your abdomen.": "15f462bced3bb12d79ebd10e3e31d6bf.mp3",
+          "I'm going to gently press around your ears and pull on your ear lobe.": "dc30a86d3fbef48bd909861990f5622d.mp3",
+          "I'm going to have you lie down for this test.": "668d856e2aa80bf44cd402303f8a168d.mp3",
+          "I'm going to have you lift your gown up to expose your abdomen.": "a498b306d7b9db4b13506d10a1ced2f8.mp3",
+          "I'm going to just bring my finger and put it right on your cheek here.": "27af422ef726cd1d9c9371b81d462f1f.mp3",
+          "I'm going to lift your hair up out of the way. You can see a triangle appear as she does this.": "ec18346da2f3a3f0032dd876a2a62c84.mp3",
+          "I'm going to listen for bruits over the abdominal vessels.": "4246545418d3bc46198861d49e30bd9c.mp3",
+          "I'm going to listen to your abdomen with the stethoscope.": "96bc508a1c9f87ad46cb0dc48a384716.mp3",
+          "I'm going to listen to your carotid arteries.": "cba0d4d08953a22e2b2313c1eee58f95.mp3",
+          "I'm going to look at the back of your eyes.": "3748b5a70d79a164712326498f9b8b7f.mp3",
+          "I'm going to look at the distribution and texture of your hair. This will just take a moment.": "63dd79b25804a161bb1e15fe99b86c2d.mp3",
+          "I'm going to look at the veins in your neck.": "ebd0f3b6af8ea27d55a8d1d0c5ddb188.mp3",
+          "I'm going to look for any rashes or bumps on your scalp.": "af64d7abfe4d7b18c6b5b28c8d9b3e3d.mp3",
+          "I'm going to move my fingers across your head like this. It should just feel like gentle pressure.": "da90a4dd27a0d9e262aaa2d13b138ddb.mp3",
+          "I'm going to move your arm.": "5b1302c2bbe1f5e78db3ff409e3ba722.mp3",
+          "I'm going to palpate your carotid pulse.": "27fb4ae5a04ccf25c261c480a568c47d.mp3",
+          "I'm going to palpate your sinuses. I'll place my hands on the side of your head.": "63fdc4ca9155236f2e8221a06efa8b71.mp3",
+          "I'm going to percuss your abdomen.": "027335d6610df2cb06fff3db29298a4f.mp3",
+          "I'm going to percuss your back.": "eee79e3304b14a2b605d5d165d785fb0.mp3",
+          "I'm going to percuss your liver.": "d709144775b85490340c95415321a79c.mp3",
+          "I'm going to percuss your spleen.": "0b68cef2cfe3a9413a2568c4a63c4006.mp3",
+          "I'm going to place this on the top middle of your head. Do you hear that on one side, both sides, or right down the middle?": "8251b3d4d975f67030349947bcae0251.mp3",
+          "I'm going to position myself about two feet in front of you. I'd like you just to look in my eyes and I'll return your gaze.": "2af504141aa1eb2d46fbd79a1b75c190.mp3",
+          "I'm going to press here with both hands. It should just feel like gentle pressure.": "96c55abdcec2496dad7f7c94759f54ee.mp3",
+          "I'm going to put my finger about 10 inches from your nose. I want you to look far and then focusing on my finger.": "5ee236f703c5d1ccbaaa984602bbdca0.mp3",
+          "I'm going to shine a light in your eyes.": "503b5d5f45fee6c8435af0eb284cce26.mp3",
+          "I'm going to stroke the bottom of your foot.": "7b1b84706acdc767340baf555f99f755.mp3",
+          "I'm going to tap on your chest.": "c6b682b349b936a9bb5aad2b2e1798aa.mp3",
+          "I'm going to tap your knee with this hammer.": "040e6486d2452d5429fddfc6b10957db.mp3",
+          "I'm going to test for sensation in the three divisions of the trigeminal nerve. V1 over the forehead, do you feel this here? Good.": "4250d2320112ca6c40aaf51c8f5760e5.mp3",
+          "I'm going to test the sensation on your face.": "4103a6653aacb886c75d528b59882a0a.mp3",
+          "I'm going to test your arm strength.": "e1173c32630d766dfb544d259b114cda.mp3",
+          "I'm going to test your balance.": "d706372b408a9473ad5c893250a831ca.mp3",
+          "I'm going to test your coordination.": "e178d12d71cd060327999e61571921e0.mp3",
+          "I'm going to test your eye movements.": "9eb82062f136f579ac22c7c18473cec2.mp3",
+          "I'm going to test your facial muscles.": "76958906978e79efe09d04cb07fd1917.mp3",
+          "I'm going to test your neck muscles.": "2420711ff603aae1cdf82727728f2fbd.mp3",
+          "I'm going to test your sensation.": "cbab86236d241d53736372e8aa25009f.mp3",
+          "I'm going to test your visual fields.": "647886ff0b9ec35e0519cf6800e48953.mp3",
+          "I'm here to help you.": "0e470555442fd67e0e683b0cc1a631d0.mp3",
+          "I'm just going to whisper over on this side. Bird, bird, very good.": "020484b8cfef6940f44fed558e779e12.mp3",
+          "I'm listening all over your back.": "a87f1ee5bf58e06b26054c989d03aaf7.mp3",
+          "I'm listening at the aortic area.": "745c85f44fcaa422c8cd01b222c4c537.mp3",
+          "I'm listening at the mitral area.": "089c813b1a5994082d5bc9704f9169aa.mp3",
+          "I'm listening at the pulmonic area.": "c0206dbf1a34b7a6373053930ae30f1f.mp3",
+          "I'm listening at the tricuspid area.": "cd45c40bd2f9e63d3d212fbcdb5c54c9.mp3",
+          "I'm listening for bowel sounds.": "ab40630a569e6578203c5886bce9aa60.mp3",
+          "I'm listening over the renal arteries.": "d4057a44e7a4985342a42516b0aeecb7.mp3",
+          "I'm looking at the back of your throat.": "527262eec3a8f61a94953a7de1ed333a.mp3",
+          "I'm looking at the contour of your abdomen.": "47c115249797eeaeb872863c445392dc.mp3",
+          "I'm looking at the shape of your chest.": "ff549b21352167b9646441897a7e27e9.mp3",
+          "I'm looking at the shape of your spine.": "84e4af4448ff37eeb3b7a2617af0a652.mp3",
+          "I'm looking at the skin of your abdomen.": "abbf988bd158a17559a490acd39700b6.mp3",
+          "I'm looking for any involuntary movements.": "d83a5ddddf56de6bdecee551a65ed875.mp3",
+          "I'm looking for any pulsations.": "8cbcdb340d7b9d50e2667ae49d282da7.mp3",
+          "I'm looking for any retractions.": "c5f742f162cf0b7d37bcb9c93cc75dda.mp3",
+          "I'm looking for the point of maximal impulse.": "ac17a47a37e7692d487aa12979ed7d32.mp3",
+          "I'm observing your breathing pattern.": "30abb26ab6f495c6e16e8ce3f2222e1d.mp3",
+          "I'm observing your chest movement as you breathe.": "6016bd0709b314849908d9fb33fe3941.mp3",
+          "I'm palpating the point of maximal impulse.": "d560045832063b0213b5bfabb5584382.mp3",
+          "I'm percussing to check for fluid or masses.": "d0b386d21fdc7e8f2d44209cd26c59aa.mp3",
+          "I'm sorry to hear that.": "60ad2c7bccc5aa3209349f77988dee5d.mp3",
+          "I'm tapping to check for fluid or masses.": "2d3a0157738e523152052f02c4c1782b.mp3",
+          "I'm using two fingers placed very gently.": "3eb092f411dcde710525aac27deb398d.mp3",
+          "I'm watching how your chest moves when you breathe.": "9c92baa2eab08226d66664a88cb891c5.mp3",
+          "If I suspect any enlargement, I may need to listen to your thyroid with my stethoscope.": "197a0c45c3fad9bcb480b0623bf5db9f.mp3",
+          "If so, how much weight have you lost or gained, and over what period of time?": "8a3b82c06238d143b8356c39262eca63.mp3",
+          "If you can lift your tongue up, I can see underneath it. Very good.": "1758decb5c481129e89cefe90380e5d6.mp3",
+          "If you stay open, I'll look over to this side.": "3cebf627f3366d1d27c9b5c1b966a2f0.mp3",
+          "Is it the same on both sides?": "bac48211e976336120508e984ec41754.mp3",
+          "Is it the same on both sides? V2 here, do you feel that? Good.": "114c1ba355f95dc5b1e30574ca5c0ba9.mp3",
+          "Is the symptom affected by changes in position?": "ec30bd492e06399723bac67be53b652c.mp3",
+          "Is the symptom constant, or does it come and go?": "3ebac984b374b770aac69bde9c1d42a7.mp3",
+          "Is the symptom localized to one area, or does it affect a wider region?": "0d26f86486f64f29ba415a8335d68303.mp3",
+          "Is there any blood or unusual color in your stool?": "6e5793b48bb1c7bf209d3905e72ad9f9.mp3",
+          "Is there any history of serious illnesses in your family, such as heart disease, diabetes, or cancer?": "6e1295dda144405eb8963b24e24d1569.mp3",
+          "Is there any particular time of day when the symptom is better or worse?": "9bea49288b4add253773a9dfa5d1034a.mp3",
+          "Is there anything else you'd like to add?": "1e9d23026653b17e8bc8f8c25317bafb.mp3",
+          "Is there anything specific you're worried about?": "54c82c8e8c6ee1090738b9ac260f47c8.mp3",
+          "Is there anything that makes the symptoms better or worse?": "91eb6b225de65b3b6074e5a41079e6f6.mp3",
+          "Is this painful?": "84e841eea2f6fc5f00064780af7324f3.mp3",
+          "Is this the spot that hurts?": "ff464008fb368ac12b68356c1eadf8cf.mp3",
+          "Is your abdomen flat, distended, or scaphoid?": "bd16adc8a1bf7ab19355a70d26dd8ff4.mp3",
+          "Just move your eyes.": "956ca9486c9182f1f8289fcf514d5a04.mp3",
+          "Just to make sure I understand correctly, let me go over what you've told me.": "608d1aabbb5df7f73a083f2f4cce1726.mp3",
+          "Keep alternating palm up and palm down.": "2d4e17ec6ae5128ddb0c6e42a70e81a2.mp3",
+          "Keep going back and forth.": "363cef438adc7a9320092c530c1f7559.mp3",
+          "Keep taking deep breaths.": "ba668dc5d2161b46e85538f57aa20050.mp3",
+          "Keep your hands steady.": "31ab457d81c0e7da915ab5a1e13059e5.mp3",
+          "Keep your head still.": "ccdf935bc2bae7d84b1b0159b6e4e01b.mp3",
+          "Let me lift your gown.": "d0c21e8feff4b8fbb188431c3094f330.mp3",
+          "Let me summarize what we've discussed today.": "ffc8b44d6c7f4bf554a1d6647e17db7f.mp3",
+          "Let your leg hang loose.": "53d9a211505da9e0ae1bcbf472b32e2e.mp3",
+          "Let's do the same thing on the other side. So we'll switch our hands around.": "2c0b89301903a6fd2524e230743a84c1.mp3",
+          "Mary would you hold this card for me about 14 inches or so in front and then I'm going to ask you to close one or cover one eye with your left hand and then read for me if you would the lowest line that you can read on this card.": "790b6f1becd0ccca105e69b074bc743d.mp3",
+          "May I look under your tongue please? Very good.": "25b4d7ddd3ab940c98be4c8bc117b1b1.mp3",
+          "Move your tongue left and right.": "aa8a6f21db6378f132f7cbdbaee6ebb8.mp3",
+          "Next, I'll check the glands under your jaw.": "07bacfd01b62721064db9414309c803f.mp3",
+          "Next, I'll examine your scalp by parting your hair.": "e247b4e8dcdfeaf9929456c1fe7ac3b0.mp3",
+          "Now I'd like to check your hair.": "397705f9b2857f1bf045449008decc2e.mp3",
+          "Now I'm going to check the lymph nodes in your neck and head area.": "613ceb58c08a7cd9e1dc257a2ced1510.mp3",
+          "Now I'm going to check the position of your trachea.": "ac84abe8c0621fb1166d6223fda81dfc.mp3",
+          "Now I'm going to check your salivary glands.": "ac361617d178ac86c9ec20c5a79c6269.mp3",
+          "Now I'm going to check your spleen.": "ef03705b9b62b295eca3de506a07f301.mp3",
+          "Now I'm going to examine your ears.": "5ecfb533be0505c7c78a1e3311ab9028.mp3",
+          "Now I'm going to examine your head and face.": "284356a0449f8a7b66d7ae3090b0c69e.mp3",
+          "Now I'm going to examine your mouth.": "f569bdb0436ec553bbf736257f3d3982.mp3",
+          "Now I'm going to examine your nose.": "c8270c85e64866250b7628657d645d67.mp3",
+          "Now I'm going to examine your thyroid gland.": "cfb9a42db98aa2becb9972a4932cc28c.mp3",
+          "Now I'm going to feel your thyroid gland.": "d01c8dc607b0f5e96818e59f922c2edf.mp3",
+          "Now I'm going to gently press on your scalp and skull to check for any tenderness.": "bc7899f46c63f791f8bc4e29161759fd.mp3",
+          "Now I'm going to listen to your heart.": "fa6f6e420bed676117168db4cf6aa3f5.mp3",
+          "Now I'm going to listen to your lungs from the back.": "921e0084ad29c3f1b06b80c6ef893857.mp3",
+          "Now I'm going to listen to your lungs.": "91ab29b0db12d154341e310a9caa0034.mp3",
+          "Now I'm going to look at the back of your eyes using this ophthalmoscope.": "8cd35aa63607b8c471a1f167fb11847a.mp3",
+          "Now I'm going to look at the inside of your cheeks.": "ad2cca253b4cd5ecfd19337fc89b089d.mp3",
+          "Now I'm going to press a little harder.": "5034d9e6889ce20c36a79b2a3c73eb6d.mp3",
+          "Now I'm going to test your leg strength.": "9b425b075df7ed5e05ea9077e84a94ca.mp3",
+          "Now I'm going to use something sharp.": "556ae55bc143b309eeb6e4a3c5841f1e.mp3",
+          "Now close your eyes.": "7b088ea6e1d90db613b0b17e69624bb3.mp3",
+          "Now do the other side.": "f8a818a57dc14b9319f83f6b431f1335.mp3",
+          "Now if you can say 'ah', 'ah', very good.": "5e6f3cc50ceb9059b620c078293f77f7.mp3",
+          "Now let's try the other side.": "33c2adb4f31189befe6652619522d390.mp3",
+          "Now may I examine your back?": "259c6726b16c02e6426b2ab653ce250d.mp3",
+          "Now speed up.": "d10d809fc2db3813590b933005c527f4.mp3",
+          "Now turn to the right.": "7628ad240e0288a01055a43866973325.mp3",
+          "Now walk back towards me.": "cf6bb43980f9b71ff4aa206cd48ded72.mp3",
+          "On a scale from 1 to 10, how severe is it?": "37f5f90d5e3e25cc5fa1a5e03439ca2a.mp3",
+          "Open your mouth and say ah.": "4f37735bbfdb63ee8c80a810b653f793.mp3",
+          "Place one foot directly in front of the other.": "a1ea3fd0bde467c3253bebe93be856f1.mp3",
+          "Please close one nostril with your finger and breathe in through the other one.": "665b41453a5584a14c1cd971ca24cb1d.mp3",
+          "Please follow my finger with your eyes.": "e6a072edc3f1b19b71f66412cd2d8fd0.mp3",
+          "Please hold your arms out in front of you like holding a pizza.": "22f94c6e2fa9357923df7a6d6d24608f.mp3",
+          "Please hold your breath for a moment.": "e3177e36b2c8d01d3d22d1ae30143271.mp3",
+          "Please keep looking at that spot on the wall. I'll need to get quite close to your face.": "f08727d6484287cb02c84b1bd2623ff9.mp3",
+          "Please keep your mouth open while I examine this.": "9ca3a9a00784ae8c4ca7fe18f854e413.mp3",
+          "Please let me know if any of these spots feel tender.": "67c2fc25f7e5132de2fec250d87b8860.mp3",
+          "Please let me know if you feel any pain or discomfort.": "797cb200cd590274fb5878a6c3649a0f.mp3",
+          "Please let me know if you feel any pain or tenderness.": "8c52bc40dd3925ee7928be42f098185d.mp3",
+          "Please lie back at a 45-degree angle.": "d408522ba201822a97d7c15741ac2e31.mp3",
+          "Please lie back.": "52933500600cb66df0e47dcc2aebf4c9.mp3",
+          "Please look at my nose.": "1c559204aa52e00cf4f5447ed0a917cd.mp3",
+          "Please look straight ahead and relax your face.": "c080229b6e8d054dcc9cf3bd240dbb82.mp3",
+          "Please look straight ahead while I check this.": "e6849e9c34631e587e63edf16939263b.mp3",
+          "Please look straight ahead.": "8b87c64bf5a8a29ca7c7d5b6fdbb16fc.mp3",
+          "Please look straight at my eye.": "271103ddbec07ff47a1bb410ffcdc1c6.mp3",
+          "Please relax your arm.": "87b818951b37cc80610e3c63cb2d381e.mp3",
+          "Please relax.": "f9de17106f0f6b1ee0f38719f1291dba.mp3",
+          "Please shrug your shoulders.": "6edf1334c51ee1c267f2f8f111147dbc.mp3",
+          "Please sit up straight.": "7d76438feb53fcca45b3557d75358b5e.mp3",
+          "Please smile for me.": "636329846e2ea80f83e70371125bea17.mp3",
+          "Please stand with your feet together.": "8fef10364de47b0151976a9292127c85.mp3",
+          "Please stick your tongue out.": "bdcded4e97ebae33245ec2f7279ed552.mp3",
+          "Please swallow for me.": "e5063b5b622b4e5af58aaeeba1d664b7.mp3",
+          "Please take a nice deep breath.": "d99e347afa26ac232cb61d9454536cbd.mp3",
+          "Please take deep breaths through your mouth.": "f28a877b7454ac589e0b87cdc2cd15f1.mp3",
+          "Please tell me if this causes any pain.": "c1d6a311916d017e4f94cb69b99f6f3a.mp3",
+          "Please tilt your head slightly to the side.": "b8aeefff22cf49c61a7924e8dcf30f1e.mp3",
+          "Please try to relax your abdominal muscles.": "60064812c0a5075133ad6b7e021c2593.mp3",
+          "Please try to relax your neck muscles.": "e933caed9c906634e790ec11dcb0839a.mp3",
+          "Please, go on. I'm listening.": "ca8a92ca3242c3b83bdd70e8cf3e1145.mp3",
+          "Point your toes down.": "c70746be87e38fab9ac84c56e3bd0790.mp3",
+          "Puff your cheeks out.": "b3f3be40e09c89ac4d118709dcc6d1f9.mp3",
+          "Pull my hand up towards your chin.": "c19349f6563fdf38ac2a452cbffdf357.mp3",
+          "Pull your foot up towards your chin.": "abc0c99499441878c36e811873728f57.mp3",
+          "Push down on my hand with your foot.": "b4c9dc90b5326f47df6809e344bde70f.mp3",
+          "Push your tongue against the inside of your cheek.": "3862ba2d344cf6eda369ab2c266f58de.mp3",
+          "Raise your eyebrows.": "974275468b28d96dbc34ad6743bb95d7.mp3",
+          "Show me where it hurts.": "bb288b152bac7db14dca30c9ee4686b9.mp3",
+          "Show me your teeth.": "5e57854a4d4694c032fa4e64931b1bb9.mp3",
+          "Smile for me. Good.": "f8daa8d685dc35ae9de16cc8c0e4c45b.mp3",
+          "So, to recap, you've been experiencing...": "5943cf8db4d8cce38ad574f11833ce96.mp3",
+          "Spread your fingers wide apart.": "4dfb34bf2517eb072158fe00ec6c8fd1.mp3",
+          "Squeeze my fingers as hard as you can.": "48aa6a44bc56e6235156b1902f8f103f.mp3",
+          "Start at your knee and go down to your ankle.": "6b8fed6ea6059cedee86e5ca0af6b8fb.mp3",
+          "Stick your tongue back out, very good.": "37bd73176be2ad8e95b83dcd010b07a1.mp3",
+          "Take a nice deep breath.": "65b55a0bb2d1b1b87f77fbf4b011ec7e.mp3",
+          "Take another deep breath.": "92d758ad9e570cddef7945d76cea0374.mp3",
+          "Take some deep breaths.": "6427d9e5c23cb76ecfe10b8848d05b30.mp3",
+          "Take your heel and run it up your shin.": "6d4646a485ecd25a9971a535c6801284.mp3",
+          "Tell me how many fingers you see.": "be4f435e6e164c7806aba0289c856a7c.mp3",
+          "Tell me if this feels sharp or dull.": "c90c4876a539fa3502932c88a754a98f.mp3",
+          "Tell me if you see double.": "c100707d979f6cd3a9b40f6161628423.mp3",
+          "Tell me if you see one of them moving to the left, to my left, to my right.": "c5c1629a35b2d62cf2221f4fba3d4c28.mp3",
+          "Tell me more about that.": "78f015a76f52ab02aa1b4fed5a10724c.mp3",
+          "Tell me when you feel this.": "c805601d22ed4ffc6efc795897caa65c.mp3",
+          "Thank you for sharing that.": "b9f1456b12669325237adb59983f7f17.mp3",
+          "That makes sense.": "0d816d868c1ddb6f605d4e50fb8e7c76.mp3",
+          "That must be tough for you.": "24cf5abe2a8b6efe7fbf84c2f8b784f6.mp3",
+          "That sounds really challenging.": "d23057585eeb1a25abc80c52ea00ae3f.mp3",
+          "The maxillary sinuses. I wonder if you tell me, is this painful in any way on one side or the other?": "67953d40567d547d2f9b281c4350028c.mp3",
+          "The percussion note is dull.": "8712c6f26607583899eaecf3f7e84502.mp3",
+          "The percussion note is resonant.": "61058e7410dfb9efdc8e8b2875a113a2.mp3",
+          "The percussion note is tympanic.": "a531014da48920f058abe26c545fe169.mp3",
+          "This helps me feel if there are any lumps or enlargement.": "b0334b1f8291f6bee606011050b7b6bf.mp3",
+          "This may feel a little uncomfortable.": "3570df3a022cae8924373f678ae9a746.mp3",
+          "This might be bright.": "d0478de30c88c4bf7bc8c3a5fb3b5bfc.mp3",
+          "This will help me check the blood vessels and nerves inside your eye.": "35e8b5b9e22d8173821255cbff5d6053.mp3",
+          "Touch your nose with your finger, then touch my finger.": "c8f2161092893dff1941bbfa8f13db9d.mp3",
+          "Try not to sway.": "6d93e7820d16fc6c65e92163f5284a65.mp3",
+          "Try to keep breathing normally.": "100ab5e67fd60c032b09dc17c3d25870.mp3",
+          "Turn your head to the left.": "d72b286374fa82ee44e5d6da2f2461b3.mp3",
+          "Using the H pattern, what I'd like you to do is just watch my finger.": "a590846da38db28b045e1c482e24df01.mp3",
+          "Was this weight change intentional or unintentional?": "d3a3d76065da30a7acd1e81faf1ce8ce.mp3",
+          "We'll work through this together.": "cf590a1627e4e554e16697ecac21123c.mp3",
+          "Were there any abnormal findings in your recent health screenings?": "6d747a2c78a2d4c7318778067421783c.mp3",
+          "Were there any events or activities that preceded the symptoms?": "b03589c686eef5f29c8f55ecd071153a.mp3",
+          "What are the main sources of stress in your life right now?": "319fc8f66124963140c1bc1bd47901da.mp3",
+          "What brings you in today?": "3aa83727af757f6cbb61af3023fb60d0.mp3",
+          "What can I help you with today?": "092e2f3fedb7c0f7d758103bfeeb9a9e.mp3",
+          "What do you do for a living?": "7227af708952bd79a70b2f249a3aaa63.mp3",
+          "What do you think is causing your symptoms?": "b241a2b798f5e970c5440052543bc2ea.mp3",
+          "What type of alcohol do you usually drink, and how many drinks per day or week?": "58c982f1c1b7d26e3cbd7ac4214ff5b8.mp3",
+          "What were you doing when the symptoms began?": "94fdefa704aa120e89f4dc16e766a799.mp3",
+          "When did the symptoms start? Was it sudden or gradual?": "38d57b94e7c32f9c7e4bd85f11a243f0.mp3",
+          "When was the first day of your last menstrual period?": "945787949b7080e7788aa245efdfb4ad.mp3",
+          "When was your last health check-up or physical examination?": "11e8d1502e32c6da2353bfa807a97250.mp3",
+          "Where exactly is the symptom located? Can you point to it?": "06dd62ecd05d17dbf0d2196624418fba.mp3",
+          "Would you puff your cheeks out like this for me? Good.": "739a5e039d2fbd144a595f7fc2a5e4b4.mp3",
+          "You can relax your shoulders.": "d8e7a7db8ced4f7cd8f10286e3a676dd.mp3",
+          "You might see a bright light for a moment, but it won't hurt.": "ac65027b943ddd48c363dc7b11ed06a9.mp3",
+          "Your abdomen is soft.": "30b7e68fc122b4d6be366b4e62b56a85.mp3",
+          "Your bowel sounds are hyperactive.": "513ae1b24d3e2021afdc71a728275967.mp3",
+          "Your bowel sounds are hypoactive.": "720eee3e2ac11ebdbb0b28b5f8808b78.mp3",
+          "Your bowel sounds are normal.": "fd9624e3bf2f43cde1ab2b05a67ce712.mp3",
+          "Your breath sounds are clear.": "20c2d4f536eac5caff16edfa85e669ac.mp3",
+          "Your carotid arteries sound normal.": "fed308468804720f8e0d36eb013f0c45.mp3",
+          "Your heart sounds are normal.": "790c7bf1122ae98d440ae611424a97cd.mp3",
+          "Your liver appears enlarged.": "1a379797ca414e4b56efcec17a24718c.mp3",
+          "Your liver is normal size.": "1b8dfe3e7e02fad91a15303d02c19ffc.mp3",
+          "Your liver size is normal.": "dc26118fe831c71ffb19156434c3da9a.mp3",
+          "Your lungs sound clear bilaterally.": "2c707b4cfed47f9f9b358f17f82c98e3.mp3",
+          "Your palate moves symmetrically.": "0aff1a32d6c44c5d99bd16a7eb5cbe03.mp3",
+          "Your pulse is strong and regular.": "78e567485fa5145e8c89bd4a7824d404.mp3",
+          "Your pupils are equal and reactive.": "96da1a139db63df84ae9f04cf2621895.mp3",
+          "Your spleen is not enlarged.": "7c2dc391e50a4c2d8c02c1014441338e.mp3",
+          "Your spleen is not palpable.": "eb6549e5215687cbe3ab7ce8dafb4fe9.mp3",
+          "Your toes should curl down.": "31b4ffb2d1f9f2ae619ac17161c25503.mp3"
+        };
+
+        // ページ読み込み時にaudio_map.jsonを読み込む（既に埋め込まれている）
+        let audioMapLoaded = true;
+
+        let currentAudio = null;
+        let currentUtterance = null;
+        let currentPlayingElement = null;
+
+        console.log('Audio map loaded:', Object.keys(audioMap).length, 'entries');
+
+        // 音声ファイルを使用して再生
+        async function playAudioFile(text, element) {
+            console.log('Attempting to play audio for text:', text);
+
+            // マッピングからファイル名を取得
+            const filename = audioMap[text];
+
+            if (!filename) {
+                // マッピングにない場合はエラーを表示（Web Speech APIは使わない）
+                console.error('Text not found in audio map:', text);
+                console.log('Cleaned text:', text);
+                console.log('Available keys count:', Object.keys(audioMap).length);
+                console.log('Sample keys:', Object.keys(audioMap).slice(0, 5));
+                // 類似のキーを探す
+                const similarKeys = Object.keys(audioMap).filter(k =>
+                    k.toLowerCase().includes(text.toLowerCase().substring(0, 20)) ||
+                    text.toLowerCase().includes(k.toLowerCase().substring(0, 20))
+                ).slice(0, 3);
+                if (similarKeys.length > 0) {
+                    console.log('Similar keys found:', similarKeys);
+                }
+                alert(`音声ファイルが見つかりませんでした: "${text}"`);
+                return;
+            }
+
+            console.log('Found audio file:', filename);
+
+            try {
+                const audioPath = `audio/${filename}`;
+                console.log('Loading audio from:', audioPath);
+
+                // 前の音声を停止
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                    currentAudio = null;
+                }
+                if (currentUtterance) {
+                    window.speechSynthesis.cancel();
+                    currentUtterance = null;
+                }
+                if (currentPlayingElement) {
+                    currentPlayingElement.classList.remove('playing');
+                    currentPlayingElement = null;
+                }
+
+                const audio = new Audio(audioPath);
+                audio.preload = 'auto';
+
+                // エラーハンドリングを最初に設定
+                audio.onerror = (e) => {
+                    console.error('Audio error:', e);
+                    console.error('Audio error code:', audio.error?.code);
+                    console.error('Audio error message:', audio.error?.message);
+                    element.classList.remove('playing');
+                    alert(`音声ファイルの読み込みに失敗しました: ${audioPath}`);
+                    return;
+                };
+
+                audio.onplay = () => {
+                    console.log('Audio playback started successfully');
+                    element.classList.add('playing');
+                    currentPlayingElement = element;
+                };
+
+                audio.onended = () => {
+                    console.log('Audio playback ended');
+                    element.classList.remove('playing');
+                    currentPlayingElement = null;
+                    currentAudio = null;
+                };
+
+                // 音声を明示的に読み込む
+                audio.load();
+
+                currentAudio = audio;
+
+                // 再生可能になるまで待つ関数
+                const playWhenReady = () => {
+                    if (audio.readyState >= 3) { // HAVE_FUTURE_DATA以上
+                        console.log('Audio ready, playing now');
+                        audio.play().catch(error => {
+                            console.error('Error playing audio:', error);
+                            element.classList.remove('playing');
+                            alert(`音声の再生に失敗しました: ${audioPath}`);
+                        });
+                    } else {
+                        // まだ準備できていない場合はイベントを待つ
+                        audio.addEventListener('canplaythrough', () => {
+                            console.log('Audio can play through - ready to play');
+                            audio.play().catch(error => {
+                                console.error('Error playing audio:', error);
+                                element.classList.remove('playing');
+                                alert(`音声の再生に失敗しました: ${audioPath}`);
+                            });
+                        }, { once: true });
+                    }
+                };
+
+                // 即座に再生可能かチェック
+                playWhenReady();
+
+            } catch (error) {
+                // エラー時はエラーメッセージを表示
+                console.error('Error loading audio file:', error);
+                alert(`音声ファイルの読み込みに失敗しました: ${text}`);
+            }
+        }
+
+        // Web Speech APIを使用して音声読み上げ（フォールバック用）
+        function speakText(text, element) {
+            // 前の読み上げを停止
+            if (currentUtterance) {
+                window.speechSynthesis.cancel();
+            }
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio = null;
+            }
+
+            // 前の要素のスタイルをリセット
+            if (currentPlayingElement) {
+                currentPlayingElement.classList.remove('playing');
+            }
+
+            // 新しい読み上げを開始
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9; // 少しゆっくりめに
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+
+            utterance.onstart = () => {
+                element.classList.add('playing');
+                currentPlayingElement = element;
+            };
+
+            utterance.onend = () => {
+                element.classList.remove('playing');
+                currentPlayingElement = null;
+                currentUtterance = null;
+            };
+
+            utterance.onerror = () => {
+                element.classList.remove('playing');
+                currentPlayingElement = null;
+                currentUtterance = null;
+            };
+
+            currentUtterance = utterance;
+            window.speechSynthesis.speak(utterance);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             initSectionToggle();
             initSettings();
+
+            const questionItems = document.querySelectorAll('.question-item');
+
+            questionItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    // h3のクリックイベントと競合しないように
+                    e.stopPropagation();
+
+                    const text = item.getAttribute('data-text');
+                    if (text) {
+                        // (ai)タグを削除
+                        let cleanText = text.replace(/\s*\(ai\)\s*/g, '').trim();
+                        // ()内のパラフレーズを削除
+                        cleanText = cleanText.replace(/\([^)]*\)/g, '').trim();
+                        // 複数のスペースを1つに
+                        cleanText = cleanText.replace(/\s+/g, ' ').trim();
+                        // 引用符を除去
+                        cleanText = cleanText.replace(/^["']|["']$/g, '').trim();
+                        // まず音声ファイルを試す
+                        playAudioFile(cleanText, item);
+                    }
+                });
+            });
         });
     </script>
 </body>
