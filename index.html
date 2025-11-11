@@ -251,6 +251,12 @@
             transition: color 0.3s ease;
         }
 
+        /* パラフレーズ（括弧内）のスタイル */
+        .paraphrase {
+            opacity: 0.5;
+            font-size: 0.95em;
+        }
+
         ul {
             list-style: none;
             padding-left: 0;
@@ -571,78 +577,78 @@
             <h3>O: Onset (発症)</h3>
             <ul>
                 <li class="question-item" data-text='When did the symptoms start? Was it sudden or gradual?'>
-                    <div class="question-text">"When did the symptoms start? Was it sudden or gradual?"</div>
+                    <div class="question-text">"When did the symptoms start? Was it <b>sudden</b> or <b>gradual</b>?"</div>
                 </li>
                 <li class="question-item" data-text='What were you doing when the symptoms began?'>
-                    <div class="question-text">"What were you doing when the symptoms began?"</div>
+                    <div class="question-text">"What were you doing when the symptoms <b>began</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Were there any events or activities that preceded the symptoms?'>
-                    <div class="question-text">"Were there any events or activities that preceded the symptoms?"</div>
+                    <div class="question-text">"Were there any events or activities that <b>preceded</b> the symptoms?"</div>
                 </li>
             </ul>
 
             <h3>P: Palliative (Alleviating) & Provocative (Aggravating) factors (増悪・寛解因子)</h3>
             <ul>
                 <li class="question-item" data-text='Is there anything that makes the symptoms better or worse?'>
-                    <div class="question-text">"Is there anything that makes the symptoms better or worse?"</div>
+                    <div class="question-text">"Is there anything that makes the symptoms <b>better</b> or <b>worse</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Does rest, activity, or certain positions affect the symptoms?'>
-                    <div class="question-text">"Does rest, activity, or certain positions affect the symptoms?"</div>
+                    <div class="question-text">"Does <b>rest</b>, <b>activity</b>, or certain <b>positions</b> affect the symptoms?"</div>
                 </li>
                 <li class="question-item" data-text='Have you tried anything that helped relieve the symptoms?'>
-                    <div class="question-text">"Have you tried anything that helped relieve the symptoms?"</div>
+                    <div class="question-text">"Have you tried anything that helped <b>relieve</b> the symptoms?"</div>
                 </li>
             </ul>
 
             <h3>Q: Quality (性状)</h3>
             <ul>
                 <li class="question-item" data-text='How would you describe the symptom? For example, is it sharp, dull, burning, or aching?'>
-                    <div class="question-text">"How would you describe the symptom? For example, is it sharp, dull, burning, or aching?"</div>
+                    <div class="question-text">"How would you describe the symptom? For example, is it <b>sharp</b>, <b>dull</b>, <b>burning</b>, or <b>aching</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Does the symptom occur with exertion or at rest?'>
-                    <div class="question-text">"Does the symptom occur with exertion or at rest?"</div>
+                    <div class="question-text">"Does the symptom occur with <b>exertion</b> or at <b>rest</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Is the symptom affected by changes in position?'>
-                    <div class="question-text">"Is the symptom affected by changes in position?"</div>
+                    <div class="question-text">"Is the symptom affected by changes in <b>position</b>?"</div>
                 </li>
             </ul>
 
             <h3>R: Region and Radiation (部位と放散)</h3>
             <ul>
                 <li class="question-item" data-text='Where exactly is the symptom located? Can you point to it?'>
-                    <div class="question-text">"Where exactly is the symptom located? Can you point to it?"</div>
+                    <div class="question-text">"Where exactly is the symptom <b>located</b>? Can you <b>point</b> to it?"</div>
                 </li>
                 <li class="question-item" data-text='Does the symptom spread or move to any other areas?'>
-                    <div class="question-text">"Does the symptom spread or move to any other areas?"</div>
+                    <div class="question-text">"Does the symptom <b>spread</b> or <b>move</b> to any other areas?"</div>
                 </li>
                 <li class="question-item" data-text='Is the symptom localized to one area, or does it affect a wider region?'>
-                    <div class="question-text">"Is the symptom localized to one area, or does it affect a wider region?"</div>
+                    <div class="question-text">"Is the symptom <b>localized</b> to one area, or does it affect a wider <b>region</b>?"</div>
                 </li>
             </ul>
 
             <h3>S: Severity & Associated Symptoms (重症度と随伴症状)</h3>
             <ul>
                 <li class="question-item" data-text='On a scale from 1 (no pain) to 10 (worst pain imaginable), how severe is it?'>
-                    <div class="question-text">"On a scale from 1 (no pain) to 10 (worst pain imaginable), how severe is it?"</div>
+                    <div class="question-text">"On a <b>scale</b> from 1 <span class="paraphrase">(no pain)</span> to 10 <span class="paraphrase">(worst pain imaginable)</span>, how <b>severe</b> is it?"</div>
                 </li>
                 <li class="question-item" data-text='How much does this symptom interfere with your daily activities?'>
-                    <div class="question-text">"How much does this symptom interfere with your daily activities?"</div>
+                    <div class="question-text">"How much does this symptom <b>interfere with</b> your daily activities?"</div>
                 </li>
                 <li class="question-item" data-text='Are there any other symptoms that come along with this, such as nausea, sweating, or shortness of breath?'>
-                    <div class="question-text">"Are there any other symptoms that come along with this, such as nausea, sweating, or shortness of breath?"</div>
+                    <div class="question-text">"Are there any other symptoms that come along with this, such as <b>nausea</b>, <b>sweating</b>, or <b>shortness of breath</b>?"</div>
                 </li>
             </ul>
 
             <h3>T: Time course (時間経過)</h3>
             <ul>
                 <li class="question-item" data-text='How long does the symptom last when it occurs?'>
-                    <div class="question-text">"How long does the symptom last when it occurs?"</div>
+                    <div class="question-text">"How long does the symptom <b>last</b> when it occurs?"</div>
                 </li>
                 <li class="question-item" data-text='Is the symptom constant, or does it come and go (intermittent)?'>
-                    <div class="question-text">"Is the symptom constant, or does it come and go (intermittent)?"</div>
+                    <div class="question-text">"Is the symptom <b>constant</b>, or does it <b>come and go</b> <span class="paraphrase">(intermittent)</span>?"</div>
                 </li>
                 <li class="question-item" data-text='Is there any particular time of day when the symptom is better or worse?'>
-                    <div class="question-text">"Is there any particular time of day when the symptom is better or worse?"</div>
+                    <div class="question-text">"Is there any particular <b>time of day</b> when the symptom is better or worse?"</div>
                 </li>
             </ul>
         </div>
@@ -652,53 +658,53 @@
 
             <h3>共感を示す (Showing empathy)</h3>
             <ul>
-                <li class="question-item" data-text="I'm sorry to hear that. That must be difficult for you.">
-                    <div class="question-text">"I'm sorry to hear that. That must be difficult for you."</div>
+                <li class="question-item" data-text="I'm sorry to hear that.">
+                    <div class="question-text">"I'm <b>sorry</b> to hear that."</div>
                 </li>
-                <li class="question-item" data-text="That sounds really challenging. I can understand how that would affect you.">
-                    <div class="question-text">"That sounds really challenging. I can understand how that would affect you."</div>
+                <li class="question-item" data-text="That must be tough for you.">
+                    <div class="question-text">"That must be <b>tough</b> <span class="paraphrase">(difficult, hard, challenging)</span> for you."</div>
                 </li>
-                <li class="question-item" data-text="I can imagine how distressing this must be for you.">
-                    <div class="question-text">"I can imagine how distressing this must be for you."</div>
+                <li class="question-item" data-text="That sounds really challenging.">
+                    <div class="question-text">"That sounds really <b>challenging</b> <span class="paraphrase">(difficult, tough)</span>."</div>
                 </li>
             </ul>
 
             <h3>理解を示す (Showing understanding)</h3>
             <ul>
-                <li class="question-item" data-text="I understand. Thank you for sharing that with me.">
-                    <div class="question-text">"I understand. Thank you for sharing that with me."</div>
+                <li class="question-item" data-text="I understand.">
+                    <div class="question-text">"I <b>understand</b> <span class="paraphrase">(see, got it)</span>."</div>
                 </li>
-                <li class="question-item" data-text="I hear what you're saying. That makes sense.">
-                    <div class="question-text">"I hear what you're saying. That makes sense."</div>
+                <li class="question-item" data-text="I hear what you're saying.">
+                    <div class="question-text">"I <b>hear</b> what you're saying."</div>
                 </li>
-                <li class="question-item" data-text="I see. Let me make sure I understand correctly.">
-                    <div class="question-text">"I see. Let me make sure I understand correctly."</div>
+                <li class="question-item" data-text="That makes sense.">
+                    <div class="question-text">"That makes <b>sense</b>."</div>
                 </li>
             </ul>
 
             <h3>励まし・安心させる (Reassurance)</h3>
             <ul>
-                <li class="question-item" data-text="I'm here to help you, and we'll work through this together.">
-                    <div class="question-text">"I'm here to help you, and we'll work through this together."</div>
+                <li class="question-item" data-text="I'm here to help you.">
+                    <div class="question-text">"I'm here to <b>help</b> you."</div>
                 </li>
-                <li class="question-item" data-text="Thank you for being so open with me. This information is very helpful.">
-                    <div class="question-text">"Thank you for being so open with me. This information is very helpful."</div>
+                <li class="question-item" data-text="We'll work through this together.">
+                    <div class="question-text">"We'll <b>work through</b> this together."</div>
                 </li>
-                <li class="question-item" data-text="We'll do our best to figure out what's going on and find the right treatment for you.">
-                    <div class="question-text">"We'll do our best to figure out what's going on and find the right treatment for you."</div>
+                <li class="question-item" data-text="Thank you for sharing that.">
+                    <div class="question-text">"Thank you for <b>sharing</b> <span class="paraphrase">(telling me)</span> that."</div>
                 </li>
             </ul>
 
             <h3>傾聴を示す (Active listening)</h3>
             <ul>
                 <li class="question-item" data-text="Please, go on. I'm listening.">
-                    <div class="question-text">"Please, go on. I'm listening."</div>
+                    <div class="question-text">"Please, <b>go on</b> <span class="paraphrase">(continue)</span>. I'm listening."</div>
                 </li>
                 <li class="question-item" data-text="Tell me more about that.">
-                    <div class="question-text">"Tell me more about that."</div>
+                    <div class="question-text">"<b>Tell me more</b> about that."</div>
                 </li>
                 <li class="question-item" data-text="Is there anything else you'd like to add?">
-                    <div class="question-text">"Is there anything else you'd like to add?"</div>
+                    <div class="question-text">"Is there <b>anything else</b> you'd like to add?"</div>
                 </li>
             </ul>
         </div>
@@ -709,65 +715,65 @@
             <h4>便 (Bowel movements):</h4>
             <ul>
                 <li class="question-item" data-text='How often do you have bowel movements?'>
-                    <div class="question-text">"How often do you have bowel movements?"</div>
+                    <div class="question-text">"How often do you have <b>bowel movements</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Have you noticed any changes in your bowel habits, such as diarrhea or constipation?'>
-                    <div class="question-text">"Have you noticed any changes in your bowel habits, such as diarrhea or constipation?"</div>
+                    <div class="question-text">"Have you noticed any changes in your <b>bowel habits</b>, such as <b>diarrhea</b> or <b>constipation</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Is there any blood or unusual color in your stool?'>
-                    <div class="question-text">"Is there any blood or unusual color in your stool?"</div>
+                    <div class="question-text">"Is there any <b>blood</b> or unusual color in your <b>stool</b>?"</div>
                 </li>
             </ul>
 
             <h4>尿 (Urination):</h4>
             <ul>
                 <li class="question-item" data-text='How often do you urinate during the day and night?'>
-                    <div class="question-text">"How often do you urinate during the day and night?"</div>
+                    <div class="question-text">"How often do you <b>urinate</b> during the day and night?"</div>
                 </li>
                 <li class="question-item" data-text='Do you have any pain, burning sensation, or difficulty when urinating?'>
-                    <div class="question-text">"Do you have any pain, burning sensation, or difficulty when urinating?"</div>
+                    <div class="question-text">"Do you have any pain, <b>burning sensation</b>, or difficulty when urinating?"</div>
                 </li>
                 <li class="question-item" data-text='Have you noticed any changes in the color or smell of your urine?'>
-                    <div class="question-text">"Have you noticed any changes in the color or smell of your urine?"</div>
+                    <div class="question-text">"Have you noticed any changes in the color or smell of your <b>urine</b>?"</div>
                 </li>
             </ul>
 
             <h4>体重 (Weight):</h4>
             <ul>
                 <li class="question-item" data-text='Have you experienced any weight loss or weight gain recently?'>
-                    <div class="question-text">"Have you experienced any weight loss or weight gain recently?"</div>
+                    <div class="question-text">"Have you experienced any <b>weight loss</b> or <b>weight gain</b> recently?"</div>
                 </li>
                 <li class="question-item" data-text='If so, how much weight have you lost or gained, and over what period of time?'>
-                    <div class="question-text">"If so, how much weight have you lost or gained, and over what period of time?"</div>
+                    <div class="question-text">"If so, how much weight have you lost or gained, and over what <b>period of time</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Was this weight change intentional or unintentional?'>
-                    <div class="question-text">"Was this weight change intentional or unintentional?"</div>
+                    <div class="question-text">"Was this weight change <b>intentional</b> or <b>unintentional</b>?"</div>
                 </li>
             </ul>
 
             <h4>食欲 (Appetite):</h4>
             <ul>
                 <li class="question-item" data-text='How is your appetite? Have you noticed any changes?'>
-                    <div class="question-text">"How is your appetite? Have you noticed any changes?"</div>
+                    <div class="question-text">"How is your <b>appetite</b>? Have you noticed any changes?"</div>
                 </li>
                 <li class="question-item" data-text='Are you eating less or more than usual?'>
-                    <div class="question-text">"Are you eating less or more than usual?"</div>
+                    <div class="question-text">"Are you eating <b>less</b> or <b>more</b> than usual?"</div>
                 </li>
                 <li class="question-item" data-text='Do you have any difficulty swallowing or nausea after eating?'>
-                    <div class="question-text">"Do you have any difficulty swallowing or nausea after eating?"</div>
+                    <div class="question-text">"Do you have any difficulty <b>swallowing</b> or <b>nausea</b> after eating?"</div>
                 </li>
             </ul>
 
             <h4>睡眠 (Sleep):</h4>
             <ul>
                 <li class="question-item" data-text='How many hours of sleep do you get per night?'>
-                    <div class="question-text">"How many hours of sleep do you get per night?"</div>
+                    <div class="question-text">"How many hours of <b>sleep</b> do you get per night?"</div>
                 </li>
                 <li class="question-item" data-text='Do you have any difficulty falling asleep or staying asleep?'>
-                    <div class="question-text">"Do you have any difficulty falling asleep or staying asleep?"</div>
+                    <div class="question-text">"Do you have any difficulty <b>falling asleep</b> or <b>staying asleep</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Do you feel well-rested when you wake up in the morning?'>
-                    <div class="question-text">"Do you feel well-rested when you wake up in the morning?"</div>
+                    <div class="question-text">"Do you feel <b>well-rested</b> when you wake up in the morning?"</div>
                 </li>
             </ul>
         </div>
@@ -776,13 +782,13 @@
             <h2>か：家族歴 (Family History)</h2>
             <ul>
                 <li class="question-item" data-text='Is there any history of serious illnesses in your family, such as heart disease, diabetes, or cancer?'>
-                    <div class="question-text">"Is there any history of serious illnesses in your family, such as heart disease, diabetes, or cancer?"</div>
+                    <div class="question-text">"Is there any <b>history</b> of serious illnesses in your family, such as <b>heart disease</b>, <b>diabetes</b>, or <b>cancer</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Are your parents still alive? If not, what did they pass away from?'>
-                    <div class="question-text">"Are your parents still alive? If not, what did they pass away from?"</div>
+                    <div class="question-text">"Are your parents still alive? If not, what did they <b>pass away</b> from?"</div>
                 </li>
                 <li class="question-item" data-text='Do any of your siblings or close relatives have similar symptoms or conditions?'>
-                    <div class="question-text">"Do any of your siblings or close relatives have similar symptoms or conditions?"</div>
+                    <div class="question-text">"Do any of your <b>siblings</b> or close <b>relatives</b> have similar symptoms or conditions?"</div>
                 </li>
             </ul>
         </div>
@@ -791,13 +797,13 @@
             <h2>き：既往歴 (Past Medical History)</h2>
             <ul>
                 <li class="question-item" data-text='Have you had any major illnesses, surgeries, or hospitalizations in the past?'>
-                    <div class="question-text">"Have you had any major illnesses, surgeries, or hospitalizations in the past?"</div>
+                    <div class="question-text">"Have you had any major illnesses, <b>surgeries</b>, or <b>hospitalizations</b> in the past?"</div>
                 </li>
                 <li class="question-item" data-text='Do you have any chronic medical conditions, such as diabetes, hypertension, or asthma?'>
-                    <div class="question-text">"Do you have any chronic medical conditions, such as diabetes, hypertension, or asthma?"</div>
+                    <div class="question-text">"Do you have any <b>chronic</b> medical conditions, such as <b>diabetes</b>, <b>hypertension</b>, or <b>asthma</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Have you ever been diagnosed with this condition before?'>
-                    <div class="question-text">"Have you ever been diagnosed with this condition before?"</div>
+                    <div class="question-text">"Have you ever been <b>diagnosed</b> with this condition before?"</div>
                 </li>
             </ul>
         </div>
@@ -806,13 +812,13 @@
             <h2>く：薬 (Medications)</h2>
             <ul>
                 <li class="question-item" data-text='Are you currently taking any medications, including over-the-counter drugs or supplements?'>
-                    <div class="question-text">"Are you currently taking any medications, including over-the-counter drugs or supplements?"</div>
+                    <div class="question-text">"Are you currently taking any <b>medications</b>, including <b>over-the-counter drugs</b> or <b>supplements</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Can you tell me the names and dosages of your medications?'>
-                    <div class="question-text">"Can you tell me the names and dosages of your medications?"</div>
+                    <div class="question-text">"Can you tell me the names and <b>dosages</b> of your medications?"</div>
                 </li>
                 <li class="question-item" data-text='Do you have any allergies to medications?'>
-                    <div class="question-text">"Do you have any allergies to medications?"</div>
+                    <div class="question-text">"Do you have any <b>allergies</b> to medications?"</div>
                 </li>
             </ul>
         </div>
@@ -821,13 +827,13 @@
             <h2>け：健康診断 (Health Screenings)</h2>
             <ul>
                 <li class="question-item" data-text='When was your last health check-up or physical examination?'>
-                    <div class="question-text">"When was your last health check-up or physical examination?"</div>
+                    <div class="question-text">"When was your last <b>health check-up</b> or <b>physical examination</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Have you had any recent blood tests, X-rays, or other screening tests?'>
-                    <div class="question-text">"Have you had any recent blood tests, X-rays, or other screening tests?"</div>
+                    <div class="question-text">"Have you had any recent <b>blood tests</b>, <b>X-rays</b>, or other <b>screening tests</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Were there any abnormal findings in your recent health screenings?'>
-                    <div class="question-text">"Were there any abnormal findings in your recent health screenings?"</div>
+                    <div class="question-text">"Were there any <b>abnormal findings</b> in your recent health screenings?"</div>
                 </li>
             </ul>
         </div>
@@ -836,13 +842,13 @@
             <h2>こ：対処行動 (Coping Behaviors / Travel History)</h2>
             <ul>
                 <li class="question-item" data-text='Have you done anything to treat or manage these symptoms?'>
-                    <div class="question-text">"Have you done anything to treat or manage these symptoms?"</div>
+                    <div class="question-text">"Have you done anything to <b>treat</b> or <b>manage</b> these symptoms?"</div>
                 </li>
                 <li class="question-item" data-text='Have you tried any home remedies or alternative treatments?'>
-                    <div class="question-text">"Have you tried any home remedies or alternative treatments?"</div>
+                    <div class="question-text">"Have you tried any <b>home remedies</b> or <b>alternative treatments</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Have you traveled abroad recently? If so, where and when?'>
-                    <div class="question-text">"Have you traveled abroad recently? If so, where and when?"</div>
+                    <div class="question-text">"Have you <b>traveled abroad</b> recently? If so, where and when?"</div>
                 </li>
             </ul>
         </div>
@@ -853,26 +859,26 @@
             <h4>飲酒 (Alcohol):</h4>
             <ul>
                 <li class="question-item" data-text='Do you drink alcohol? If so, how often and how much do you drink?'>
-                    <div class="question-text">"Do you drink alcohol? If so, how often and how much do you drink?"</div>
+                    <div class="question-text">"Do you <b>drink alcohol</b>? If so, <b>how often</b> and <b>how much</b> do you drink?"</div>
                 </li>
                 <li class="question-item" data-text='How many years have you been drinking?'>
-                    <div class="question-text">"How many years have you been drinking?"</div>
+                    <div class="question-text">"How many <b>years</b> have you been drinking?"</div>
                 </li>
                 <li class="question-item" data-text='What type of alcohol do you usually drink, and how many drinks per day or week?'>
-                    <div class="question-text">"What type of alcohol do you usually drink, and how many drinks per day or week?"</div>
+                    <div class="question-text">"What type of alcohol do you usually drink, and how many <b>drinks per day or week</b>?"</div>
                 </li>
             </ul>
 
             <h4>喫煙 (Tobacco):</h4>
             <ul>
                 <li class="question-item" data-text='Do you smoke? If so, how many cigarettes do you smoke per day?'>
-                    <div class="question-text">"Do you smoke? If so, how many cigarettes do you smoke per day?"</div>
+                    <div class="question-text">"Do you <b>smoke</b>? If so, how many <b>cigarettes</b> do you smoke per day?"</div>
                 </li>
                 <li class="question-item" data-text='How many years have you been smoking, or when did you quit?'>
-                    <div class="question-text">"How many years have you been smoking, or when did you quit?"</div>
+                    <div class="question-text">"How many years have you been smoking, or when did you <b>quit</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Have you ever tried to quit smoking?'>
-                    <div class="question-text">"Have you ever tried to quit smoking?"</div>
+                    <div class="question-text">"Have you ever <b>tried to quit</b> smoking?"</div>
                 </li>
             </ul>
         </div>
@@ -881,13 +887,13 @@
             <h2>し：仕事 (Work / Occupation)</h2>
             <ul>
                 <li class="question-item" data-text='What do you do for a living?'>
-                    <div class="question-text">"What do you do for a living?"</div>
+                    <div class="question-text">"What do you do <b>for a living</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Does your work involve any physical labor or exposure to chemicals or hazardous materials?'>
-                    <div class="question-text">"Does your work involve any physical labor or exposure to chemicals or hazardous materials?"</div>
+                    <div class="question-text">"Does your work involve any <b>physical labor</b> or exposure to <b>chemicals</b> or <b>hazardous materials</b>?"</div>
                 </li>
                 <li class="question-item" data-text='How stressful is your job, and does it affect your health?'>
-                    <div class="question-text">"How stressful is your job, and does it affect your health?"</div>
+                    <div class="question-text">"How <b>stressful</b> is your job, and does it affect your health?"</div>
                 </li>
             </ul>
         </div>
@@ -898,26 +904,26 @@
             <h4>ストレス (Stress):</h4>
             <ul>
                 <li class="question-item" data-text='Have you been under a lot of stress recently?'>
-                    <div class="question-text">"Have you been under a lot of stress recently?"</div>
+                    <div class="question-text">"Have you been under a lot of <b>stress</b> recently?"</div>
                 </li>
                 <li class="question-item" data-text='What are the main sources of stress in your life right now?'>
-                    <div class="question-text">"What are the main sources of stress in your life right now?"</div>
+                    <div class="question-text">"What are the main <b>sources of stress</b> in your life right now?"</div>
                 </li>
                 <li class="question-item" data-text='How do you usually cope with stress?'>
-                    <div class="question-text">"How do you usually cope with stress?"</div>
+                    <div class="question-text">"How do you usually <b>cope with</b> stress?"</div>
                 </li>
             </ul>
 
             <h4>睡眠 (Sleep):</h4>
             <ul>
                 <li class="question-item" data-text='How would you describe the quality of your sleep?'>
-                    <div class="question-text">"How would you describe the quality of your sleep?"</div>
+                    <div class="question-text">"How would you describe the <b>quality</b> of your sleep?"</div>
                 </li>
                 <li class="question-item" data-text='Do you snore or has anyone noticed you stop breathing during sleep?'>
-                    <div class="question-text">"Do you snore or has anyone noticed you stop breathing during sleep?"</div>
+                    <div class="question-text">"Do you <b>snore</b> or has anyone noticed you <b>stop breathing</b> during sleep?"</div>
                 </li>
                 <li class="question-item" data-text='Do you take any medications or supplements to help you sleep?'>
-                    <div class="question-text">"Do you take any medications or supplements to help you sleep?"</div>
+                    <div class="question-text">"Do you take any medications or supplements to <b>help you sleep</b>?"</div>
                 </li>
             </ul>
         </div>
@@ -928,26 +934,26 @@
             <h4>生理 (Menstruation - for female patients):</h4>
             <ul>
                 <li class="question-item" data-text='When was the first day of your last menstrual period?'>
-                    <div class="question-text">"When was the first day of your last menstrual period?"</div>
+                    <div class="question-text">"When was the first day of your last <b>menstrual period</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Are your periods regular? How many days does your cycle last?'>
-                    <div class="question-text">"Are your periods regular? How many days does your cycle last?"</div>
+                    <div class="question-text">"Are your <b>periods</b> regular? How many days does your <b>cycle</b> last?"</div>
                 </li>
                 <li class="question-item" data-text='Do you experience any pain, heavy bleeding, or other symptoms during your period?'>
-                    <div class="question-text">"Do you experience any pain, heavy bleeding, or other symptoms during your period?"</div>
+                    <div class="question-text">"Do you experience any pain, <b>heavy bleeding</b>, or other symptoms during your period?"</div>
                 </li>
             </ul>
 
             <h4>性生活 (Sexual History):</h4>
             <ul>
                 <li class="question-item" data-text='Are you currently sexually active?'>
-                    <div class="question-text">"Are you currently sexually active?"</div>
+                    <div class="question-text">"Are you currently <b>sexually active</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Do you use any form of contraception or protection?'>
-                    <div class="question-text">"Do you use any form of contraception or protection?"</div>
+                    <div class="question-text">"Do you use any form of <b>contraception</b> or <b>protection</b>?"</div>
                 </li>
                 <li class="question-item" data-text='Have you ever been diagnosed with or treated for sexually transmitted infections?'>
-                    <div class="question-text">"Have you ever been diagnosed with or treated for sexually transmitted infections?"</div>
+                    <div class="question-text">"Have you ever been diagnosed with or treated for <b>sexually transmitted infections</b>?"</div>
                 </li>
             </ul>
         </div>
@@ -968,21 +974,21 @@
           "Where exactly is the symptom located? Can you point to it?": "06dd62ecd05d17dbf0d2196624418fba.mp3",
           "Does the symptom spread or move to any other areas?": "fa536396f7b4bf6cbee476a17207ce39.mp3",
           "Is the symptom localized to one area, or does it affect a wider region?": "0d26f86486f64f29ba415a8335d68303.mp3",
-          "On a scale from 1 (no pain) to 10 (worst pain imaginable), how severe is it?": "d8a7f2f69c95c733e577b5aadc46d47d.mp3",
+          "On a scale from 1 to 10, how severe is it?": "37f5f90d5e3e25cc5fa1a5e03439ca2a.mp3",
           "How much does this symptom interfere with your daily activities?": "62f70c774e362837860126c884a67954.mp3",
           "Are there any other symptoms that come along with this, such as nausea, sweating, or shortness of breath?": "b3c1bcfb2d626663772f0e8ff5e2c6cc.mp3",
           "How long does the symptom last when it occurs?": "b101594c927886e08f521304e40d148b.mp3",
-          "Is the symptom constant, or does it come and go (intermittent)?": "9654b7931075e07ea8519541b4cf2665.mp3",
+          "Is the symptom constant, or does it come and go?": "3ebac984b374b770aac69bde9c1d42a7.mp3",
           "Is there any particular time of day when the symptom is better or worse?": "9bea49288b4add253773a9dfa5d1034a.mp3",
-          "I'm sorry to hear that. That must be difficult for you.": "43f430eac3132788d1bb4a95bed39e4c.mp3",
-          "That sounds really challenging. I can understand how that would affect you.": "a468522edb129c6071726848cd404a65.mp3",
-          "I can imagine how distressing this must be for you.": "d35b547fa4277e56049ec759808d2685.mp3",
-          "I understand. Thank you for sharing that with me.": "6e2d59a25b046507621aa3a4f17464e9.mp3",
-          "I hear what you're saying. That makes sense.": "29316a4658303b5bd700b0fcdf3c8eb3.mp3",
-          "I see. Let me make sure I understand correctly.": "cb6d518042433d34c86454cd1713feb4.mp3",
-          "I'm here to help you, and we'll work through this together.": "879242fb229ff1f0abf3ac97a32c5600.mp3",
-          "Thank you for being so open with me. This information is very helpful.": "6203c272f6a95336e873c45c5808f003.mp3",
-          "We'll do our best to figure out what's going on and find the right treatment for you.": "00316bdcb267fafe466e5a6adf649360.mp3",
+          "I'm sorry to hear that.": "60ad2c7bccc5aa3209349f77988dee5d.mp3",
+          "That must be tough for you.": "24cf5abe2a8b6efe7fbf84c2f8b784f6.mp3",
+          "That sounds really challenging.": "d23057585eeb1a25abc80c52ea00ae3f.mp3",
+          "I understand.": "e6743827d260b141f8f4915daa38d1bf.mp3",
+          "I hear what you're saying.": "877362adcb97d865b0223354c282641f.mp3",
+          "That makes sense.": "0d816d868c1ddb6f605d4e50fb8e7c76.mp3",
+          "I'm here to help you.": "0e470555442fd67e0e683b0cc1a631d0.mp3",
+          "We'll work through this together.": "cf590a1627e4e554e16697ecac21123c.mp3",
+          "Thank you for sharing that.": "b9f1456b12669325237adb59983f7f17.mp3",
           "Please, go on. I'm listening.": "ca8a92ca3242c3b83bdd70e8cf3e1145.mp3",
           "Tell me more about that.": "78f015a76f52ab02aa1b4fed5a10724c.mp3",
           "Is there anything else you'd like to add?": "1e9d23026653b17e8bc8f8c25317bafb.mp3",

@@ -26,7 +26,14 @@ def extract_questions_from_markdown(md_file_path: str) -> list[str]:
     pattern = r'"([^"]+)"'
     questions = re.findall(pattern, content)
 
-    return questions
+    # 括弧内のパラフレーズを削除（例: "tough (difficult, hard)" -> "tough"）
+    cleaned_questions = []
+    for question in questions:
+        # 括弧とその中身を削除
+        cleaned = re.sub(r'\s*\([^)]+\)', '', question)
+        cleaned_questions.append(cleaned.strip())
+
+    return cleaned_questions
 
 
 def generate_sound(client: OpenAI, text: str, output_dir: str = "audio", voice: str = "alloy", overwrite: bool = False) -> tuple[str, str]:

@@ -40,21 +40,21 @@
 
 ### 共感を示す (Showing empathy)
 
-- "I'm sorry to hear that. That must be difficult for you."
-- "That sounds really challenging. I can understand how that would affect you."
-- "I can imagine how distressing this must be for you."
+- "I'm sorry to hear that."
+- "That must be tough (difficult, hard, challenging) for you."
+- "That sounds really challenging (difficult, tough)."
 
 ### 理解を示す (Showing understanding)
 
-- "I understand. Thank you for sharing that with me."
-- "I hear what you're saying. That makes sense."
-- "I see. Let me make sure I understand correctly."
+- "I understand (see, got it)."
+- "I hear what you're saying."
+- "That makes sense."
 
 ### 励まし・安心させる (Reassurance)
 
-- "I'm here to help you, and we'll work through this together."
-- "Thank you for being so open with me. This information is very helpful."
-- "We'll do our best to figure out what's going on and find the right treatment for you."
+- "I'm here to help you."
+- "We'll work through this together."
+- "Thank you for sharing (telling me) that."
 
 ### 傾聴を示す (Active listening)
 
