@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>胸部診察 - 医療面接・身体診察対策</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>胸部診察 - 医療面接・身体診察対策</title>
+<style>
         /* CSS変数でテーマカラーを管理 */
         :root {
             --bg-color: #f5f5f5;
@@ -239,6 +240,95 @@
             color: var(--border-color);
         }
 
+        .question-item {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: var(--question-bg);
+            border-left: 3px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .question-item:hover {
+            background-color: var(--question-hover-bg);
+            transform: translateX(5px);
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+
+        .question-item:active {
+            transform: translateX(3px);
+        }
+
+        .question-item::before {
+            content: "🔊";
+            position: absolute;
+            left: 15px;
+            font-size: 18px;
+            opacity: 0.6;
+        }
+
+        .question-item.playing {
+            background-color: var(--question-playing-bg);
+            border-left-color: #28a745;
+        }
+
+        .question-item.playing::before {
+            content: "▶️";
+            opacity: 1;
+        }
+
+        .question-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--heading-color);
+            transition: color 0.3s ease;
+        }
+
+        /* パラフレーズ（括弧内）のスタイル */
+        .paraphrase {
+            opacity: 0.5;
+            font-size: 0.95em;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--border-color);
+            text-decoration: none;
+            font-size: 16px;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-link:hover {
+            opacity: 0.7;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 0;
+            margin: 0;
+        }
+
+        ul.expanded {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
+        }
+
+        /* h2で展開されている場合、h2の直下のulを表示（優先度を高く） */
+        .section:not(.section-collapsed) > h2 + ul {
+            max-height: 1000px !important;
+            opacity: 1 !important;
+            margin: 15px 0 !important;
+        }
+
         .section {
             margin-bottom: 40px;
         }
@@ -279,22 +369,12 @@
             margin: 0 !important;
         }
 
-        .section:not(.section-collapsed) > h3.collapsed + p,
-        .section:not(.section-collapsed) > h4.collapsed + p {
-            max-height: 0 !important;
-            opacity: 0 !important;
-            overflow: hidden !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        .section:not(.section-collapsed) > h3:not(.collapsed) + p,
-        .section:not(.section-collapsed) > h4:not(.collapsed) + p {
-            max-height: none;
-            opacity: 1;
-            overflow: visible;
-            margin: 15px 0;
-            padding: 10px;
+        /* h2で展開されている場合、h3やh4の個別トグルが動作するように */
+        .section:not(.section-collapsed) > h3 + ul.expanded,
+        .section:not(.section-collapsed) > h4 + ul.expanded {
+            max-height: 1000px !important;
+            opacity: 1 !important;
+            margin: 15px 0 !important;
         }
 
         .description {
@@ -304,6 +384,37 @@
             padding: 10px;
             background-color: var(--question-bg);
             border-radius: 5px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 0;
+            margin: 0;
+        }
+
+        ul.expanded {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
+        }
+
+        /* h2で展開されている場合、h2の直下のulを表示（優先度を高く） */
+        .section:not(.section-collapsed) > h2 + ul {
+            max-height: 1000px !important;
+            opacity: 1 !important;
+            margin: 15px 0 !important;
+        }
+
+        /* h2で展開されている場合、h3やh4の個別トグルが動作するように */
+        .section:not(.section-collapsed) > h3 + ul.expanded,
+        .section:not(.section-collapsed) > h4 + ul.expanded {
+            max-height: 1000px !important;
+            opacity: 1 !important;
+            margin: 15px 0 !important;
         }
 
         /* 設定ボタン */
@@ -519,173 +630,190 @@
     </style>
 </head>
 <body>
-    <!-- 設定ボタン -->
-    <button class="settings-button" id="settingsButton" aria-label="設定">
+<!-- 設定ボタン -->
+<button aria-label="設定" class="settings-button" id="settingsButton">
         ⚙️
     </button>
-
-    <!-- 設定モーダル -->
-    <div class="settings-modal" id="settingsModal">
-        <div class="settings-content">
-            <div class="settings-header">
-                <h2>設定</h2>
-                <button class="close-button" id="closeSettings">&times;</button>
-            </div>
-            <div class="settings-item">
-                <span class="settings-label">ダークモード</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="darkModeToggle">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-            <div class="settings-item">
-                <span class="settings-label">レイアウト</span>
-                <div class="layout-options">
-                    <label class="radio-option">
-                        <input type="radio" name="layoutMode" value="auto" id="layoutAuto">
-                        <span>自動</span>
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="layoutMode" value="two-column" id="layoutTwoColumn">
-                        <span>2段組</span>
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="layoutMode" value="single-column" id="layoutSingleColumn">
-                        <span>1段組</span>
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container">
-        <a href="index.html" class="back-link">← トップページに戻る</a>
-        <h1>胸部診察 (Chest Examination)</h1>
-        <!-- 頸部血管 -->
-        <div class="section">
-            <h2>頸部血管 (Neck Vessels)</h2>
-            <p class="description">頸部の静脈と動脈を診察します。</p>
-
-            <h3>視診 (Inspection)</h3>
-            <p class="description">外頸静脈と＊内頸静脈を視診します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>聴診 (Auscultation)</h3>
-            <p class="description">頸動脈の聴診を行います。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>触診 (Palpation)</h3>
-            <p class="description">頸動脈の触診を行います。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-        </div>
-
-        <!-- 前胸部の視診 -->
-        <div class="section">
-            <h2>前胸部の視診 (Inspection of Anterior Chest)</h2>
-            <p class="description">解剖学的部位の特定や、皮膚・胸郭の視診を行います。</p>
-
-            <h3>視診 (Inspection)</h3>
-            <p class="description">解剖学的部位（胸骨角、剣状突起）の特定、皮膚所見、胸郭の形状・輪郭、呼吸状態（呼吸様式）を確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-        </div>
-
-        <!-- 心臓 -->
-        <div class="section">
-            <h2>心臓 (Heart)</h2>
-            <p class="description">心臓の視診、触診、聴診を行います。</p>
-
-            <h3>視診 (Inspection)</h3>
-            <p class="description">心尖拍動と胸壁拍動を視診で確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>触診 (Palpation)</h3>
-            <p class="description">心尖拍動、胸壁拍動、振戦（thrillスリル）を触診で確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>聴診 (Auscultation)</h3>
-            <p class="description">4領域の聴診を行います。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-        </div>
-
-        <!-- 肺（前胸部） -->
-        <div class="section">
-            <h2>肺（前胸部） (Lungs - Anterior Chest)</h2>
-            <p class="description">前面から肺の視診、打診、聴診を行います。</p>
-
-            <h3>視診 (Inspection)</h3>
-            <p class="description">鎖骨上窩・肋間の吸気時の陥凹の有無や、呼吸時の胸壁運動の左右差の有無を確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>打診 (Percussion)</h3>
-            <p class="description">胸部全体を打診します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>聴診 (Auscultation)</h3>
-            <p class="description">深呼吸をしてもらいながら胸部全体を聴診します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-        </div>
-
-        <!-- 背部の視診 -->
-        <div class="section">
-            <h2>背部の視診 (Inspection of Back)</h2>
-            <p class="description">解剖学的部位の特定や、皮膚・胸郭の視診を行います。</p>
-
-            <h3>視診 (Inspection)</h3>
-            <p class="description">解剖学的部位（第7頸椎棘突起〔隆椎〕、肩甲骨下角）の特定、皮膚所見、胸郭の形状・輪郭を確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-        </div>
-
-        <!-- 肺（背部） -->
-        <div class="section">
-            <h2>肺（背部） (Lungs - Back)</h2>
-            <p class="description">背面から肺の視診、触診、打診、聴診を行います。</p>
-
-            <h3>視診 (Inspection)</h3>
-            <p class="description">呼吸時の胸壁運動の左右差の有無や、肋間の吸気時の陥凹の有無を確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>＊触診 (Palpation)</h3>
-            <p class="description">声音振盪を確認します。（レベルが高いため、今回の例文生成の対象外）</p>
-
-            <h3>打診 (Percussion)</h3>
-            <p class="description">背部全体を打診します。また、両側の肺底部の清音と濁音の境界と＊横隔膜の呼吸性移動を打診で確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>聴診 (Auscultation)</h3>
-            <p class="description">深呼吸をしてもらいながら背部全体を聴診します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-        </div>
-    </div>
-
-    <script>
+<!-- 設定モーダル -->
+<div class="settings-modal" id="settingsModal">
+<div class="settings-content">
+<div class="settings-header">
+<h2>設定</h2>
+<button class="close-button" id="closeSettings">×</button>
+</div>
+<div class="settings-item">
+<span class="settings-label">ダークモード</span>
+<label class="toggle-switch">
+<input id="darkModeToggle" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="settings-item">
+<span class="settings-label">レイアウト</span>
+<div class="layout-options">
+<label class="radio-option">
+<input id="layoutAuto" name="layoutMode" type="radio" value="auto"/>
+<span>自動</span>
+</label>
+<label class="radio-option">
+<input id="layoutTwoColumn" name="layoutMode" type="radio" value="two-column"/>
+<span>2段組</span>
+</label>
+<label class="radio-option">
+<input id="layoutSingleColumn" name="layoutMode" type="radio" value="single-column"/>
+<span>1段組</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+<div class="container">
+<a class="back-link" href="index.html">← トップページに戻る</a>
+<h1>胸部診察 (Chest Examination)</h1>
+<!-- 頸部血管 -->
+<div class="section">
+<h2>頸部血管 (Neck Vessels)</h2>
+<p class="description">頸部の静脈と動脈を診察します。</p>
+<h3>視診 (Inspection)</h3>
+<p class="description">外頸静脈と＊内頸静脈を視診します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to look at the veins in your neck."><div class="question-text">"I'm going to <b>look at</b> <span class="paraphrase">(examine, inspect, check)</span> the <b>veins</b> <span class="paraphrase">(blood vessels)</span> in your neck."</div></li>
+<li class="question-item" data-text="I'm checking for jugular venous distention."><div class="question-text">"I'm checking for <b>jugular venous distention</b> <span class="paraphrase">(JVD, swollen neck veins)</span>."</div></li>
+<li class="question-item" data-text="Please lie back at a 45-degree angle."><div class="question-text">"<b>Please <span class="paraphrase">(Could you, Would you)</span> lie back</b> at a <b>45-degree angle</b> <span class="paraphrase">(halfway reclined, semi-reclined)</span>."</div></li>
+<li class="question-item" data-text="I'm looking for any pulsations."><div class="question-text">"I'm looking for <span class="paraphrase">(checking for, observing)</span> any <b>pulsations</b> <span class="paraphrase">(beats, throbbing movements)</span>."</div></li>
+</ul>
+<h3>聴診 (Auscultation)</h3>
+<p class="description">頸動脈の聴診を行います。</p>
+<ul>
+<li class="question-item" data-text="I'm going to listen to your carotid arteries."><div class="question-text">"I'm going to <b>listen to</b> <span class="paraphrase">(auscultate, examine)</span> your <b>carotid arteries</b> <span class="paraphrase">(neck arteries)</span>."</div></li>
+<li class="question-item" data-text="I'm checking for bruits."><div class="question-text">"I'm checking for <b>bruits</b> <span class="paraphrase">(abnormal sounds, vascular sounds)</span>."</div></li>
+<li class="question-item" data-text="Your carotid arteries sound normal."><div class="question-text">"Your carotid arteries sound <b>normal</b> <span class="paraphrase">(fine, regular, without bruits)</span>."</div></li>
+</ul>
+<h3>触診 (Palpation)</h3>
+<p class="description">頸動脈の触診を行います。</p>
+<ul>
+<li class="question-item" data-text="I'm going to palpate your carotid pulse."><div class="question-text">"I'm going to <b>palpate</b> <span class="paraphrase">(feel, check, examine)</span> your <b>carotid pulse</b> <span class="paraphrase">(neck pulse)</span>."</div></li>
+<li class="question-item" data-text="I'll only check one side at a time."><div class="question-text">"I'll only check <b>one side at a time</b> <span class="paraphrase">(each side separately)</span>."</div></li>
+<li class="question-item" data-text="I'm using two fingers placed very gently."><div class="question-text">"I'm using <b>two fingers</b> placed <b>very gently</b> <span class="paraphrase">(softly, carefully, lightly)</span>."</div></li>
+<li class="question-item" data-text="Your pulse is strong and regular."><div class="question-text">"Your pulse is <b>strong</b> <span class="paraphrase">(full, bounding)</span> and <b>regular</b> <span class="paraphrase">(steady, even)</span>."</div></li>
+</ul>
+</div>
+<!-- 前胸部の視診 -->
+<div class="section">
+<h2>前胸部の視診 (Inspection of Anterior Chest)</h2>
+<p class="description">解剖学的部位の特定や、皮膚・胸郭の視診を行います。</p>
+<h3>視診 (Inspection)</h3>
+<p class="description">解剖学的部位（胸骨角、剣状突起）の特定、皮膚所見、胸郭の形状・輪郭、呼吸状態（呼吸様式）を確認します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to examine your chest."><div class="question-text">"I'm going to <b>examine</b> <span class="paraphrase">(inspect, look at, check)</span> your <b>chest</b> <span class="paraphrase">(thorax)</span>."</div></li>
+<li class="question-item" data-text="Let me lift your gown."><div class="question-text">"<b>Let me <span class="paraphrase">(I'll, I'm going to)</span> lift</b> <span class="paraphrase">(raise, pull up)</span> your gown."</div></li>
+<li class="question-item" data-text="I'm looking at the shape of your chest."><div class="question-text">"I'm looking at <span class="paraphrase">(examining, observing, inspecting)</span> the <b>shape</b> <span class="paraphrase">(contour, form)</span> of your chest."</div></li>
+<li class="question-item" data-text="I'm observing your breathing pattern."><div class="question-text">"I'm <b>observing</b> <span class="paraphrase">(watching, monitoring, checking)</span> your <b>breathing pattern</b> <span class="paraphrase">(respiratory pattern, how you breathe)</span>."</div></li>
+<li class="question-item" data-text="Are you using any accessory muscles to breathe?"><div class="question-text">"Are you using any <b>accessory muscles</b> <span class="paraphrase">(extra muscles, helper muscles)</span> to breathe?"</div></li>
+</ul>
+</div>
+<!-- 心臓 -->
+<div class="section">
+<h2>心臓 (Heart)</h2>
+<p class="description">心臓の視診、触診、聴診を行います。</p>
+<h3>視診 (Inspection)</h3>
+<p class="description">心尖拍動と胸壁拍動を視診で確認します。</p>
+<ul>
+<li class="question-item" data-text="I'm looking for the point of maximal impulse."><div class="question-text">"I'm looking for the <b>point of maximal impulse</b> <span class="paraphrase">(PMI, apex beat, apical impulse)</span>."</div></li>
+<li class="question-item" data-text="I'm checking for any visible pulsations."><div class="question-text">"I'm checking for <span class="paraphrase">(looking for, observing)</span> any <b>visible pulsations</b> <span class="paraphrase">(visible beats, throbbing movements)</span>."</div></li>
+</ul>
+<h3>触診 (Palpation)</h3>
+<p class="description">心尖拍動、胸壁拍動、振戦（thrillスリル）を触診で確認します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to feel for your heart beat."><div class="question-text">"I'm going to <b>feel for</b> <span class="paraphrase">(palpate, check)</span> your <b>heart beat</b> <span class="paraphrase">(cardiac impulse, apex beat)</span>."</div></li>
+<li class="question-item" data-text="I'm palpating the point of maximal impulse."><div class="question-text">"I'm <b>palpating</b> <span class="paraphrase">(feeling for, examining)</span> the point of maximal impulse."</div></li>
+<li class="question-item" data-text="I'm checking for any thrills."><div class="question-text">"I'm checking for any <b>thrills</b> <span class="paraphrase">(vibrations, palpable murmurs)</span>."</div></li>
+</ul>
+<h3>聴診 (Auscultation)</h3>
+<p class="description">4領域の聴診を行います。</p>
+<ul>
+<li class="question-item" data-text="Now I'm going to listen to your heart."><div class="question-text">"Now I'm going to <b>listen to</b> <span class="paraphrase">(auscultate, examine)</span> your <b>heart</b> <span class="paraphrase">(cardiac sounds)</span>."</div></li>
+<li class="question-item" data-text="I'll listen at several different spots."><div class="question-text">"I'll listen at <b>several different spots</b> <span class="paraphrase">(multiple areas, various locations, different places)</span>."</div></li>
+<li class="question-item" data-text="I'm listening at the aortic area."><div class="question-text">"I'm listening at the <b>aortic area</b> <span class="paraphrase">(aortic valve area)</span>."</div></li>
+<li class="question-item" data-text="I'm listening at the pulmonic area."><div class="question-text">"I'm listening at the <b>pulmonic area</b> <span class="paraphrase">(pulmonary valve area)</span>."</div></li>
+<li class="question-item" data-text="I'm listening at the tricuspid area."><div class="question-text">"I'm listening at the <b>tricuspid area</b> <span class="paraphrase">(tricuspid valve area)</span>."</div></li>
+<li class="question-item" data-text="I'm listening at the mitral area."><div class="question-text">"I'm listening at the <b>mitral area</b> <span class="paraphrase">(mitral valve area, apex)</span>."</div></li>
+<li class="question-item" data-text="Your heart sounds are normal."><div class="question-text">"Your heart sounds are <b>normal</b> <span class="paraphrase">(regular, fine)</span>."</div></li>
+<li class="question-item" data-text="I hear a murmur."><div class="question-text">"I hear a <b>murmur</b> <span class="paraphrase">(abnormal heart sound)</span>."</div></li>
+</ul>
+</div>
+<!-- 肺（前胸部） -->
+<div class="section">
+<h2>肺（前胸部） (Lungs - Anterior Chest)</h2>
+<p class="description">前面から肺の視診、打診、聴診を行います。</p>
+<h3>視診 (Inspection)</h3>
+<p class="description">鎖骨上窩・肋間の吸気時の陥凹の有無や、呼吸時の胸壁運動の左右差の有無を確認します。</p>
+<ul>
+<li class="question-item" data-text="I'm observing your chest movement as you breathe."><div class="question-text">"I'm <b>observing</b> <span class="paraphrase">(watching, monitoring, checking)</span> your <b>chest movement</b> <span class="paraphrase">(chest expansion, thoracic movement)</span> as you breathe."</div></li>
+<li class="question-item" data-text="I'm checking if both sides move symmetrically."><div class="question-text">"I'm checking if both sides move <b>symmetrically</b> <span class="paraphrase">(equally, evenly, the same way)</span>."</div></li>
+<li class="question-item" data-text="I'm looking for any retractions."><div class="question-text">"I'm looking for any <b>retractions</b> <span class="paraphrase">(inward pulling, indentations, sucking in)</span>."</div></li>
+</ul>
+<h3>打診 (Percussion)</h3>
+<p class="description">胸部全体を打診します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to tap on your chest."><div class="question-text">"I'm going to <b>tap</b> <span class="paraphrase">(percuss, strike, knock)</span> on your chest."</div></li>
+<li class="question-item" data-text="I'm percussing to check for fluid or masses."><div class="question-text">"I'm <b>percussing</b> <span class="paraphrase">(tapping)</span> to check for <b>fluid</b> <span class="paraphrase">(effusion, consolidation)</span> or <b>masses</b> <span class="paraphrase">(abnormalities, lumps)</span>."</div></li>
+<li class="question-item" data-text="The percussion note is resonant."><div class="question-text">"The <b>percussion note</b> <span class="paraphrase">(sound)</span> is <b>resonant</b> <span class="paraphrase">(normal, clear, hollow)</span>."</div></li>
+</ul>
+<h3>聴診 (Auscultation)</h3>
+<p class="description">深呼吸をしてもらいながら胸部全体を聴診します。</p>
+<ul>
+<li class="question-item" data-text="Now I'm going to listen to your lungs."><div class="question-text">"Now I'm going to <b>listen to</b> <span class="paraphrase">(auscultate, examine)</span> your <b>lungs</b> <span class="paraphrase">(chest, breath sounds)</span>."</div></li>
+<li class="question-item" data-text="Please take deep breaths through your mouth."><div class="question-text">"<b>Please <span class="paraphrase">(Could you, Would you)</span> take deep breaths</b> <span class="paraphrase">(breathe deeply, inhale deeply)</span> through your mouth."</div></li>
+<li class="question-item" data-text="Breathe in and out slowly."><div class="question-text">"<b>Breathe in and out slowly</b> <span class="paraphrase">(Take slow breaths, Breathe slowly)</span>."</div></li>
+<li class="question-item" data-text="Your breath sounds are clear."><div class="question-text">"Your <b>breath sounds</b> <span class="paraphrase">(lung sounds)</span> are <b>clear</b> <span class="paraphrase">(normal, clean, good)</span>."</div></li>
+<li class="question-item" data-text="I hear some wheezing."><div class="question-text">"I hear some <b>wheezing</b> <span class="paraphrase">(whistling sounds, high-pitched sounds)</span>."</div></li>
+<li class="question-item" data-text="I hear some crackles."><div class="question-text">"I hear some <b>crackles</b> <span class="paraphrase">(rales, popping sounds, clicking sounds)</span>."</div></li>
+</ul>
+</div>
+<!-- 背部の視診 -->
+<div class="section">
+<h2>背部の視診 (Inspection of Back)</h2>
+<p class="description">解剖学的部位の特定や、皮膚・胸郭の視診を行います。</p>
+<h3>視診 (Inspection)</h3>
+<p class="description">解剖学的部位（第7頸椎棘突起〔隆椎〕、肩甲骨下角）の特定、皮膚所見、胸郭の形状・輪郭を確認します。</p>
+<ul>
+<li class="question-item" data-text="Now may I examine your back?"><div class="question-text">"Now may I <b>examine</b> <span class="paraphrase">(check, inspect, look at)</span> your <b>back</b>?"</div></li>
+<li class="question-item" data-text="Please sit up straight."><div class="question-text">"<b>Please <span class="paraphrase">(Could you, Would you)</span> sit up straight</b> <span class="paraphrase">(sit upright, lean forward)</span>."</div></li>
+<li class="question-item" data-text="I'm looking at the shape of your spine."><div class="question-text">"I'm looking at <span class="paraphrase">(examining, inspecting, observing)</span> the <b>shape</b> <span class="paraphrase">(curvature, alignment)</span> of your <b>spine</b> <span class="paraphrase">(backbone, back)</span>."</div></li>
+</ul>
+</div>
+<!-- 肺（背部） -->
+<div class="section">
+<h2>肺（背部） (Lungs - Back)</h2>
+<p class="description">背面から肺の視診、触診、打診、聴診を行います。</p>
+<h3>視診 (Inspection)</h3>
+<p class="description">呼吸時の胸壁運動の左右差の有無や、肋間の吸気時の陥凹の有無を確認します。</p>
+<ul>
+<li class="question-item" data-text="I'm watching how your chest moves when you breathe."><div class="question-text">"I'm <b>watching</b> <span class="paraphrase">(observing, monitoring)</span> how your chest moves when you breathe."</div></li>
+<li class="question-item" data-text="Take a nice deep breath."><div class="question-text">"<b>Take a nice deep breath</b> <span class="paraphrase">(Breathe deeply, Inhale deeply)</span>."</div></li>
+</ul>
+<h3>＊触診 (Palpation)</h3>
+<p class="description">声音振盪を確認します。（レベルが高いため、今回の例文生成の対象外）</p>
+<h3>打診 (Percussion)</h3>
+<p class="description">背部全体を打診します。また、両側の肺底部の清音と濁音の境界と＊横隔膜の呼吸性移動を打診で確認します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to percuss your back."><div class="question-text">"I'm going to <b>percuss</b> <span class="paraphrase">(tap on, examine)</span> your back."</div></li>
+<li class="question-item" data-text="I'm checking for any abnormalities in the lungs."><div class="question-text">"I'm checking for any <b>abnormalities</b> <span class="paraphrase">(problems, issues, irregularities)</span> in the lungs."</div></li>
+<li class="question-item" data-text="I'm finding the level of the diaphragm."><div class="question-text">"I'm finding <span class="paraphrase">(locating, determining)</span> the <b>level</b> <span class="paraphrase">(position, location)</span> of the <b>diaphragm</b>."</div></li>
+</ul>
+<h3>聴診 (Auscultation)</h3>
+<p class="description">深呼吸をしてもらいながら背部全体を聴診します。</p>
+<ul>
+<li class="question-item" data-text="Now I'm going to listen to your lungs from the back."><div class="question-text">"Now I'm going to <b>listen to</b> <span class="paraphrase">(auscultate, examine)</span> your lungs from the back."</div></li>
+<li class="question-item" data-text="Keep taking deep breaths."><div class="question-text">"<b>Keep taking deep breaths</b> <span class="paraphrase">(Continue breathing deeply, Keep breathing)</span>."</div></li>
+<li class="question-item" data-text="Breathe in through your mouth."><div class="question-text">"<b>Breathe in through your mouth</b> <span class="paraphrase">(Inhale through your mouth, Take breaths through your mouth)</span>."</div></li>
+<li class="question-item" data-text="I'm listening all over your back."><div class="question-text">"I'm listening <b>all over your back</b> <span class="paraphrase">(throughout your back, at different areas of your back)</span>."</div></li>
+<li class="question-item" data-text="Your lungs sound clear bilaterally."><div class="question-text">"Your lungs sound <b>clear</b> <span class="paraphrase">(normal, good)</span> <b>bilaterally</b> <span class="paraphrase">(on both sides, equally)</span>."</div></li>
+</ul>
+</div>
+</div>
+<script>
         // システム設定に基づいてテーマを適用
         function applyTheme(theme) {
             if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {

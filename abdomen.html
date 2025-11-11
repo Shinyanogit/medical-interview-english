@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>腹部診察 - 医療面接・身体診察対策</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>腹部診察 - 医療面接・身体診察対策</title>
+<style>
         /* CSS変数でテーマカラーを管理 */
         :root {
             --bg-color: #f5f5f5;
@@ -230,6 +231,95 @@
             color: var(--border-color);
         }
 
+        .question-item {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: var(--question-bg);
+            border-left: 3px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .question-item:hover {
+            background-color: var(--question-hover-bg);
+            transform: translateX(5px);
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+
+        .question-item:active {
+            transform: translateX(3px);
+        }
+
+        .question-item::before {
+            content: "🔊";
+            position: absolute;
+            left: 15px;
+            font-size: 18px;
+            opacity: 0.6;
+        }
+
+        .question-item.playing {
+            background-color: var(--question-playing-bg);
+            border-left-color: #28a745;
+        }
+
+        .question-item.playing::before {
+            content: "▶️";
+            opacity: 1;
+        }
+
+        .question-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--heading-color);
+            transition: color 0.3s ease;
+        }
+
+        /* パラフレーズ（括弧内）のスタイル */
+        .paraphrase {
+            opacity: 0.5;
+            font-size: 0.95em;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--border-color);
+            text-decoration: none;
+            font-size: 16px;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-link:hover {
+            opacity: 0.7;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 0;
+            margin: 0;
+        }
+
+        ul.expanded {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
+        }
+
+        /* h2で展開されている場合、h2の直下のulを表示（優先度を高く） */
+        .section:not(.section-collapsed) > h2 + ul {
+            max-height: 1000px !important;
+            opacity: 1 !important;
+            margin: 15px 0 !important;
+        }
+
         .section {
             margin-bottom: 40px;
         }
@@ -270,22 +360,12 @@
             margin: 0 !important;
         }
 
-        .section:not(.section-collapsed) > h3.collapsed + p,
-        .section:not(.section-collapsed) > h4.collapsed + p {
-            max-height: 0 !important;
-            opacity: 0 !important;
-            overflow: hidden !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        .section:not(.section-collapsed) > h3:not(.collapsed) + p,
-        .section:not(.section-collapsed) > h4:not(.collapsed) + p {
-            max-height: none;
-            opacity: 1;
-            overflow: visible;
-            margin: 15px 0;
-            padding: 10px;
+        /* h2で展開されている場合、h3やh4の個別トグルが動作するように */
+        .section:not(.section-collapsed) > h3 + ul.expanded,
+        .section:not(.section-collapsed) > h4 + ul.expanded {
+            max-height: 1000px !important;
+            opacity: 1 !important;
+            margin: 15px 0 !important;
         }
 
         .description {
@@ -295,6 +375,37 @@
             padding: 10px;
             background-color: var(--question-bg);
             border-radius: 5px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 0;
+            margin: 0;
+        }
+
+        ul.expanded {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
+        }
+
+        /* h2で展開されている場合、h2の直下のulを表示（優先度を高く） */
+        .section:not(.section-collapsed) > h2 + ul {
+            max-height: 1000px !important;
+            opacity: 1 !important;
+            margin: 15px 0 !important;
+        }
+
+        /* h2で展開されている場合、h3やh4の個別トグルが動作するように */
+        .section:not(.section-collapsed) > h3 + ul.expanded,
+        .section:not(.section-collapsed) > h4 + ul.expanded {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
         }
 
         /* 設定ボタン */
@@ -510,189 +621,272 @@
     </style>
 </head>
 <body>
-    <!-- 設定ボタン -->
-    <button class="settings-button" id="settingsButton" aria-label="設定">
+<!-- 設定ボタン -->
+<button aria-label="設定" class="settings-button" id="settingsButton">
         ⚙️
     </button>
-
-    <!-- 設定モーダル -->
-    <div class="settings-modal" id="settingsModal">
-        <div class="settings-content">
-            <div class="settings-header">
-                <h2>設定</h2>
-                <button class="close-button" id="closeSettings">&times;</button>
-            </div>
-            <div class="settings-item">
-                <span class="settings-label">ダークモード</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="darkModeToggle">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-            <div class="settings-item">
-                <span class="settings-label">レイアウト</span>
-                <div class="layout-options">
-                    <label class="radio-option">
-                        <input type="radio" name="layoutMode" value="auto" id="layoutAuto">
-                        <span>自動</span>
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="layoutMode" value="two-column" id="layoutTwoColumn">
-                        <span>2段組</span>
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="layoutMode" value="single-column" id="layoutSingleColumn">
-                        <span>1段組</span>
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container">
-        <a href="index.html" class="back-link">← トップページに戻る</a>
-        <h1>腹部診察 (Abdominal Examination)</h1>
-
-        <!-- 視診 -->
-        <div class="section">
-            <h2>視診 (Inspection)</h2>
-            <p class="description">両膝を伸展した状態で腹壁の形態と皮膚の状態をみます。</p>
-
-            <h3>輪郭・形状・腫瘤の視診 (Contour, Shape, and Mass Inspection)</h3>
-            <p class="description">平坦、膨隆、陥凹、および腫瘤などの有無を観察します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>皮膚の視診 (Skin Inspection)</h3>
-            <p class="description">皮疹、着色斑、手術瘢痕、静脈怒張、皮膚線条、拍動などの有無を観察します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-        </div>
-
-        <!-- 聴診 -->
-        <div class="section">
-            <h2>聴診 (Auscultation)</h2>
-            <p class="description">腸蠕動音と腹部動脈の血管音、振水音を聴取します。</p>
-
-            <h3>腸蠕動音の聴診 (Bowel Sounds Auscultation)</h3>
-            <p class="description">頻度（亢進・減弱・消失）や音の性状（金属性などの異常音の有無）を判断します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>腹部の血管音の聴診 (Abdominal Vascular Sounds Auscultation)</h3>
-            <p class="description">腹部大動脈、腎動脈（両側）、総腸骨動脈（両側）で血管雑音の有無を判断します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>＊振水音の聴診 (Succession Splash)</h3>
-            <p class="description">腸閉塞が疑われる場合、腸管内のガスと水の貯留の有無を判断します。（レベルが高いため、今回の例文生成の対象外）</p>
-        </div>
-
-        <!-- 打診 -->
-        <div class="section">
-            <h2>打診 (Percussion)</h2>
-            <p class="description">視診や触診による所見を補い、痛みの評価や臓器の評価を行います。</p>
-
-            <h3>腹部全体の打診 (General Abdominal Percussion)</h3>
-            <p class="description">打診音の異常と痛みの有無を判断します（痛みがある場合、その部位の打診は最後に行います）。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>肝臓の打診 (Liver Percussion)</h3>
-            <p class="description">腫大の有無を判断します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>脾臓の打診 (Spleen Percussion)</h3>
-            <p class="description">腫大の有無を判断します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-        </div>
-
-        <!-- 叩打診 -->
-        <div class="section">
-            <h2>＊叩打診 (Percussion Tenderness)</h2>
-            <p class="description">炎症や結石などがある場合、叩くと疼痛を生じることがあります。（レベルが高いため、今回の例文生成の対象外）</p>
-
-            <h3>肝臓の叩打診 (Liver Percussion Tenderness)</h3>
-            <p class="description">叩打痛の有無を診察します。</p>
-
-            <h3>脾臓の叩打診 (Spleen Percussion Tenderness)</h3>
-            <p class="description">叩打痛の有無を診察します。</p>
-
-            <h3>腎臓の叩打診 (Kidney Percussion Tenderness)</h3>
-            <p class="description">叩打痛の有無を診察します。両側で行います。</p>
-        </div>
-
-        <!-- 触診 -->
-        <div class="section">
-            <h2>触診 (Palpation)</h2>
-            <p class="description">腹部の診察で最も重要な手技です。系統的にまんべんなく行います。</p>
-
-            <h3>浅い触診 (Light Palpation)</h3>
-            <p class="description">圧痛や筋抵抗、表層の臓器の状態や腫瘤の有無を判断します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>深い触診 (Deep Palpation)</h3>
-            <p class="description">腫瘤の有無を判断します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>肝臓の触診 (Liver Palpation)</h3>
-            <p class="description">腫大などの有無を判断します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>脾臓の触診 (Spleen Palpation)</h3>
-            <p class="description">腫大などの有無を判断します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>＊腎臓の触診 (Kidney Palpation)</h3>
-            <p class="description">腫大などの有無を判断します。（レベルが高いため、今回の例文生成の対象外）</p>
-        </div>
-
-        <!-- 病態に応じた診察 -->
-        <div class="section">
-            <h2>病態に応じた診察 (Condition-Specific Examination)</h2>
-            <p class="description">腹水や腹膜刺激徴候など、いくつかの特異的所見に対する重点的な診察を行います。</p>
-
-            <h3>＊腹水の評価 (Assessment of Ascites)</h3>
-            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
-
-            <h3>痛みがある部位の触診 (Palpation of Painful Area)</h3>
-            <p class="description">痛みがある部位を触診します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>＊腹膜刺激徴候の評価 (Assessment of Peritoneal Irritation)</h3>
-            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
-
-            <h3>＊腹部腫瘤の触診 (Abdominal Mass Palpation)</h3>
-            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
-
-            <h3>＊鼠径部の診察 (Inguinal Region Examination)</h3>
-            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
-
-            <h3>＊直腸診 (Digital Rectal Examination)</h3>
-            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
-        </div>
-    </div>
-
-    <script>
+<!-- 設定モーダル -->
+<div class="settings-modal" id="settingsModal">
+<div class="settings-content">
+<div class="settings-header">
+<h2>設定</h2>
+<button class="close-button" id="closeSettings">×</button>
+</div>
+<div class="settings-item">
+<span class="settings-label">ダークモード</span>
+<label class="toggle-switch">
+<input id="darkModeToggle" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="settings-item">
+<span class="settings-label">レイアウト</span>
+<div class="layout-options">
+<label class="radio-option">
+<input id="layoutAuto" name="layoutMode" type="radio" value="auto"/>
+<span>自動</span>
+</label>
+<label class="radio-option">
+<input id="layoutTwoColumn" name="layoutMode" type="radio" value="two-column"/>
+<span>2段組</span>
+</label>
+<label class="radio-option">
+<input id="layoutSingleColumn" name="layoutMode" type="radio" value="single-column"/>
+<span>1段組</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+<div class="container">
+<a class="back-link" href="index.html">← トップページに戻る</a>
+<h1>腹部診察 (Abdominal Examination)</h1>
+<!-- 視診 -->
+<div class="section">
+<h2>視診 (Inspection)</h2>
+<p class="description">両膝を伸展した状態で腹壁の形態と皮膚の状態をみます。</p>
+<h3>輪郭・形状・腫瘤の視診 (Contour, Shape, and Mass Inspection)</h3>
+<p class="description">平坦、膨隆、陥凹、および腫瘤などの有無を観察します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to examine your abdomen.">
+<div class="question-text">"I'm going to <span class="paraphrase">(I'll, Let me)</span> <b>examine</b> <span class="paraphrase">(check, assess)</span> your <b>abdomen</b>."</div>
+</li>
+<li class="question-item" data-text="Please lie back.">
+<div class="question-text">"<b>Please lie back</b> <span class="paraphrase">(Lie down, Recline)</span>."</div>
+</li>
+<li class="question-item" data-text="I'm going to have you lift your gown up to expose your abdomen.">
+<div class="question-text">"I'm going to have you <b>lift</b> <span class="paraphrase">(raise, pull up)</span> your gown to <b>expose</b> <span class="paraphrase">(reveal, show)</span> your abdomen."</div>
+</li>
+<li class="question-item" data-text="I'm looking at the contour of your abdomen.">
+<div class="question-text">"I'm looking at the <b>contour</b> <span class="paraphrase">(shape, outline)</span> of your abdomen."</div>
+</li>
+<li class="question-item" data-text="Is your abdomen flat, distended, or scaphoid?">
+<div class="question-text">"Is your abdomen <b>flat</b>, <b>distended</b> <span class="paraphrase">(bloated, swollen)</span>, or <b>scaphoid</b> <span class="paraphrase">(sunken, concave)</span>?"</div>
+</li>
+<li class="question-item" data-text="I'm checking for any visible masses or bulges.">
+<div class="question-text">"I'm checking for any <b>visible masses</b> <span class="paraphrase">(lumps, bumps)</span> or <b>bulges</b> <span class="paraphrase">(protrusions)</span>."</div>
+</li>
+</ul>
+<h3>皮膚の視診 (Skin Inspection)</h3>
+<p class="description">皮疹、着色斑、手術瘢痕、静脈怒張、皮膚線条、拍動などの有無を観察します。</p>
+<ul>
+<li class="question-item" data-text="I'm looking at the skin of your abdomen.">
+<div class="question-text">"I'm looking at the <b>skin</b> of your abdomen."</div>
+</li>
+<li class="question-item" data-text="Do you have any rashes or skin lesions?">
+<div class="question-text">"Do you have any <b>rashes</b> <span class="paraphrase">(skin irritations)</span> or <b>skin lesions</b> <span class="paraphrase">(abnormalities, marks)</span>?"</div>
+</li>
+<li class="question-item" data-text="I can see a surgical scar here.">
+<div class="question-text">"I can see a <b>surgical scar</b> <span class="paraphrase">(operation scar)</span> here."</div>
+</li>
+<li class="question-item" data-text="Are there any prominent veins?">
+<div class="question-text">"Are there any <b>prominent veins</b> <span class="paraphrase">(visible veins, dilated veins)</span>?"</div>
+</li>
+<li class="question-item" data-text="I'm checking for striae.">
+<div class="question-text">"I'm checking for <b>striae</b> <span class="paraphrase">(stretch marks)</span>."</div>
+</li>
+<li class="question-item" data-text="I'm looking for any pulsations.">
+<div class="question-text">"I'm looking for any <b>pulsations</b> <span class="paraphrase">(visible beats)</span>."</div>
+</li>
+</ul>
+</div>
+<!-- 聴診 -->
+<div class="section">
+<h2>聴診 (Auscultation)</h2>
+<p class="description">腸蠕動音と腹部動脈の血管音、振水音を聴取します。</p>
+<h3>腸蠕動音の聴診 (Bowel Sounds Auscultation)</h3>
+<p class="description">頻度（亢進・減弱・消失）や音の性状（金属性などの異常音の有無）を判断します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to listen to your abdomen with the stethoscope.">
+<div class="question-text">"I'll <b>listen to</b> <span class="paraphrase">(auscultate)</span> your abdomen with the <b>stethoscope</b>."</div>
+</li>
+<li class="question-item" data-text="I'm listening for bowel sounds.">
+<div class="question-text">"I'm listening for <b>bowel sounds</b> <span class="paraphrase">(intestinal sounds)</span>."</div>
+</li>
+<li class="question-item" data-text="Your bowel sounds are normal.">
+<div class="question-text">"Your <b>bowel sounds are normal</b> <span class="paraphrase">(active, present)</span>."</div>
+</li>
+<li class="question-item" data-text="Your bowel sounds are hyperactive.">
+<div class="question-text">"Your bowel sounds are <b>hyperactive</b> <span class="paraphrase">(increased, overactive)</span>."</div>
+</li>
+<li class="question-item" data-text="Your bowel sounds are hypoactive.">
+<div class="question-text">"Your bowel sounds are <b>hypoactive</b> <span class="paraphrase">(decreased, reduced)</span>."</div>
+</li>
+<li class="question-item" data-text="I don't hear any bowel sounds.">
+<div class="question-text">"I don't hear any <b>bowel sounds</b>."</div>
+</li>
+</ul>
+<h3>腹部の血管音の聴診 (Abdominal Vascular Sounds Auscultation)</h3>
+<p class="description">腹部大動脈、腎動脈（両側）、総腸骨動脈（両側）で血管雑音の有無を判断します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to listen for bruits over the abdominal vessels.">
+<div class="question-text">"I'll listen for <b>bruits</b> <span class="paraphrase">(vascular sounds)</span> over the <b>abdominal vessels</b> <span class="paraphrase">(arteries)</span>."</div>
+</li>
+<li class="question-item" data-text="I'm checking the aorta.">
+<div class="question-text">"I'm checking the <b>aorta</b>."</div>
+</li>
+<li class="question-item" data-text="I'm listening over the renal arteries.">
+<div class="question-text">"I'm listening over the <b>renal arteries</b> <span class="paraphrase">(kidney arteries)</span>."</div>
+</li>
+<li class="question-item" data-text="I don't hear any bruits.">
+<div class="question-text">"I don't hear any <b>bruits</b>."</div>
+</li>
+</ul>
+<h3>＊振水音の聴診 (Succession Splash)</h3>
+<p class="description">腸閉塞が疑われる場合、腸管内のガスと水の貯留の有無を判断します。（レベルが高いため、今回の例文生成の対象外）</p>
+</div>
+<!-- 打診 -->
+<div class="section">
+<h2>打診 (Percussion)</h2>
+<p class="description">視診や触診による所見を補い、痛みの評価や臓器の評価を行います。</p>
+<h3>腹部全体の打診 (General Abdominal Percussion)</h3>
+<p class="description">打診音の異常と痛みの有無を判断します（痛みがある場合、その部位の打診は最後に行います）。</p>
+<ul>
+<li class="question-item" data-text="I'm going to percuss your abdomen.">
+<div class="question-text">"I'll <b>percuss</b> <span class="paraphrase">(tap on)</span> your abdomen."</div>
+</li>
+<li class="question-item" data-text="I'm tapping to check for fluid or masses.">
+<div class="question-text">"I'm <b>tapping</b> to check for <b>fluid</b> <span class="paraphrase">(ascites)</span> or <b>masses</b> <span class="paraphrase">(lumps)</span>."</div>
+</li>
+<li class="question-item" data-text="The percussion note is tympanic.">
+<div class="question-text">"The <b>percussion note</b> is <b>tympanic</b> <span class="paraphrase">(drum-like, resonant)</span>."</div>
+</li>
+<li class="question-item" data-text="The percussion note is dull.">
+<div class="question-text">"The percussion note is <b>dull</b> <span class="paraphrase">(flat)</span>."</div>
+</li>
+<li class="question-item" data-text="Does this hurt?">
+<div class="question-text">"Does this <b>hurt</b> <span class="paraphrase">(feel tender)</span>?"</div>
+</li>
+</ul>
+<h3>肝臓の打診 (Liver Percussion)</h3>
+<p class="description">腫大の有無を判断します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to percuss your liver.">
+<div class="question-text">"I'll <b>percuss</b> your <b>liver</b>."</div>
+</li>
+<li class="question-item" data-text="I'm checking the liver span.">
+<div class="question-text">"I'm checking the <b>liver span</b> <span class="paraphrase">(liver size)</span>."</div>
+</li>
+<li class="question-item" data-text="Your liver size is normal.">
+<div class="question-text">"Your liver size is <b>normal</b>."</div>
+</li>
+<li class="question-item" data-text="Your liver appears enlarged.">
+<div class="question-text">"Your liver appears <b>enlarged</b>."</div>
+</li>
+</ul>
+<h3>脾臓の打診 (Spleen Percussion)</h3>
+<p class="description">腫大の有無を判断します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to percuss your spleen.">
+<div class="question-text">"I'll <b>percuss</b> your <b>spleen</b>."</div>
+</li>
+<li class="question-item" data-text="I'm checking for splenomegaly.">
+<div class="question-text">"I'm checking for <b>splenomegaly</b> <span class="paraphrase">(enlarged spleen)</span>."</div>
+</li>
+<li class="question-item" data-text="Your spleen is not enlarged.">
+<div class="question-text">"Your spleen is <b>not enlarged</b>."</div>
+</li>
+</ul>
+</div>
+<!-- 叩打診 -->
+<div class="section">
+<h2>＊叩打診 (Percussion Tenderness)</h2>
+<p class="description">炎症や結石などがある場合、叩くと疼痛を生じることがあります。（レベルが高いため、今回の例文生成の対象外）</p>
+<h3>肝臓の叩打診 (Liver Percussion Tenderness)</h3>
+<p class="description">叩打痛の有無を診察します。</p>
+<h3>脾臓の叩打診 (Spleen Percussion Tenderness)</h3>
+<p class="description">叩打痛の有無を診察します。</p>
+<h3>腎臓の叩打診 (Kidney Percussion Tenderness)</h3>
+<p class="description">叩打痛の有無を診察します。両側で行います。</p>
+</div>
+<!-- 触診 -->
+<div class="section">
+<h2>触診 (Palpation)</h2>
+<p class="description">腹部の診察で最も重要な手技です。系統的にまんべんなく行います。</p>
+<h3>浅い触診 (Light Palpation)</h3>
+<p class="description">圧痛や筋抵抗、表層の臓器の状態や腫瘤の有無を判断します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to gently feel your abdomen."><div class="question-text">"I'm going to <b>gently feel</b> <span class="paraphrase">(softly palpate, lightly examine, carefully press on)</span> your abdomen."</div></li>
+<li class="question-item" data-text="Please try to relax your abdominal muscles."><div class="question-text">"<b>Please <span class="paraphrase">(Could you, Try to)</span> relax</b> <span class="paraphrase">(loosen, soften)</span> your <b>abdominal muscles</b> <span class="paraphrase">(stomach muscles, belly muscles)</span>."</div></li>
+<li class="question-item" data-text="Take some deep breaths."><div class="question-text">"<b>Take <span class="paraphrase">(Breathe, Try)</span> some deep breaths</b> <span class="paraphrase">(slow breaths, big breaths)</span>."</div></li>
+<li class="question-item" data-text="Does this area feel tender?"><div class="question-text">"Does this area feel <b>tender</b> <span class="paraphrase">(painful, sore, sensitive, uncomfortable)</span>?"</div></li>
+<li class="question-item" data-text="Is this painful?"><div class="question-text">"Is this <b>painful</b> <span class="paraphrase">(sore, uncomfortable, tender)</span>?"</div></li>
+<li class="question-item" data-text="Your abdomen is soft."><div class="question-text">"Your abdomen is <b>soft</b> <span class="paraphrase">(relaxed, not rigid)</span>."</div></li>
+</ul>
+<h3>深い触診 (Deep Palpation)</h3>
+<p class="description">腫瘤の有無を判断します。</p>
+<ul>
+<li class="question-item" data-text="Now I'm going to press a little harder."><div class="question-text">"Now I'm going to <b>press a little harder</b> <span class="paraphrase">(push more deeply, palpate more deeply)</span>."</div></li>
+<li class="question-item" data-text="This may feel a little uncomfortable."><div class="question-text">"This may feel <span class="paraphrase">(might be, could be)</span> a little <b>uncomfortable</b> <span class="paraphrase">(unpleasant, slightly painful)</span>."</div></li>
+<li class="question-item" data-text="I'm feeling for any masses."><div class="question-text">"I'm feeling for <span class="paraphrase">(checking for, looking for)</span> any <b>masses</b> <span class="paraphrase">(lumps, abnormal growths, tumors)</span>."</div></li>
+<li class="question-item" data-text="Try to keep breathing normally."><div class="question-text">"<b>Try to keep breathing normally</b> <span class="paraphrase">(Continue breathing, Don't hold your breath)</span>."</div></li>
+</ul>
+<h3>肝臓の触診 (Liver Palpation)</h3>
+<p class="description">腫大などの有無を判断します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to feel for your liver."><div class="question-text">"I'm going to <b>feel for</b> <span class="paraphrase">(palpate, examine)</span> your <b>liver</b>."</div></li>
+<li class="question-item" data-text="Please take a nice deep breath."><div class="question-text">"<b>Please <span class="paraphrase">(Could you, Would you)</span> take a nice deep breath</b> <span class="paraphrase">(big breath, slow breath)</span>."</div></li>
+<li class="question-item" data-text="Breathe in deeply."><div class="question-text">"<b>Breathe in deeply</b> <span class="paraphrase">(Take a deep breath, Inhale deeply)</span>."</div></li>
+<li class="question-item" data-text="I'm feeling for the liver edge."><div class="question-text">"I'm feeling for the <b>liver edge</b> <span class="paraphrase">(hepatic border, liver margin)</span>."</div></li>
+<li class="question-item" data-text="Your liver is normal size."><div class="question-text">"Your liver is <b>normal size</b> <span class="paraphrase">(not enlarged, within normal limits)</span>."</div></li>
+</ul>
+<h3>脾臓の触診 (Spleen Palpation)</h3>
+<p class="description">腫大などの有無を判断します。</p>
+<ul>
+<li class="question-item" data-text="Now I'm going to check your spleen."><div class="question-text">"Now I'm going to <b>check</b> <span class="paraphrase">(examine, feel for, palpate)</span> your <b>spleen</b>."</div></li>
+<li class="question-item" data-text="Take another deep breath."><div class="question-text">"<b>Take another deep breath</b> <span class="paraphrase">(Breathe deeply again, One more deep breath)</span>."</div></li>
+<li class="question-item" data-text="I'm feeling for your spleen under the left rib cage."><div class="question-text">"I'm feeling for your spleen <b>under the left rib cage</b> <span class="paraphrase">(beneath the left ribs, on the left side)</span>."</div></li>
+<li class="question-item" data-text="Your spleen is not palpable."><div class="question-text">"Your spleen is <b>not palpable</b> <span class="paraphrase">(not enlarged, normal, can't be felt)</span>."</div></li>
+</ul>
+<h3>＊腎臓の触診 (Kidney Palpation)</h3>
+<p class="description">腫大などの有無を判断します。（レベルが高いため、今回の例文生成の対象外）</p>
+</div>
+<!-- 病態に応じた診察 -->
+<div class="section">
+<h2>病態に応じた診察 (Condition-Specific Examination)</h2>
+<p class="description">腹水や腹膜刺激徴候など、いくつかの特異的所見に対する重点的な診察を行います。</p>
+<h3>＊腹水の評価 (Assessment of Ascites)</h3>
+<p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+<h3>痛みがある部位の触診 (Palpation of Painful Area)</h3>
+<p class="description">痛みがある部位を触診します。</p>
+<ul>
+<li class="question-item" data-text="Show me where it hurts."><div class="question-text">"<b>Show me <span class="paraphrase">(Point to, Indicate)</span> where it hurts</b> <span class="paraphrase">(where the pain is, where it's painful)</span>."</div></li>
+<li class="question-item" data-text="I'll examine the painful area last."><div class="question-text">"I'll examine <span class="paraphrase">(check, palpate)</span> the <b>painful area last</b> <span class="paraphrase">(tender spot last, sore area last)</span>."</div></li>
+<li class="question-item" data-text="Does it hurt more when I press or when I release?"><div class="question-text">"Does it hurt more when I <b>press</b> <span class="paraphrase">(push down)</span> or when I <b>release</b> <span class="paraphrase">(let go, remove my hand)</span>?"</div></li>
+<li class="question-item" data-text="Is this the spot that hurts?"><div class="question-text">"Is this the <b>spot</b> <span class="paraphrase">(area, place, location)</span> that hurts?"</div></li>
+<li class="question-item" data-text="Does the pain radiate anywhere?"><div class="question-text">"Does the pain <b>radiate</b> <span class="paraphrase">(spread, move, travel)</span> anywhere?"</div></li>
+</ul>
+<h3>＊腹膜刺激徴候の評価 (Assessment of Peritoneal Irritation)</h3>
+<p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+<h3>＊腹部腫瘤の触診 (Abdominal Mass Palpation)</h3>
+<p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+<h3>＊鼠径部の診察 (Inguinal Region Examination)</h3>
+<p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+<h3>＊直腸診 (Digital Rectal Examination)</h3>
+<p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+</div>
+</div>
+<script>
         // システム設定に基づいてテーマを適用
         function applyTheme(theme) {
             if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {

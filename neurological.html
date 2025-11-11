@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>神経診察 - 医療面接・身体診察対策</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>神経診察 - 医療面接・身体診察対策</title>
+<style>
         /* CSS変数でテーマカラーを管理 */
         :root {
             --bg-color: #f5f5f5;
@@ -239,6 +240,95 @@
             color: var(--border-color);
         }
 
+        .question-item {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: var(--question-bg);
+            border-left: 3px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .question-item:hover {
+            background-color: var(--question-hover-bg);
+            transform: translateX(5px);
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+
+        .question-item:active {
+            transform: translateX(3px);
+        }
+
+        .question-item::before {
+            content: "🔊";
+            position: absolute;
+            left: 15px;
+            font-size: 18px;
+            opacity: 0.6;
+        }
+
+        .question-item.playing {
+            background-color: var(--question-playing-bg);
+            border-left-color: #28a745;
+        }
+
+        .question-item.playing::before {
+            content: "▶️";
+            opacity: 1;
+        }
+
+        .question-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--heading-color);
+            transition: color 0.3s ease;
+        }
+
+        /* パラフレーズ（括弧内）のスタイル */
+        .paraphrase {
+            opacity: 0.5;
+            font-size: 0.95em;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--border-color);
+            text-decoration: none;
+            font-size: 16px;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-link:hover {
+            opacity: 0.7;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 0;
+            margin: 0;
+        }
+
+        ul.expanded {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
+        }
+
+        /* h2で展開されている場合、h2の直下のulを表示（優先度を高く） */
+        .section:not(.section-collapsed) > h2 + ul {
+            max-height: 1000px !important;
+            opacity: 1 !important;
+            margin: 15px 0 !important;
+        }
+
         .section {
             margin-bottom: 40px;
         }
@@ -279,22 +369,12 @@
             margin: 0 !important;
         }
 
-        .section:not(.section-collapsed) > h3.collapsed + p,
-        .section:not(.section-collapsed) > h4.collapsed + p {
-            max-height: 0 !important;
-            opacity: 0 !important;
-            overflow: hidden !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        .section:not(.section-collapsed) > h3:not(.collapsed) + p,
-        .section:not(.section-collapsed) > h4:not(.collapsed) + p {
-            max-height: none;
-            opacity: 1;
-            overflow: visible;
-            margin: 15px 0;
-            padding: 10px;
+        /* h2で展開されている場合、h3やh4の個別トグルが動作するように */
+        .section:not(.section-collapsed) > h3 + ul.expanded,
+        .section:not(.section-collapsed) > h4 + ul.expanded {
+            max-height: 1000px !important;
+            opacity: 1 !important;
+            margin: 15px 0 !important;
         }
 
         .description {
@@ -304,6 +384,37 @@
             padding: 10px;
             background-color: var(--question-bg);
             border-radius: 5px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 0;
+            margin: 0;
+        }
+
+        ul.expanded {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
+        }
+
+        /* h2で展開されている場合、h2の直下のulを表示（優先度を高く） */
+        .section:not(.section-collapsed) > h2 + ul {
+            max-height: 1000px !important;
+            opacity: 1 !important;
+            margin: 15px 0 !important;
+        }
+
+        /* h2で展開されている場合、h3やh4の個別トグルが動作するように */
+        .section:not(.section-collapsed) > h3 + ul.expanded,
+        .section:not(.section-collapsed) > h4 + ul.expanded {
+            max-height: 1000px !important;
+            opacity: 1 !important;
+            margin: 15px 0 !important;
         }
 
         /* 設定ボタン */
@@ -519,251 +630,288 @@
     </style>
 </head>
 <body>
-    <!-- 設定ボタン -->
-    <button class="settings-button" id="settingsButton" aria-label="設定">
+<!-- 設定ボタン -->
+<button aria-label="設定" class="settings-button" id="settingsButton">
         ⚙️
     </button>
-
-    <!-- 設定モーダル -->
-    <div class="settings-modal" id="settingsModal">
-        <div class="settings-content">
-            <div class="settings-header">
-                <h2>設定</h2>
-                <button class="close-button" id="closeSettings">&times;</button>
-            </div>
-            <div class="settings-item">
-                <span class="settings-label">ダークモード</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="darkModeToggle">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-            <div class="settings-item">
-                <span class="settings-label">レイアウト</span>
-                <div class="layout-options">
-                    <label class="radio-option">
-                        <input type="radio" name="layoutMode" value="auto" id="layoutAuto">
-                        <span>自動</span>
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="layoutMode" value="two-column" id="layoutTwoColumn">
-                        <span>2段組</span>
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="layoutMode" value="single-column" id="layoutSingleColumn">
-                        <span>1段組</span>
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container">
-        <a href="index.html" class="back-link">← トップページに戻る</a>
-        <h1>神経診察 (Neurological Examination)</h1>
-        <!-- 脳神経の診察 -->
-        <div class="section">
-            <h2>脳神経の診察 (Cranial Nerve Examination)</h2>
-            <p class="description">それぞれの診察がどの脳神経に対応しているのか、各脳神経核が脳幹のどのレベルにあるのかをあらかじめ理解しておくことが重要です。</p>
-
-            <h3>＊嗅覚 (Olfaction)</h3>
-            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
-
-            <h3>視野 (Visual Field)</h3>
-            <p class="description">視野の異常を確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>眼球運動・眼振 (Extraocular Movements and Nystagmus)</h3>
-            <p class="description">眼球運動の範囲と眼振の有無を確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>眼裂（瞼裂）・瞳孔／対光反射 (Palpebral Fissure, Pupil, and Light Reflex)</h3>
-            <p class="description">眼裂、瞳孔の大きさ、対光反射を確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>＊輻輳と近見反射 (Convergence and Near Reflex)</h3>
-            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
-
-            <h3>眼底 (Fundoscopic Examination)</h3>
-            <p class="description">眼底を観察します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>顔面の感覚 (Facial Sensation)</h3>
-            <p class="description">顔面の感覚を確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>＊角膜反射 (Corneal Reflex)</h3>
-            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
-
-            <h3>＊咬筋と側頭筋 (Masseter and Temporalis)</h3>
-            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
-
-            <h3>顔面筋 (Facial Muscles)</h3>
-            <p class="description">顔面筋の動きを確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>＊聴力 (Hearing)</h3>
-            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
-
-            <h3>軟口蓋・咽頭後壁の動き (Soft Palate and Posterior Pharynx Movement)</h3>
-            <p class="description">軟口蓋と咽頭後壁の動きを確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>舌 (Tongue)</h3>
-            <p class="description">舌の動きと形態を確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>胸鎖乳突筋 (Sternocleidomastoid)</h3>
-            <p class="description">胸鎖乳突筋の筋力を確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-        </div>
-
-        <!-- 上肢の運動系の診察 -->
-        <div class="section">
-            <h2>上肢の運動系の診察 (Upper Extremity Motor Examination)</h2>
-            <p class="description">錐体路の障害や錐体外路系・小脳系の障害の有無を調べます。</p>
-
-            <h3>＊上肢・体幹の視診 (Inspection of Upper Extremities and Trunk)</h3>
-            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
-
-            <h3>Barréバレー徴候（上肢） (Barré Sign - Upper Extremities)</h3>
-            <p class="description">上肢のBarré徴候を確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>握力と上肢の徒手筋力テスト (Grip Strength and Manual Muscle Testing of Upper Extremities)</h3>
-            <p class="description">握力と上肢の筋力を評価します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>筋トーヌス（肘関節） (Muscle Tone - Elbow Joint)</h3>
-            <p class="description">肘関節の筋トーヌスを評価します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>上半身の不随意運動 (Involuntary Movements of Upper Body)</h3>
-            <p class="description">上半身の不随意運動の有無を確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>鼻指鼻試験 (Finger-to-Nose Test)</h3>
-            <p class="description">協調運動を評価します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>手回内・回外試験 (Pronation-Supination Test)</h3>
-            <p class="description">前腕の回内・回外運動を評価します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-        </div>
-
-        <!-- 起立と歩行の診察 -->
-        <div class="section">
-            <h2>起立と歩行の診察 (Standing and Gait Examination)</h2>
-            <p class="description">起立、歩行、立位の様子を観察し異常の有無を調べます。異常があったときは、神経・筋のどの部分の障害であるかを、「下肢の運動系の診察」「感覚系の診察」「反射の診察」で明らかにします。</p>
-
-            <h3>起立と歩行の診察（通常歩行，つぎ足歩行） (Standing and Gait - Normal and Tandem Walking)</h3>
-            <p class="description">通常歩行とつぎ足歩行を観察します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>Rombergロンベルグ試験 (Romberg Test)</h3>
-            <p class="description">平衡感覚を評価します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-        </div>
-
-        <!-- 下肢の運動系の診察 -->
-        <div class="section">
-            <h2>下肢の運動系の診察 (Lower Extremity Motor Examination)</h2>
-            <p class="description">上肢の運動系と考え方は同じで、錐体路の障害や錐体外路系・小脳系の障害の有無を調べます。</p>
-
-            <h3>＊下肢・体幹の視診 (Inspection of Lower Extremities and Trunk)</h3>
-            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
-
-            <h3>＊Barré徴候（下肢） (Barré Sign - Lower Extremities)</h3>
-            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
-
-            <h3>下肢の徒手筋力テスト (Manual Muscle Testing of Lower Extremities)</h3>
-            <p class="description">下肢の筋力を評価します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>＊筋トーヌス（膝関節） (Muscle Tone - Knee Joint)</h3>
-            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
-
-            <h3>踵膝試験 (Heel-to-Shin Test)</h3>
-            <p class="description">協調運動を評価します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-        </div>
-
-        <!-- 感覚系の診察 -->
-        <div class="section">
-            <h2>感覚系の診察 (Sensory Examination)</h2>
-            <p class="description">中枢、神経根、末梢、各神経の支配領域の違いと感覚路の走行を念頭に置きながら丁寧に行います。</p>
-
-            <h3>四肢の触覚と痛覚 (Tactile and Pain Sensation of Extremities)</h3>
-            <p class="description">四肢の触覚と痛覚を確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>＊下肢の振動覚 (Vibration Sense of Lower Extremities)</h3>
-            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
-
-            <h3>＊下肢の位置感覚（位置覚） (Position Sense of Lower Extremities)</h3>
-            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
-        </div>
-
-        <!-- 反射の診察 -->
-        <div class="section">
-            <h2>反射の診察 (Reflex Examination)</h2>
-            <p class="description">錐体路や反射弓の障害の有無を調べます。意識障害のある患者にも有用です。</p>
-
-            <h3>腱反射 (Tendon Reflexes)</h3>
-            <p class="description">各腱反射を確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-
-            <h3>病的反射 (Pathological Reflexes)</h3>
-            <p class="description">病的反射の有無を確認します。</p>
-            <ul>
-                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
-            </ul>
-        </div>
-    </div>
-
-    <script>
+<!-- 設定モーダル -->
+<div class="settings-modal" id="settingsModal">
+<div class="settings-content">
+<div class="settings-header">
+<h2>設定</h2>
+<button class="close-button" id="closeSettings">×</button>
+</div>
+<div class="settings-item">
+<span class="settings-label">ダークモード</span>
+<label class="toggle-switch">
+<input id="darkModeToggle" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="settings-item">
+<span class="settings-label">レイアウト</span>
+<div class="layout-options">
+<label class="radio-option">
+<input id="layoutAuto" name="layoutMode" type="radio" value="auto"/>
+<span>自動</span>
+</label>
+<label class="radio-option">
+<input id="layoutTwoColumn" name="layoutMode" type="radio" value="two-column"/>
+<span>2段組</span>
+</label>
+<label class="radio-option">
+<input id="layoutSingleColumn" name="layoutMode" type="radio" value="single-column"/>
+<span>1段組</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+<div class="container">
+<a class="back-link" href="index.html">← トップページに戻る</a>
+<h1>神経診察 (Neurological Examination)</h1>
+<!-- 脳神経の診察 -->
+<div class="section">
+<h2>脳神経の診察 (Cranial Nerve Examination)</h2>
+<p class="description">それぞれの診察がどの脳神経に対応しているのか、各脳神経核が脳幹のどのレベルにあるのかをあらかじめ理解しておくことが重要です。</p>
+<h3>＊嗅覚 (Olfaction)</h3>
+<p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+<h3>視野 (Visual Field)</h3>
+<p class="description">視野の異常を確認します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to test your visual fields."><div class="question-text">"I'm going to test <span class="paraphrase">(check, examine, assess)</span> your <b>visual fields</b> <span class="paraphrase">(peripheral vision, side vision)</span>."</div></li>
+<li class="question-item" data-text="Please look straight at my eye."><div class="question-text">"<b>Please <span class="paraphrase">(Could you, Would you)</span> look straight at my eye</b> <span class="paraphrase">(look directly at me, keep your eyes on mine)</span>."</div></li>
+<li class="question-item" data-text="Tell me how many fingers you see."><div class="question-text">"<b>Tell me <span class="paraphrase">(Let me know, Say)</span> how many fingers you see</b> <span class="paraphrase">(count the fingers, tell me the number)</span>."</div></li>
+<li class="question-item" data-text="Do you see this finger out of the corner of your eye?"><div class="question-text">"Do you see this finger <b>out of the corner of your eye</b> <span class="paraphrase">(in your peripheral vision, to the side)</span>?"</div></li>
+</ul>
+<h3>眼球運動・眼振 (Extraocular Movements and Nystagmus)</h3>
+<p class="description">眼球運動の範囲と眼振の有無を確認します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to test your eye movements."><div class="question-text">"I'm going to test <span class="paraphrase">(check, examine, assess)</span> your <b>eye movements</b> <span class="paraphrase">(ocular movements, extraocular movements)</span>."</div></li>
+<li class="question-item" data-text="Please follow my finger with your eyes."><div class="question-text">"<b>Please <span class="paraphrase">(Could you, Would you)</span> follow my finger with your eyes</b> <span class="paraphrase">(track my finger, watch my finger)</span>."</div></li>
+<li class="question-item" data-text="Keep your head still."><div class="question-text">"<b>Keep your head still</b> <span class="paraphrase">(Don't move your head, Hold your head steady)</span>."</div></li>
+<li class="question-item" data-text="Just move your eyes."><div class="question-text">"<b>Just move your eyes</b> <span class="paraphrase">(Only your eyes, Move only your eyes)</span>."</div></li>
+<li class="question-item" data-text="Tell me if you see double."><div class="question-text">"Tell me if you see <b>double</b> <span class="paraphrase">(two images, diplopia)</span>."</div></li>
+</ul>
+<h3>眼裂（瞼裂）・瞳孔／対光反射 (Palpebral Fissure, Pupil, and Light Reflex)</h3>
+<p class="description">眼裂、瞳孔の大きさ、対光反射を確認します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to check your pupil reflexes."><div class="question-text">"I'm going to check <span class="paraphrase">(test, examine, assess)</span> your <b>pupil reflexes</b> <span class="paraphrase">(pupillary responses, light reflexes)</span>."</div></li>
+<li class="question-item" data-text="Please look at my nose."><div class="question-text">"<b>Please <span class="paraphrase">(Could you, Would you)</span> look at my nose</b> <span class="paraphrase">(look straight ahead, look at me)</span>."</div></li>
+<li class="question-item" data-text="I'm going to shine a light in your eyes."><div class="question-text">"I'm going to <b>shine a light</b> <span class="paraphrase">(point a light, flash a light)</span> in your eyes."</div></li>
+<li class="question-item" data-text="This might be bright."><div class="question-text">"This might be <b>bright</b> <span class="paraphrase">(a bit uncomfortable, glaring)</span>."</div></li>
+<li class="question-item" data-text="Your pupils are equal and reactive."><div class="question-text">"Your pupils are <b>equal</b> <span class="paraphrase">(the same size, symmetric)</span> and <b>reactive</b> <span class="paraphrase">(responding, working normally)</span>."</div></li>
+</ul>
+<h3>＊輻輳と近見反射 (Convergence and Near Reflex)</h3>
+<p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+<h3>眼底 (Fundoscopic Examination)</h3>
+<p class="description">眼底を観察します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to look at the back of your eyes."><div class="question-text">"I'm going to look at <span class="paraphrase">(examine, check)</span> the <b>back of your eyes</b> <span class="paraphrase">(retina, fundus)</span>."</div></li>
+<li class="question-item" data-text="I need to use this ophthalmoscope."><div class="question-text">"I need to use this <b>ophthalmoscope</b> <span class="paraphrase">(eye instrument, eye scope)</span>."</div></li>
+<li class="question-item" data-text="Please look straight ahead."><div class="question-text">"<b>Please <span class="paraphrase">(Could you, Would you)</span> look straight ahead</b> <span class="paraphrase">(look forward, focus forward)</span>."</div></li>
+</ul>
+<h3>顔面の感覚 (Facial Sensation)</h3>
+<p class="description">顔面の感覚を確認します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to test the sensation on your face."><div class="question-text">"I'm going to test <span class="paraphrase">(check, examine, assess)</span> the <b>sensation</b> <span class="paraphrase">(feeling, sense of touch)</span> on your face."</div></li>
+<li class="question-item" data-text="Close your eyes."><div class="question-text">"<b>Close your eyes</b> <span class="paraphrase">(Shut your eyes, Keep your eyes closed)</span>."</div></li>
+<li class="question-item" data-text="Do you feel this?"><div class="question-text">"Do you <b>feel this</b> <span class="paraphrase">(sense this, notice this)</span>?"</div></li>
+<li class="question-item" data-text="Is it the same on both sides?"><div class="question-text">"Is it <b>the same on both sides</b> <span class="paraphrase">(equal bilaterally, symmetric)</span>?"</div></li>
+</ul>
+<h3>＊角膜反射 (Corneal Reflex)</h3>
+<p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+<h3>＊咬筋と側頭筋 (Masseter and Temporalis)</h3>
+<p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+<h3>顔面筋 (Facial Muscles)</h3>
+<p class="description">顔面筋の動きを確認します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to test your facial muscles."><div class="question-text">"I'm going to test <span class="paraphrase">(check, examine, assess)</span> your <b>facial muscles</b> <span class="paraphrase">(face muscles, facial movements)</span>."</div></li>
+<li class="question-item" data-text="Please smile for me."><div class="question-text">"<b>Please <span class="paraphrase">(Could you, Would you)</span> smile</b> <span class="paraphrase">(show me a smile, give me a big smile)</span> for me."</div></li>
+<li class="question-item" data-text="Show me your teeth."><div class="question-text">"<b>Show me your teeth</b> <span class="paraphrase">(Open your mouth and show your teeth)</span>."</div></li>
+<li class="question-item" data-text="Puff your cheeks out."><div class="question-text">"<b>Puff your cheeks out</b> <span class="paraphrase">(Blow your cheeks up, Fill your cheeks with air)</span>."</div></li>
+<li class="question-item" data-text="Raise your eyebrows."><div class="question-text">"<b>Raise your eyebrows</b> <span class="paraphrase">(Lift your eyebrows, Make a surprised face)</span>."</div></li>
+<li class="question-item" data-text="Close your eyes tight."><div class="question-text">"<b>Close your eyes tight</b> <span class="paraphrase">(Squeeze your eyes shut, Shut your eyes tightly)</span>."</div></li>
+</ul>
+<h3>＊聴力 (Hearing)</h3>
+<p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+<h3>軟口蓋・咽頭後壁の動き (Soft Palate and Posterior Pharynx Movement)</h3>
+<p class="description">軟口蓋と咽頭後壁の動きを確認します。</p>
+<ul>
+<li class="question-item" data-text="Open your mouth and say ah."><div class="question-text">"<b>Open your mouth <span class="paraphrase">(Open wide)</span> and say ah</b> <span class="paraphrase">(make an ah sound)</span>."</div></li>
+<li class="question-item" data-text="I'm looking at the back of your throat."><div class="question-text">"I'm looking at <span class="paraphrase">(examining, inspecting)</span> the <b>back of your throat</b> <span class="paraphrase">(pharynx, throat)</span>."</div></li>
+<li class="question-item" data-text="Your palate moves symmetrically."><div class="question-text">"Your <b>palate</b> <span class="paraphrase">(soft palate, roof of your mouth)</span> moves <b>symmetrically</b> <span class="paraphrase">(evenly, equally on both sides)</span>."</div></li>
+</ul>
+<h3>舌 (Tongue)</h3>
+<p class="description">舌の動きと形態を確認します。</p>
+<ul>
+<li class="question-item" data-text="Please stick your tongue out."><div class="question-text">"<b>Please <span class="paraphrase">(Could you, Would you)</span> stick your tongue out</b> <span class="paraphrase">(put your tongue out, show me your tongue)</span>."</div></li>
+<li class="question-item" data-text="Move your tongue left and right."><div class="question-text">"<b>Move your tongue <span class="paraphrase">(Shift your tongue)</span> left and right</b> <span class="paraphrase">(side to side, back and forth)</span>."</div></li>
+<li class="question-item" data-text="Push your tongue against the inside of your cheek."><div class="question-text">"Push your tongue against <span class="paraphrase">(Press your tongue to)</span> the <b>inside of your cheek</b> <span class="paraphrase">(side of your mouth)</span>."</div></li>
+</ul>
+<h3>胸鎖乳突筋 (Sternocleidomastoid)</h3>
+<p class="description">胸鎖乳突筋の筋力を確認します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to test your neck muscles."><div class="question-text">"I'm going to test <span class="paraphrase">(check, examine, assess)</span> your <b>neck muscles</b> <span class="paraphrase">(neck strength)</span>."</div></li>
+<li class="question-item" data-text="Please shrug your shoulders."><div class="question-text">"<b>Please <span class="paraphrase">(Could you, Would you)</span> shrug your shoulders</b> <span class="paraphrase">(lift your shoulders, raise your shoulders)</span>."</div></li>
+<li class="question-item" data-text="Turn your head to the left."><div class="question-text">"<b>Turn your head <span class="paraphrase">(Move your head, Rotate your head)</span> to the left</b> <span class="paraphrase">(left side)</span>."</div></li>
+<li class="question-item" data-text="Now turn to the right."><div class="question-text">"Now turn <span class="paraphrase">(move, rotate)</span> to the right."</div></li>
+<li class="question-item" data-text="Don't let me turn your head."><div class="question-text">"<b>Don't let me <span class="paraphrase">(Try not to let me, Resist when I)</span> turn your head</b>."</div></li>
+</ul>
+</div>
+<!-- 上肢の運動系の診察 -->
+<div class="section">
+<h2>上肢の運動系の診察 (Upper Extremity Motor Examination)</h2>
+<p class="description">錐体路の障害や錐体外路系・小脳系の障害の有無を調べます。</p>
+<h3>＊上肢・体幹の視診 (Inspection of Upper Extremities and Trunk)</h3>
+<p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+<h3>Barréバレー徴候（上肢） (Barré Sign - Upper Extremities)</h3>
+<p class="description">上肢のBarré徴候を確認します。</p>
+<ul>
+<li class="question-item" data-text="Please hold your arms out in front of you like holding a pizza."><div class="question-text">"<b>Please <span class="paraphrase">(Could you, Would you)</span> hold your arms out</b> <span class="paraphrase">(extend your arms, stretch your arms forward)</span> in front of you like <b>holding a pizza</b>."</div></li>
+<li class="question-item" data-text="Close your eyes."><div class="question-text">"<b>Close your eyes</b> <span class="paraphrase">(Shut your eyes, Keep your eyes closed)</span>."</div></li>
+<li class="question-item" data-text="Keep your hands steady."><div class="question-text">"<b>Keep your hands steady</b> <span class="paraphrase">(Hold your hands still, Don't let your hands drift)</span>."</div></li>
+</ul>
+<h3>握力と上肢の徒手筋力テスト (Grip Strength and Manual Muscle Testing of Upper Extremities)</h3>
+<p class="description">握力と上肢の筋力を評価します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to test your arm strength."><div class="question-text">"I'm going to test <span class="paraphrase">(check, examine, assess)</span> your <b>arm strength</b> <span class="paraphrase">(muscle strength, power)</span>."</div></li>
+<li class="question-item" data-text="Squeeze my fingers as hard as you can."><div class="question-text">"<b>Squeeze <span class="paraphrase">(Grip, Hold)</span> my fingers as hard as you can</b> <span class="paraphrase">(with all your strength, as tightly as possible)</span>."</div></li>
+<li class="question-item" data-text="Hold your elbows up in the air."><div class="question-text">"<b>Hold your elbows up</b> <span class="paraphrase">(Lift your elbows, Raise your elbows)</span> in the air."</div></li>
+<li class="question-item" data-text="Don't let me push your arms down."><div class="question-text">"<b>Don't let me <span class="paraphrase">(Try not to let me, Resist when I)</span> push your arms down</b>."</div></li>
+<li class="question-item" data-text="Pull my hand up towards your chin."><div class="question-text">"<b>Pull my hand up <span class="paraphrase">(Bring my hand up)</span> towards your chin</b>."</div></li>
+<li class="question-item" data-text="Spread your fingers wide apart."><div class="question-text">"<b>Spread your fingers <span class="paraphrase">(Separate your fingers, Open your fingers)</span> wide apart</b>."</div></li>
+<li class="question-item" data-text="Don't let me squeeze them together."><div class="question-text">"<b>Don't let me squeeze them together</b> <span class="paraphrase">(Resist when I push them together)</span>."</div></li>
+</ul>
+<h3>筋トーヌス（肘関節） (Muscle Tone - Elbow Joint)</h3>
+<p class="description">肘関節の筋トーヌスを評価します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to check your muscle tone."><div class="question-text">"I'm going to check <span class="paraphrase">(test, examine, assess)</span> your <b>muscle tone</b> <span class="paraphrase">(muscle stiffness, muscle tension)</span>."</div></li>
+<li class="question-item" data-text="Please relax your arm."><div class="question-text">"<b>Please <span class="paraphrase">(Could you, Would you)</span> relax your arm</b> <span class="paraphrase">(let your arm go limp, don't tense up)</span>."</div></li>
+<li class="question-item" data-text="I'm going to move your arm."><div class="question-text">"I'm going to move <span class="paraphrase">(bend, flex)</span> your arm."</div></li>
+</ul>
+<h3>上半身の不随意運動 (Involuntary Movements of Upper Body)</h3>
+<p class="description">上半身の不随意運動の有無を確認します。</p>
+<ul>
+<li class="question-item" data-text="I'm looking for any involuntary movements."><div class="question-text">"I'm looking for any <b>involuntary movements</b> <span class="paraphrase">(abnormal movements, tremors, twitches)</span>."</div></li>
+<li class="question-item" data-text="Do you notice any tremors or shaking?"><div class="question-text">"Do you notice any <b>tremors</b> <span class="paraphrase">(shaking, shivering)</span> or shaking?"</div></li>
+</ul>
+<h3>鼻指鼻試験 (Finger-to-Nose Test)</h3>
+<p class="description">協調運動を評価します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to test your coordination."><div class="question-text">"I'm going to test <span class="paraphrase">(check, examine, assess)</span> your <b>coordination</b> <span class="paraphrase">(motor control, accuracy)</span>."</div></li>
+<li class="question-item" data-text="Touch your nose with your finger, then touch my finger."><div class="question-text">"<b>Touch your nose <span class="paraphrase">(Tap your nose)</span> with your finger, then touch my finger</b>."</div></li>
+<li class="question-item" data-text="Keep going back and forth."><div class="question-text">"<b>Keep going back and forth</b> <span class="paraphrase">(Continue alternating, Repeat)</span>."</div></li>
+<li class="question-item" data-text="Now speed up."><div class="question-text">"Now <b>speed up</b> <span class="paraphrase">(go faster, increase your pace)</span>."</div></li>
+</ul>
+<h3>手回内・回外試験 (Pronation-Supination Test)</h3>
+<p class="description">前腕の回内・回外運動を評価します。</p>
+<ul>
+<li class="question-item" data-text="I want you to flip your hands over like this."><div class="question-text">"I want you to <b>flip your hands over</b> <span class="paraphrase">(turn your hands, rotate your hands)</span> like this."</div></li>
+<li class="question-item" data-text="Keep alternating palm up and palm down."><div class="question-text">"<b>Keep alternating <span class="paraphrase">(Keep switching, Keep turning)</span> palm up and palm down</b>."</div></li>
+<li class="question-item" data-text="Go faster."><div class="question-text">"<b>Go faster</b> <span class="paraphrase">(Speed up, Increase your pace)</span>."</div></li>
+</ul>
+</div>
+<!-- 起立と歩行の診察 -->
+<div class="section">
+<h2>起立と歩行の診察 (Standing and Gait Examination)</h2>
+<p class="description">起立、歩行、立位の様子を観察し異常の有無を調べます。異常があったときは、神経・筋のどの部分の障害であるかを、「下肢の運動系の診察」「感覚系の診察」「反射の診察」で明らかにします。</p>
+<h3>起立と歩行の診察（通常歩行，つぎ足歩行） (Standing and Gait - Normal and Tandem Walking)</h3>
+<p class="description">通常歩行とつぎ足歩行を観察します。</p>
+<ul>
+<li class="question-item" data-text="I'd like you to walk across the room."><div class="question-text">"I'd like you to <b>walk across the room</b> <span class="paraphrase">(walk to the other side, walk forward)</span>."</div></li>
+<li class="question-item" data-text="Now walk back towards me."><div class="question-text">"Now walk back <span class="paraphrase">(return, come back)</span> towards me."</div></li>
+<li class="question-item" data-text="Can you walk heel to toe?"><div class="question-text">"Can you walk <b>heel to toe</b> <span class="paraphrase">(tandem walk, walk in a straight line)</span>?"</div></li>
+<li class="question-item" data-text="Place one foot directly in front of the other."><div class="question-text">"<b>Place one foot directly in front of the other</b> <span class="paraphrase">(Put one foot right in front of the other)</span>."</div></li>
+</ul>
+<h3>Rombergロンベルグ試験 (Romberg Test)</h3>
+<p class="description">平衡感覚を評価します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to test your balance."><div class="question-text">"I'm going to test <span class="paraphrase">(check, examine, assess)</span> your <b>balance</b> <span class="paraphrase">(equilibrium, stability)</span>."</div></li>
+<li class="question-item" data-text="Please stand with your feet together."><div class="question-text">"<b>Please <span class="paraphrase">(Could you, Would you)</span> stand with your feet together</b> <span class="paraphrase">(put your feet side by side)</span>."</div></li>
+<li class="question-item" data-text="Now close your eyes."><div class="question-text">"Now close <span class="paraphrase">(shut)</span> your eyes."</div></li>
+<li class="question-item" data-text="Try not to sway."><div class="question-text">"<b>Try not to sway</b> <span class="paraphrase">(Keep your balance, Stay still, Don't wobble)</span>."</div></li>
+</ul>
+</div>
+<!-- 下肢の運動系の診察 -->
+<div class="section">
+<h2>下肢の運動系の診察 (Lower Extremity Motor Examination)</h2>
+<p class="description">上肢の運動系と考え方は同じで、錐体路の障害や錐体外路系・小脳系の障害の有無を調べます。</p>
+<h3>＊下肢・体幹の視診 (Inspection of Lower Extremities and Trunk)</h3>
+<p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+<h3>＊Barré徴候（下肢） (Barré Sign - Lower Extremities)</h3>
+<p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+<h3>下肢の徒手筋力テスト (Manual Muscle Testing of Lower Extremities)</h3>
+<p class="description">下肢の筋力を評価します。</p>
+<ul>
+<li class="question-item" data-text="Now I'm going to test your leg strength."><div class="question-text">"Now I'm going to test <span class="paraphrase">(check, examine, assess)</span> your <b>leg strength</b> <span class="paraphrase">(lower extremity strength, power)</span>."</div></li>
+<li class="question-item" data-text="Bring your knee up towards your chest."><div class="question-text">"<b>Bring your knee up <span class="paraphrase">(Lift your knee, Raise your knee)</span> towards your chest</b>."</div></li>
+<li class="question-item" data-text="Don't let me push your leg down."><div class="question-text">"<b>Don't let me <span class="paraphrase">(Try not to let me, Resist when I)</span> push your leg down</b>."</div></li>
+<li class="question-item" data-text="Hold your leg out straight."><div class="question-text">"<b>Hold your leg out straight</b> <span class="paraphrase">(Extend your leg, Straighten your leg)</span>."</div></li>
+<li class="question-item" data-text="Push down on my hand with your foot."><div class="question-text">"<b>Push down <span class="paraphrase">(Press down)</span> on my hand with your foot</b>."</div></li>
+<li class="question-item" data-text="Pull your foot up towards your chin."><div class="question-text">"<b>Pull your foot up <span class="paraphrase">(Flex your foot, Bring your foot up)</span> towards your chin</b>."</div></li>
+<li class="question-item" data-text="Point your toes down."><div class="question-text">"<b>Point your toes down</b> <span class="paraphrase">(Push your foot down, Plantarflex your foot)</span>."</div></li>
+</ul>
+<h3>＊筋トーヌス（膝関節） (Muscle Tone - Knee Joint)</h3>
+<p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+<h3>踵膝試験 (Heel-to-Shin Test)</h3>
+<p class="description">協調運動を評価します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to have you lie down for this test."><div class="question-text">"I'm going to <b>have you lie down</b> <span class="paraphrase">(ask you to lie down, need you to recline)</span> for this test."</div></li>
+<li class="question-item" data-text="Take your heel and run it up your shin."><div class="question-text">"<b>Take your heel <span class="paraphrase">(Use your heel)</span> and run it up your shin</b> <span class="paraphrase">(slide it along your shin)</span>."</div></li>
+<li class="question-item" data-text="Start at your knee and go down to your ankle.">
+<div class="question-text">"Start at your knee and go down to your ankle."</div>
+</li>
+<li class="question-item" data-text="Now do the other side.">
+<div class="question-text">"Now do the other side."</div>
+</li>
+</ul>
+</div>
+<!-- 感覚系の診察 -->
+<div class="section">
+<h2>感覚系の診察 (Sensory Examination)</h2>
+<p class="description">中枢、神経根、末梢、各神経の支配領域の違いと感覚路の走行を念頭に置きながら丁寧に行います。</p>
+<h3>四肢の触覚と痛覚 (Tactile and Pain Sensation of Extremities)</h3>
+<p class="description">四肢の触覚と痛覚を確認します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to test your sensation."><div class="question-text">"I'm going to test <span class="paraphrase">(check, examine, assess)</span> your <b>sensation</b> <span class="paraphrase">(feeling, sense of touch)</span>."</div></li>
+<li class="question-item" data-text="Close your eyes."><div class="question-text">"<b>Close your eyes</b> <span class="paraphrase">(Shut your eyes, Keep your eyes closed)</span>."</div></li>
+<li class="question-item" data-text="Tell me when you feel this."><div class="question-text">"Tell me when you <b>feel this</b> <span class="paraphrase">(notice this, sense this)</span>."</div></li>
+<li class="question-item" data-text="Does this feel the same on both sides?"><div class="question-text">"Does this feel <b>the same on both sides</b> <span class="paraphrase">(equal bilaterally, symmetric)</span>?"</div></li>
+<li class="question-item" data-text="Now I'm going to use something sharp."><div class="question-text">"Now I'm going to use something <b>sharp</b> <span class="paraphrase">(pointed, prickly)</span>."</div></li>
+<li class="question-item" data-text="Tell me if this feels sharp or dull."><div class="question-text">"Tell me if this feels <b>sharp or dull</b> <span class="paraphrase">(pointed or blunt, prickly or smooth)</span>."</div></li>
+<li class="question-item" data-text="Do both sides feel equally sharp?"><div class="question-text">"Do both sides feel <b>equally sharp</b> <span class="paraphrase">(the same, symmetric)</span>?"</div></li>
+</ul>
+<h3>＊下肢の振動覚 (Vibration Sense of Lower Extremities)</h3>
+<p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+<h3>＊下肢の位置感覚（位置覚） (Position Sense of Lower Extremities)</h3>
+<p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+</div>
+<!-- 反射の診察 -->
+<div class="section">
+<h2>反射の診察 (Reflex Examination)</h2>
+<p class="description">錐体路や反射弓の障害の有無を調べます。意識障害のある患者にも有用です。</p>
+<h3>腱反射 (Tendon Reflexes)</h3>
+<p class="description">各腱反射を確認します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to check your reflexes."><div class="question-text">"I'm going to check <span class="paraphrase">(test, examine, assess)</span> your <b>reflexes</b> <span class="paraphrase">(tendon reflexes)</span>."</div></li>
+<li class="question-item" data-text="Please relax."><div class="question-text">"<b>Please <span class="paraphrase">(Could you, Would you)</span> relax</b> <span class="paraphrase">(let yourself go limp, don't tense up)</span>."</div></li>
+<li class="question-item" data-text="I'm going to tap your knee with this hammer."><div class="question-text">"I'm going to <b>tap</b> <span class="paraphrase">(strike, hit)</span> your knee with this <b>hammer</b> <span class="paraphrase">(reflex hammer)</span>."</div></li>
+<li class="question-item" data-text="Let your leg hang loose."><div class="question-text">"<b>Let your leg hang loose</b> <span class="paraphrase">(Relax your leg, Don't tighten your leg)</span>."</div></li>
+<li class="question-item" data-text="I'm checking your biceps reflex."><div class="question-text">"I'm checking your <b>biceps reflex</b> <span class="paraphrase">(arm reflex)</span>."</div></li>
+<li class="question-item" data-text="I'm checking your triceps reflex."><div class="question-text">"I'm checking your <b>triceps reflex</b>."</div></li>
+<li class="question-item" data-text="I'm checking your ankle reflex."><div class="question-text">"I'm checking your <b>ankle reflex</b> <span class="paraphrase">(Achilles reflex)</span>."</div></li>
+</ul>
+<h3>病的反射 (Pathological Reflexes)</h3>
+<p class="description">病的反射の有無を確認します。</p>
+<ul>
+<li class="question-item" data-text="I'm going to stroke the bottom of your foot."><div class="question-text">"I'm going to <b>stroke</b> <span class="paraphrase">(scratch, rub)</span> the <b>bottom of your foot</b> <span class="paraphrase">(sole of your foot)</span>."</div></li>
+<li class="question-item" data-text="I'm checking for a Babinski sign."><div class="question-text">"I'm checking for a <b>Babinski sign</b> <span class="paraphrase">(abnormal reflex, plantar reflex)</span>."</div></li>
+<li class="question-item" data-text="Your toes should curl down."><div class="question-text">"Your toes should <b>curl down</b> <span class="paraphrase">(flex downward, point down)</span>."</div></li>
+</ul>
+</div>
+</div>
+<script>
         // システム設定に基づいてテーマを適用
         function applyTheme(theme) {
             if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {

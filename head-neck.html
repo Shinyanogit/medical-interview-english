@@ -252,105 +252,6 @@
             color: var(--border-color);
         }
 
-        ul {
-            list-style: none;
-            padding-left: 0;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
-            opacity: 0;
-            margin: 0;
-        }
-
-        ul.expanded {
-            max-height: 1000px;
-            opacity: 1;
-            margin: 15px 0;
-        }
-
-        /* h2で展開されている場合、h2の直下のulを表示（優先度を高く） */
-        .section:not(.section-collapsed) > h2 + ul {
-            max-height: 1000px !important;
-            opacity: 1 !important;
-            margin: 15px 0 !important;
-        }
-
-        .section {
-            margin-bottom: 40px;
-        }
-
-        /* h2単位でセクション全体を折りたたむ */
-        .section.section-collapsed > h3,
-        .section.section-collapsed > h4,
-        .section.section-collapsed > p {
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            margin: 0;
-            padding: 0;
-            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
-        }
-
-        /* h2の直下のulも折りたたむ */
-        .section.section-collapsed > h2 + ul {
-            max-height: 0 !important;
-            opacity: 0 !important;
-            overflow: hidden;
-            margin: 0 !important;
-        }
-
-        /* h3やh4が折りたたまれたとき、その直後のpも非表示（優先度を高く） */
-        h3.collapsed + p,
-        h4.collapsed + p {
-            max-height: 0 !important;
-            opacity: 0 !important;
-            overflow: hidden !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
-        }
-
-        /* h3やh4が折りたたまれたとき、その直後のulも非表示 */
-        h3.collapsed + ul,
-        h4.collapsed + ul {
-            max-height: 0 !important;
-            opacity: 0 !important;
-            overflow: hidden !important;
-            margin: 0 !important;
-        }
-
-        /* h2で展開されている場合でも、h3やh4がcollapsedならその下の要素は非表示 */
-        .section:not(.section-collapsed) > h3.collapsed + p,
-        .section:not(.section-collapsed) > h4.collapsed + p {
-            max-height: 0 !important;
-            opacity: 0 !important;
-            overflow: hidden !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        /* h3やh4が展開されている場合、その直後のpは表示 */
-        .section:not(.section-collapsed) > h3:not(.collapsed) + p,
-        .section:not(.section-collapsed) > h4:not(.collapsed) + p {
-            max-height: none;
-            opacity: 1;
-            overflow: visible;
-            margin: 15px 0;
-            padding: 10px;
-        }
-
-        /* h2で展開されている場合、h3やh4の個別トグルが動作するように */
-        .section:not(.section-collapsed) > h3 + ul.expanded,
-        .section:not(.section-collapsed) > h4 + ul.expanded {
-            max-height: 1000px;
-            opacity: 1;
-            margin: 15px 0;
-        }
-
-        li {
-            margin-bottom: 10px;
-        }
-
         .question-item {
             margin: 15px 0;
             padding: 15px;
@@ -398,9 +299,81 @@
             transition: color 0.3s ease;
         }
 
+        /* パラフレーズ（括弧内）のスタイル */
         .paraphrase {
             opacity: 0.5;
             font-size: 0.95em;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--border-color);
+            text-decoration: none;
+            font-size: 16px;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-link:hover {
+            opacity: 0.7;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 0;
+            margin: 0;
+        }
+
+        ul.expanded {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
+        }
+
+        /* h2で展開されている場合、h2の直下のulを表示（優先度を高く） */
+        .section:not(.section-collapsed) > h2 + ul {
+            max-height: 1000px !important;
+            opacity: 1 !important;
+            margin: 15px 0 !important;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        /* h2単位でセクション全体を折りたたむ */
+        .section.section-collapsed > h3,
+        .section.section-collapsed > h4 {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            margin: 0;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+        }
+
+        /* h2の直下のulも折りたたむ */
+        .section.section-collapsed > h2 + ul {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden;
+            margin: 0 !important;
+        }
+
+        /* h2で展開されている場合、h3やh4の個別トグルが動作するように */
+        .section:not(.section-collapsed) > h3 + ul.expanded,
+        .section:not(.section-collapsed) > h4 + ul.expanded {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
+        }
+
+        .subsection {
+            margin-left: 20px;
+            margin-top: 20px;
         }
 
         .ai-tag {
@@ -434,19 +407,6 @@
             color: var(--info-box-text);
             font-size: 14px;
             transition: color 0.3s ease;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            color: var(--border-color);
-            text-decoration: none;
-            font-size: 16px;
-            transition: opacity 0.3s ease;
-        }
-
-        .back-link:hover {
-            opacity: 0.7;
         }
 
         @media (max-width: 768px) {
