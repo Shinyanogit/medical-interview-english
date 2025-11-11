@@ -403,6 +403,23 @@
             font-size: 0.95em;
         }
 
+        .ai-tag {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 2px 6px;
+            background-color: #e3f2fd;
+            color: #1976d2;
+            font-size: 0.75em;
+            font-weight: 600;
+            border-radius: 4px;
+            vertical-align: middle;
+        }
+
+        [data-theme="dark"] .ai-tag {
+            background-color: #1a3a4a;
+            color: #64b5f6;
+        }
+
         .info-box {
             background-color: var(--info-box-bg);
             border-left: 4px solid var(--border-color);
@@ -724,25 +741,54 @@
             <h3>顔・顔貌の観察 (Observation of Face and Facial Expression)</h3>
             <p class="description">顔色、表情および左右差、浮腫（特に眼瞼）、皮疹などの有無を調べる</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="Now I'm going to examine your head and face. (ai)">
+                    <div class="question-text">"Now I'm going to <b>examine</b> <span class="paraphrase">(check, look at)</span> your <b>head and face</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="First, I'll look at your facial expression and skin color to see if everything is fine. (ai)">
+                    <div class="question-text">"First, I'll <b>look at</b> <span class="paraphrase">(examine, check)</span> your <b>facial expression</b> and <b>skin color</b> <span class="paraphrase">(complexion)</span> to see if everything is fine. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="I'm going to check for any swelling, especially around your eyes. (ai)">
+                    <div class="question-text">"I'm going to check for any <b>swelling</b> <span class="paraphrase">(puffiness, edema)</span>, especially around your <b>eyes</b> <span class="paraphrase">(eyelids)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="Please look straight ahead and relax your face. (ai)">
+                    <div class="question-text">"Please <b>look straight ahead</b> <span class="paraphrase">(look forward)</span> and <b>relax your face</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
 
             <h3>頭髪の観察 (Observation of Hair)</h3>
             <p class="description">脱毛、色調の変化の有無を調べる</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="Now I'd like to check your hair. (ai)">
+                    <div class="question-text">"Now I'd like to <b>check</b> <span class="paraphrase">(examine, look at)</span> your <b>hair</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="I'm going to look at the distribution and texture of your hair. This will just take a moment. (ai)">
+                    <div class="question-text">"I'm going to look at the <b>distribution</b> <span class="paraphrase">(pattern, coverage)</span> and <b>texture</b> of your hair. This will just take a moment. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
 
             <h3>頭皮の観察 (Observation of Scalp)</h3>
             <p class="description">皮疹、腫瘤などの有無を調べる</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="Next, I'll examine your scalp by parting your hair. (ai)">
+                    <div class="question-text">"Next, I'll <b>examine</b> <span class="paraphrase">(check, look at)</span> your <b>scalp</b> by <b>parting your hair</b> <span class="paraphrase">(moving your hair aside, separating your hair)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="I'm going to look for any rashes or bumps on your scalp. (ai)">
+                    <div class="question-text">"I'm going to look for any <b>rashes</b> <span class="paraphrase">(skin irritation)</span> or <b>bumps</b> <span class="paraphrase">(lumps, masses)</span> on your scalp. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
 
             <h3>頭皮・頭蓋の触診 (Palpation of Scalp and Skull)</h3>
             <p class="description">変形、腫瘤、圧痛などの有無を調べる</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="Now I'm going to gently press on your scalp and skull to check for any tenderness. (ai)">
+                    <div class="question-text">"Now I'm going to <b>gently press</b> <span class="paraphrase">(lightly touch, palpate)</span> on your <b>scalp</b> and <b>skull</b> to check for any <b>tenderness</b> <span class="paraphrase">(pain, soreness)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="Please let me know if you feel any pain or discomfort. (ai)">
+                    <div class="question-text">"Please let me know if you feel any <b>pain</b> or <b>discomfort</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="I'm going to move my fingers across your head like this. It should just feel like gentle pressure. (ai)">
+                    <div class="question-text">"I'm going to <b>move my fingers</b> across your head like this. It should just feel like <b>gentle pressure</b> <span class="paraphrase">(light touch)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
         </div>
 
@@ -771,7 +817,12 @@
             <h3>眼球突出の観察 (Exophthalmos)</h3>
             <p class="description">眼球突出が疑われたら両側方または後上方から確認する</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="I'm going to check your eyes from the side to see if there's any bulging. (ai)">
+                    <div class="question-text">"I'm going to check your eyes from the <b>side</b> to see if there's any <b>bulging</b> <span class="paraphrase">(protrusion, sticking out)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="Please look straight ahead while I check this. (ai)">
+                    <div class="question-text">"Please <b>look straight ahead</b> while I check this. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
 
             <h3>瞳孔・虹彩の観察 (Pupil and Iris)</h3>
@@ -827,7 +878,18 @@
             <h3>眼底の検査 (Fundoscopic Examination)</h3>
             <p class="description">眼底鏡を用いた検査（脳神経の診察を参照）</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="Now I'm going to look at the back of your eyes using this ophthalmoscope. (ai)">
+                    <div class="question-text">"Now I'm going to <b>look at the back of your eyes</b> <span class="paraphrase">(examine your retina)</span> using this <b>ophthalmoscope</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="This will help me check the blood vessels and nerves inside your eye. (ai)">
+                    <div class="question-text">"This will help me check the <b>blood vessels</b> and <b>nerves</b> <span class="paraphrase">(optic nerve)</span> inside your eye. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="Please keep looking at that spot on the wall. I'll need to get quite close to your face. (ai)">
+                    <div class="question-text">"Please keep <b>looking at that spot</b> <span class="paraphrase">(focus on that point)</span> on the wall. I'll need to <b>get quite close</b> to your face. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="You might see a bright light for a moment, but it won't hurt. (ai)">
+                    <div class="question-text">"You might see a <b>bright light</b> for a moment, but it won't hurt. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
         </div>
 
@@ -839,13 +901,23 @@
             <h3>耳介およびその周囲の観察 (Observation of Auricle)</h3>
             <p class="description">変形、結節、皮疹などの有無を調べる</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="Now I'm going to examine your ears. (ai)">
+                    <div class="question-text">"Now I'm going to <b>examine</b> <span class="paraphrase">(check, look at)</span> your <b>ears</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="First, I'll look at the outer part of your ears to check for any abnormalities. (ai)">
+                    <div class="question-text">"First, I'll <b>look at</b> the <b>outer part</b> <span class="paraphrase">(external part)</span> of your ears to check for any <b>abnormalities</b> <span class="paraphrase">(unusual findings, problems)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
 
             <h3>耳介およびその周囲の触診 (Palpation of Auricle)</h3>
             <p class="description">耳介の牽引による痛み、耳介前部・後部の圧痛を確認する</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="I'm going to gently press around your ears and pull on your ear lobe. (ai)">
+                    <div class="question-text">"I'm going to <b>gently press</b> <span class="paraphrase">(lightly touch)</span> around your ears and <b>pull on your ear lobe</b> <span class="paraphrase">(tug your ear)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="Please tell me if this causes any pain. (ai)">
+                    <div class="question-text">"Please tell me if this causes any <b>pain</b> <span class="paraphrase">(discomfort, hurts)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
 
             <h3>聴力検査 (Hearing Test)</h3>
@@ -888,7 +960,12 @@
             <h3>鼻全体の観察 (Observation of Nose)</h3>
             <p class="description">変形、皮疹などの有無を調べる</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="Now I'm going to examine your nose. (ai)">
+                    <div class="question-text">"Now I'm going to <b>examine</b> <span class="paraphrase">(check, look at)</span> your <b>nose</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="I'll look at the shape and skin of your nose to check for any abnormalities. (ai)">
+                    <div class="question-text">"I'll look at the <b>shape</b> <span class="paraphrase">(structure, form)</span> and <b>skin</b> of your nose to check for any <b>abnormalities</b> <span class="paraphrase">(unusual findings, problems)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
 
             <h3>副鼻腔の診察 (Examination of Paranasal Sinuses)</h3>
@@ -905,7 +982,15 @@
             <h3>鼻閉塞の確認 (Nasal Obstruction Test)</h3>
             <p class="description">片方ずつ行い、鼻腔の閉塞の有無を調べる</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="I'm going to check if your nasal passages are clear. (ai)">
+                    <div class="question-text">"I'm going to check if your <b>nasal passages</b> <span class="paraphrase">(airways, nostrils)</span> are <b>clear</b> <span class="paraphrase">(open, unobstructed)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="Please close one nostril with your finger and breathe in through the other one. (ai)">
+                    <div class="question-text">"Please <b>close one nostril</b> <span class="paraphrase">(block one nostril, press one nostril)</span> with your finger and <b>breathe in</b> <span class="paraphrase">(inhale)</span> through the other one. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="Now let's try the other side. (ai)">
+                    <div class="question-text">"Now let's try the <b>other side</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
 
             <h3>鼻腔の観察 (Nasal Cavity Examination)</h3>
@@ -925,7 +1010,12 @@
             <h3>口唇の観察 (Observation of Lips)</h3>
             <p class="description">チアノーゼ、水疱、色素沈着などの有無を調べる</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="Now I'm going to examine your mouth. (ai)">
+                    <div class="question-text">"Now I'm going to <b>examine</b> <span class="paraphrase">(check, look at)</span> your <b>mouth</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="First, I'll look at your lips to check their color and condition. (ai)">
+                    <div class="question-text">"First, I'll <b>look at your lips</b> to check their <b>color</b> and <b>condition</b> <span class="paraphrase">(appearance, state)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
 
             <h3>歯の観察 (Observation of Teeth)</h3>
@@ -939,13 +1029,23 @@
             <h3>歯肉の観察 (Observation of Gingiva)</h3>
             <p class="description">発赤、腫脹、出血などの有無を調べる</p>
             <ul>
-                <li class="placeholder">（口腔内の一般的な観察と共通）</li>
+                <li class="question-item" data-text="I'm going to check your gums for any redness or swelling. (ai)">
+                    <div class="question-text">"I'm going to check your <b>gums</b> for any <b>redness</b> <span class="paraphrase">(inflammation)</span> or <b>swelling</b> <span class="paraphrase">(puffiness)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="Please keep your mouth open while I examine this. (ai)">
+                    <div class="question-text">"Please <b>keep your mouth open</b> while I examine this. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
 
             <h3>頬粘膜の観察 (Observation of Buccal Mucosa)</h3>
             <p class="description">潰瘍、出血、白苔などの有無を調べる</p>
             <ul>
-                <li class="placeholder">（口腔内の一般的な観察と共通）</li>
+                <li class="question-item" data-text="Now I'm going to look at the inside of your cheeks. (ai)">
+                    <div class="question-text">"Now I'm going to look at the <b>inside of your cheeks</b> <span class="paraphrase">(inner cheek, buccal mucosa)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="I'll gently pull your cheek out a little to see better. (ai)">
+                    <div class="question-text">"I'll gently <b>pull your cheek out</b> a little to see better. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
 
             <h3>舌の観察 (Observation of Tongue)</h3>
@@ -986,7 +1086,12 @@
             <h3>口蓋扁桃の観察 (Observation of Palatine Tonsils)</h3>
             <p class="description">腫脹、左右差、発赤、白苔などの有無を調べる</p>
             <ul>
-                <li class="placeholder">（軟口蓋・咽頭後壁の観察と共通）</li>
+                <li class="question-item" data-text="I'm going to check your tonsils now. Please say 'ah' again. (ai)">
+                    <div class="question-text">"I'm going to check your <b>tonsils</b> now. Please say '<b>ah</b>' again. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="I'll look to see if there's any swelling or redness. (ai)">
+                    <div class="question-text">"I'll look to see if there's any <b>swelling</b> or <b>redness</b> <span class="paraphrase">(inflammation)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
         </div>
 
@@ -998,13 +1103,26 @@
             <h3>耳下腺の触診 (Palpation of Parotid Gland)</h3>
             <p class="description">圧痛、腫瘤の有無を調べる</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="Now I'm going to check your salivary glands. (ai)">
+                    <div class="question-text">"Now I'm going to check your <b>salivary glands</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="I'll press gently on the area in front of your ears. (ai)">
+                    <div class="question-text">"I'll <b>press gently</b> <span class="paraphrase">(touch lightly, palpate)</span> on the area <b>in front of your ears</b> <span class="paraphrase">(near your ears)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="Please let me know if you feel any pain or tenderness. (ai)">
+                    <div class="question-text">"Please let me know if you feel any <b>pain</b> or <b>tenderness</b> <span class="paraphrase">(soreness)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
 
             <h3>顎下腺の触診 (Palpation of Submandibular Gland)</h3>
             <p class="description">圧痛、腫瘤の有無を調べる</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="Next, I'll check the glands under your jaw. (ai)">
+                    <div class="question-text">"Next, I'll check the <b>glands</b> <b>under your jaw</b> <span class="paraphrase">(below your jawbone)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="I'm going to press here with both hands. It should just feel like gentle pressure. (ai)">
+                    <div class="question-text">"I'm going to <b>press here</b> with <b>both hands</b>. It should just feel like <b>gentle pressure</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
         </div>
 
@@ -1029,7 +1147,18 @@
             <h3>その他のリンパ節 (Other Lymph Nodes)</h3>
             <p class="description">後頭、耳介後、耳介前、顎下、オトガイ下、下顎角直下、浅頸、深頸、後頸三角リンパ節の触診</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="Now I'm going to check the lymph nodes in your neck and head area. (ai)">
+                    <div class="question-text">"Now I'm going to check the <b>lymph nodes</b> in your <b>neck</b> and <b>head area</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="I'll press gently along different areas to check for any swelling. (ai)">
+                    <div class="question-text">"I'll <b>press gently</b> <span class="paraphrase">(touch lightly)</span> along different areas to check for any <b>swelling</b> <span class="paraphrase">(enlargement, lumps)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="Please let me know if any of these spots feel tender. (ai)">
+                    <div class="question-text">"Please let me know if any of these spots feel <b>tender</b> <span class="paraphrase">(painful, sore)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="Please tilt your head slightly to the side. (ai)">
+                    <div class="question-text">"Please <b>tilt your head</b> <span class="paraphrase">(lean your head)</span> slightly to the side. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
         </div>
 
@@ -1041,13 +1170,29 @@
             <h3>甲状腺の視診 (Inspection of Thyroid)</h3>
             <p class="description">腫大の有無を確認</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="Now I'm going to examine your thyroid gland. (ai)">
+                    <div class="question-text">"Now I'm going to <b>examine</b> <span class="paraphrase">(check, look at)</span> your <b>thyroid gland</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="First, I'll look at your neck to check for any visible swelling. (ai)">
+                    <div class="question-text">"First, I'll <b>look at your neck</b> to check for any <b>visible swelling</b> <span class="paraphrase">(enlargement that can be seen)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="Please swallow for me. (ai)">
+                    <div class="question-text">"Please <b>swallow</b> for me. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
 
             <h3>甲状腺峡部の触診 (Palpation of Thyroid Isthmus)</h3>
             <p class="description">腫大、圧痛、表面の状態や硬さ、結節の有無などを調べる</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="Now I'm going to feel your thyroid gland. (ai)">
+                    <div class="question-text">"Now I'm going to <b>feel</b> <span class="paraphrase">(palpate, examine by touch)</span> your <b>thyroid gland</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="I'll place my fingers on the front of your neck and ask you to swallow again. (ai)">
+                    <div class="question-text">"I'll <b>place my fingers</b> on the <b>front of your neck</b> and ask you to <b>swallow again</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="This helps me feel if there are any lumps or enlargement. (ai)">
+                    <div class="question-text">"This helps me feel if there are any <b>lumps</b> <span class="paraphrase">(masses, nodules)</span> or <b>enlargement</b> <span class="paraphrase">(swelling)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
 
             <h3>甲状腺葉部の触診 (Palpation of Thyroid Lobes)</h3>
@@ -1061,7 +1206,15 @@
             <h3>甲状腺の聴診 (Auscultation of Thyroid)</h3>
             <p class="description">甲状腺腫が疑われるときは、甲状腺を聴診し血管雑音の有無を調べる</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="If I suspect any enlargement, I may need to listen to your thyroid with my stethoscope. (ai)">
+                    <div class="question-text">"If I suspect any <b>enlargement</b> <span class="paraphrase">(swelling)</span>, I may need to <b>listen to your thyroid</b> with my <b>stethoscope</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="I'm checking for any unusual sounds from blood vessels. (ai)">
+                    <div class="question-text">"I'm checking for any <b>unusual sounds</b> <span class="paraphrase">(abnormal sounds, bruits)</span> from <b>blood vessels</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="Please hold your breath for a moment. (ai)">
+                    <div class="question-text">"Please <b>hold your breath</b> <span class="paraphrase">(stop breathing)</span> for a moment. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
         </div>
 
@@ -1073,7 +1226,15 @@
             <h3>気管の観察 (Observation of Trachea)</h3>
             <p class="description">短縮、偏位などについて評価する</p>
             <ul>
-                <li class="placeholder">（例文を追加予定）</li>
+                <li class="question-item" data-text="Now I'm going to check the position of your trachea. (ai)">
+                    <div class="question-text">"Now I'm going to check the <b>position</b> of your <b>trachea</b> <span class="paraphrase">(windpipe)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="I'll gently feel the center of your neck to make sure your trachea is in the midline. (ai)">
+                    <div class="question-text">"I'll gently <b>feel</b> <span class="paraphrase">(palpate, touch)</span> the <b>center of your neck</b> to make sure your trachea is in the <b>midline</b> <span class="paraphrase">(middle, center position)</span>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
+                <li class="question-item" data-text="Please try to relax your neck muscles. (ai)">
+                    <div class="question-text">"Please try to <b>relax your neck muscles</b>. <span class="ai-tag">(ai)</span>"</div>
+                </li>
             </ul>
         </div>
 
