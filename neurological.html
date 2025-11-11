@@ -10,9 +10,16 @@
             --bg-color: #f5f5f5;
             --container-bg: #ffffff;
             --text-color: #333;
-            --question-bg: #f8f9fa;
+            --text-color-secondary: #555;
+            --text-color-tertiary: #666;
             --heading-color: #2c3e50;
+            --heading-color-secondary: #34495e;
             --border-color: #3498db;
+            --question-bg: #f8f9fa;
+            --question-hover-bg: #e8f4f8;
+            --question-playing-bg: #d4edda;
+            --info-box-bg: #e7f3ff;
+            --info-box-text: #1976D2;
             --shadow: rgba(0,0,0,0.1);
         }
 
@@ -20,9 +27,16 @@
             --bg-color: #000000;
             --container-bg: #0a0a0a;
             --text-color: #e0e0e0;
-            --question-bg: #1a1a1a;
+            --text-color-secondary: #b0b0b0;
+            --text-color-tertiary: #999;
             --heading-color: #ffffff;
+            --heading-color-secondary: #e0e0e0;
             --border-color: #4a9eff;
+            --question-bg: #1a1a1a;
+            --question-hover-bg: #2a2a2a;
+            --question-playing-bg: #1a3a2a;
+            --info-box-bg: #0a1a2a;
+            --info-box-text: #64b5f6;
             --shadow: rgba(0,0,0,0.8);
         }
 
@@ -156,12 +170,140 @@
             transition: color 0.3s ease, border-color 0.3s ease;
         }
 
-        .empty-message {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-color);
-            opacity: 0.6;
-            font-size: 18px;
+        h1 {
+            color: var(--heading-color);
+            margin-bottom: 30px;
+            font-size: 28px;
+            border-bottom: 3px solid var(--border-color);
+            padding-bottom: 10px;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        h2 {
+            color: var(--heading-color-secondary);
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 24px;
+            padding-left: 10px;
+            border-left: 4px solid var(--border-color);
+            transition: color 0.3s ease, border-color 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 30px;
+        }
+
+        h2::after {
+            content: "▼";
+            position: absolute;
+            right: 0;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+            color: var(--border-color);
+        }
+
+        h2.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        h2:hover {
+            color: var(--border-color);
+        }
+
+        h3 {
+            color: var(--text-color-secondary);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 20px;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 30px;
+        }
+
+        h3::after {
+            content: "▼";
+            position: absolute;
+            right: 0;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+            color: var(--border-color);
+        }
+
+        h3.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        h3:hover {
+            color: var(--border-color);
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section.section-collapsed > h3,
+        .section.section-collapsed > h4,
+        .section.section-collapsed > p {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+        }
+
+        .section.section-collapsed > h2 + ul {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden;
+            margin: 0 !important;
+        }
+
+        h3.collapsed + p,
+        h4.collapsed + p {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+        }
+
+        h3.collapsed + ul,
+        h4.collapsed + ul {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+        }
+
+        .section:not(.section-collapsed) > h3.collapsed + p,
+        .section:not(.section-collapsed) > h4.collapsed + p {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .section:not(.section-collapsed) > h3:not(.collapsed) + p,
+        .section:not(.section-collapsed) > h4:not(.collapsed) + p {
+            max-height: none;
+            opacity: 1;
+            overflow: visible;
+            margin: 15px 0;
+            padding: 10px;
+        }
+
+        .description {
+            color: var(--text-color-secondary);
+            font-style: italic;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: var(--question-bg);
+            border-radius: 5px;
         }
 
         /* 設定ボタン */
@@ -419,9 +561,205 @@
     <div class="container">
         <a href="index.html" class="back-link">← トップページに戻る</a>
         <h1>神経診察 (Neurological Examination)</h1>
-        <div class="empty-message">
-            このセクションは準備中です。<br>
-            今後、内容を追加予定です。
+        <!-- 脳神経の診察 -->
+        <div class="section">
+            <h2>脳神経の診察 (Cranial Nerve Examination)</h2>
+            <p class="description">それぞれの診察がどの脳神経に対応しているのか、各脳神経核が脳幹のどのレベルにあるのかをあらかじめ理解しておくことが重要です。</p>
+
+            <h3>＊嗅覚 (Olfaction)</h3>
+            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+
+            <h3>視野 (Visual Field)</h3>
+            <p class="description">視野の異常を確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>眼球運動・眼振 (Extraocular Movements and Nystagmus)</h3>
+            <p class="description">眼球運動の範囲と眼振の有無を確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>眼裂（瞼裂）・瞳孔／対光反射 (Palpebral Fissure, Pupil, and Light Reflex)</h3>
+            <p class="description">眼裂、瞳孔の大きさ、対光反射を確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>＊輻輳と近見反射 (Convergence and Near Reflex)</h3>
+            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+
+            <h3>眼底 (Fundoscopic Examination)</h3>
+            <p class="description">眼底を観察します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>顔面の感覚 (Facial Sensation)</h3>
+            <p class="description">顔面の感覚を確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>＊角膜反射 (Corneal Reflex)</h3>
+            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+
+            <h3>＊咬筋と側頭筋 (Masseter and Temporalis)</h3>
+            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+
+            <h3>顔面筋 (Facial Muscles)</h3>
+            <p class="description">顔面筋の動きを確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>＊聴力 (Hearing)</h3>
+            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+
+            <h3>軟口蓋・咽頭後壁の動き (Soft Palate and Posterior Pharynx Movement)</h3>
+            <p class="description">軟口蓋と咽頭後壁の動きを確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>舌 (Tongue)</h3>
+            <p class="description">舌の動きと形態を確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>胸鎖乳突筋 (Sternocleidomastoid)</h3>
+            <p class="description">胸鎖乳突筋の筋力を確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+        </div>
+
+        <!-- 上肢の運動系の診察 -->
+        <div class="section">
+            <h2>上肢の運動系の診察 (Upper Extremity Motor Examination)</h2>
+            <p class="description">錐体路の障害や錐体外路系・小脳系の障害の有無を調べます。</p>
+
+            <h3>＊上肢・体幹の視診 (Inspection of Upper Extremities and Trunk)</h3>
+            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+
+            <h3>Barréバレー徴候（上肢） (Barré Sign - Upper Extremities)</h3>
+            <p class="description">上肢のBarré徴候を確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>握力と上肢の徒手筋力テスト (Grip Strength and Manual Muscle Testing of Upper Extremities)</h3>
+            <p class="description">握力と上肢の筋力を評価します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>筋トーヌス（肘関節） (Muscle Tone - Elbow Joint)</h3>
+            <p class="description">肘関節の筋トーヌスを評価します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>上半身の不随意運動 (Involuntary Movements of Upper Body)</h3>
+            <p class="description">上半身の不随意運動の有無を確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>鼻指鼻試験 (Finger-to-Nose Test)</h3>
+            <p class="description">協調運動を評価します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>手回内・回外試験 (Pronation-Supination Test)</h3>
+            <p class="description">前腕の回内・回外運動を評価します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+        </div>
+
+        <!-- 起立と歩行の診察 -->
+        <div class="section">
+            <h2>起立と歩行の診察 (Standing and Gait Examination)</h2>
+            <p class="description">起立、歩行、立位の様子を観察し異常の有無を調べます。異常があったときは、神経・筋のどの部分の障害であるかを、「下肢の運動系の診察」「感覚系の診察」「反射の診察」で明らかにします。</p>
+
+            <h3>起立と歩行の診察（通常歩行，つぎ足歩行） (Standing and Gait - Normal and Tandem Walking)</h3>
+            <p class="description">通常歩行とつぎ足歩行を観察します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>Rombergロンベルグ試験 (Romberg Test)</h3>
+            <p class="description">平衡感覚を評価します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+        </div>
+
+        <!-- 下肢の運動系の診察 -->
+        <div class="section">
+            <h2>下肢の運動系の診察 (Lower Extremity Motor Examination)</h2>
+            <p class="description">上肢の運動系と考え方は同じで、錐体路の障害や錐体外路系・小脳系の障害の有無を調べます。</p>
+
+            <h3>＊下肢・体幹の視診 (Inspection of Lower Extremities and Trunk)</h3>
+            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+
+            <h3>＊Barré徴候（下肢） (Barré Sign - Lower Extremities)</h3>
+            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+
+            <h3>下肢の徒手筋力テスト (Manual Muscle Testing of Lower Extremities)</h3>
+            <p class="description">下肢の筋力を評価します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>＊筋トーヌス（膝関節） (Muscle Tone - Knee Joint)</h3>
+            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+
+            <h3>踵膝試験 (Heel-to-Shin Test)</h3>
+            <p class="description">協調運動を評価します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+        </div>
+
+        <!-- 感覚系の診察 -->
+        <div class="section">
+            <h2>感覚系の診察 (Sensory Examination)</h2>
+            <p class="description">中枢、神経根、末梢、各神経の支配領域の違いと感覚路の走行を念頭に置きながら丁寧に行います。</p>
+
+            <h3>四肢の触覚と痛覚 (Tactile and Pain Sensation of Extremities)</h3>
+            <p class="description">四肢の触覚と痛覚を確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>＊下肢の振動覚 (Vibration Sense of Lower Extremities)</h3>
+            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+
+            <h3>＊下肢の位置感覚（位置覚） (Position Sense of Lower Extremities)</h3>
+            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+        </div>
+
+        <!-- 反射の診察 -->
+        <div class="section">
+            <h2>反射の診察 (Reflex Examination)</h2>
+            <p class="description">錐体路や反射弓の障害の有無を調べます。意識障害のある患者にも有用です。</p>
+
+            <h3>腱反射 (Tendon Reflexes)</h3>
+            <p class="description">各腱反射を確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>病的反射 (Pathological Reflexes)</h3>
+            <p class="description">病的反射の有無を確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
         </div>
     </div>
 
@@ -635,7 +973,56 @@
             });
         }
 
+        // セクションのトグル機能
+        function initSectionToggle() {
+            const sectionH2s = document.querySelectorAll('.section > h2');
+
+            sectionH2s.forEach(h2 => {
+                const section = h2.parentElement;
+
+                section.classList.add('section-collapsed');
+                h2.classList.add('collapsed');
+
+                h2.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    section.classList.toggle('section-collapsed');
+                    h2.classList.toggle('collapsed');
+                });
+            });
+
+            const subsectionHeaders = document.querySelectorAll('h3, h4');
+
+            subsectionHeaders.forEach(header => {
+                header.classList.add('collapsed');
+
+                let nextElement = header.nextElementSibling;
+                let pElement = null;
+                let ulElement = null;
+
+                if (nextElement && nextElement.tagName === 'P') {
+                    pElement = nextElement;
+                    let nextAfterP = pElement.nextElementSibling;
+                    if (nextAfterP && nextAfterP.tagName === 'UL') {
+                        ulElement = nextAfterP;
+                        ulElement.classList.remove('expanded');
+                    }
+                } else if (nextElement && nextElement.tagName === 'UL') {
+                    ulElement = nextElement;
+                    ulElement.classList.remove('expanded');
+                }
+
+                header.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    header.classList.toggle('collapsed');
+                    if (ulElement) {
+                        ulElement.classList.toggle('expanded');
+                    }
+                });
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            initSectionToggle();
             initSettings();
         });
     </script>

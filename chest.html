@@ -10,9 +10,16 @@
             --bg-color: #f5f5f5;
             --container-bg: #ffffff;
             --text-color: #333;
-            --question-bg: #f8f9fa;
+            --text-color-secondary: #555;
+            --text-color-tertiary: #666;
             --heading-color: #2c3e50;
+            --heading-color-secondary: #34495e;
             --border-color: #3498db;
+            --question-bg: #f8f9fa;
+            --question-hover-bg: #e8f4f8;
+            --question-playing-bg: #d4edda;
+            --info-box-bg: #e7f3ff;
+            --info-box-text: #1976D2;
             --shadow: rgba(0,0,0,0.1);
         }
 
@@ -20,9 +27,16 @@
             --bg-color: #000000;
             --container-bg: #0a0a0a;
             --text-color: #e0e0e0;
-            --question-bg: #1a1a1a;
+            --text-color-secondary: #b0b0b0;
+            --text-color-tertiary: #999;
             --heading-color: #ffffff;
+            --heading-color-secondary: #e0e0e0;
             --border-color: #4a9eff;
+            --question-bg: #1a1a1a;
+            --question-hover-bg: #2a2a2a;
+            --question-playing-bg: #1a3a2a;
+            --info-box-bg: #0a1a2a;
+            --info-box-text: #64b5f6;
             --shadow: rgba(0,0,0,0.8);
         }
 
@@ -156,12 +170,140 @@
             transition: color 0.3s ease, border-color 0.3s ease;
         }
 
-        .empty-message {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-color);
-            opacity: 0.6;
-            font-size: 18px;
+        h1 {
+            color: var(--heading-color);
+            margin-bottom: 30px;
+            font-size: 28px;
+            border-bottom: 3px solid var(--border-color);
+            padding-bottom: 10px;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        h2 {
+            color: var(--heading-color-secondary);
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 24px;
+            padding-left: 10px;
+            border-left: 4px solid var(--border-color);
+            transition: color 0.3s ease, border-color 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 30px;
+        }
+
+        h2::after {
+            content: "▼";
+            position: absolute;
+            right: 0;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+            color: var(--border-color);
+        }
+
+        h2.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        h2:hover {
+            color: var(--border-color);
+        }
+
+        h3 {
+            color: var(--text-color-secondary);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 20px;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 30px;
+        }
+
+        h3::after {
+            content: "▼";
+            position: absolute;
+            right: 0;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+            color: var(--border-color);
+        }
+
+        h3.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        h3:hover {
+            color: var(--border-color);
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section.section-collapsed > h3,
+        .section.section-collapsed > h4,
+        .section.section-collapsed > p {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+        }
+
+        .section.section-collapsed > h2 + ul {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden;
+            margin: 0 !important;
+        }
+
+        h3.collapsed + p,
+        h4.collapsed + p {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+        }
+
+        h3.collapsed + ul,
+        h4.collapsed + ul {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+        }
+
+        .section:not(.section-collapsed) > h3.collapsed + p,
+        .section:not(.section-collapsed) > h4.collapsed + p {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .section:not(.section-collapsed) > h3:not(.collapsed) + p,
+        .section:not(.section-collapsed) > h4:not(.collapsed) + p {
+            max-height: none;
+            opacity: 1;
+            overflow: visible;
+            margin: 15px 0;
+            padding: 10px;
+        }
+
+        .description {
+            color: var(--text-color-secondary);
+            font-style: italic;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: var(--question-bg);
+            border-radius: 5px;
         }
 
         /* 設定ボタン */
@@ -419,9 +561,127 @@
     <div class="container">
         <a href="index.html" class="back-link">← トップページに戻る</a>
         <h1>胸部診察 (Chest Examination)</h1>
-        <div class="empty-message">
-            このセクションは準備中です。<br>
-            今後、内容を追加予定です。
+        <!-- 頸部血管 -->
+        <div class="section">
+            <h2>頸部血管 (Neck Vessels)</h2>
+            <p class="description">頸部の静脈と動脈を診察します。</p>
+
+            <h3>視診 (Inspection)</h3>
+            <p class="description">外頸静脈と＊内頸静脈を視診します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>聴診 (Auscultation)</h3>
+            <p class="description">頸動脈の聴診を行います。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>触診 (Palpation)</h3>
+            <p class="description">頸動脈の触診を行います。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+        </div>
+
+        <!-- 前胸部の視診 -->
+        <div class="section">
+            <h2>前胸部の視診 (Inspection of Anterior Chest)</h2>
+            <p class="description">解剖学的部位の特定や、皮膚・胸郭の視診を行います。</p>
+
+            <h3>視診 (Inspection)</h3>
+            <p class="description">解剖学的部位（胸骨角、剣状突起）の特定、皮膚所見、胸郭の形状・輪郭、呼吸状態（呼吸様式）を確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+        </div>
+
+        <!-- 心臓 -->
+        <div class="section">
+            <h2>心臓 (Heart)</h2>
+            <p class="description">心臓の視診、触診、聴診を行います。</p>
+
+            <h3>視診 (Inspection)</h3>
+            <p class="description">心尖拍動と胸壁拍動を視診で確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>触診 (Palpation)</h3>
+            <p class="description">心尖拍動、胸壁拍動、振戦（thrillスリル）を触診で確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>聴診 (Auscultation)</h3>
+            <p class="description">4領域の聴診を行います。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+        </div>
+
+        <!-- 肺（前胸部） -->
+        <div class="section">
+            <h2>肺（前胸部） (Lungs - Anterior Chest)</h2>
+            <p class="description">前面から肺の視診、打診、聴診を行います。</p>
+
+            <h3>視診 (Inspection)</h3>
+            <p class="description">鎖骨上窩・肋間の吸気時の陥凹の有無や、呼吸時の胸壁運動の左右差の有無を確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>打診 (Percussion)</h3>
+            <p class="description">胸部全体を打診します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>聴診 (Auscultation)</h3>
+            <p class="description">深呼吸をしてもらいながら胸部全体を聴診します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+        </div>
+
+        <!-- 背部の視診 -->
+        <div class="section">
+            <h2>背部の視診 (Inspection of Back)</h2>
+            <p class="description">解剖学的部位の特定や、皮膚・胸郭の視診を行います。</p>
+
+            <h3>視診 (Inspection)</h3>
+            <p class="description">解剖学的部位（第7頸椎棘突起〔隆椎〕、肩甲骨下角）の特定、皮膚所見、胸郭の形状・輪郭を確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+        </div>
+
+        <!-- 肺（背部） -->
+        <div class="section">
+            <h2>肺（背部） (Lungs - Back)</h2>
+            <p class="description">背面から肺の視診、触診、打診、聴診を行います。</p>
+
+            <h3>視診 (Inspection)</h3>
+            <p class="description">呼吸時の胸壁運動の左右差の有無や、肋間の吸気時の陥凹の有無を確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>＊触診 (Palpation)</h3>
+            <p class="description">声音振盪を確認します。（レベルが高いため、今回の例文生成の対象外）</p>
+
+            <h3>打診 (Percussion)</h3>
+            <p class="description">背部全体を打診します。また、両側の肺底部の清音と濁音の境界と＊横隔膜の呼吸性移動を打診で確認します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>聴診 (Auscultation)</h3>
+            <p class="description">深呼吸をしてもらいながら背部全体を聴診します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
         </div>
     </div>
 
@@ -635,7 +895,56 @@
             });
         }
 
+        // セクションのトグル機能
+        function initSectionToggle() {
+            const sectionH2s = document.querySelectorAll('.section > h2');
+
+            sectionH2s.forEach(h2 => {
+                const section = h2.parentElement;
+
+                section.classList.add('section-collapsed');
+                h2.classList.add('collapsed');
+
+                h2.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    section.classList.toggle('section-collapsed');
+                    h2.classList.toggle('collapsed');
+                });
+            });
+
+            const subsectionHeaders = document.querySelectorAll('h3, h4');
+
+            subsectionHeaders.forEach(header => {
+                header.classList.add('collapsed');
+
+                let nextElement = header.nextElementSibling;
+                let pElement = null;
+                let ulElement = null;
+
+                if (nextElement && nextElement.tagName === 'P') {
+                    pElement = nextElement;
+                    let nextAfterP = pElement.nextElementSibling;
+                    if (nextAfterP && nextAfterP.tagName === 'UL') {
+                        ulElement = nextAfterP;
+                        ulElement.classList.remove('expanded');
+                    }
+                } else if (nextElement && nextElement.tagName === 'UL') {
+                    ulElement = nextElement;
+                    ulElement.classList.remove('expanded');
+                }
+
+                header.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    header.classList.toggle('collapsed');
+                    if (ulElement) {
+                        ulElement.classList.toggle('expanded');
+                    }
+                });
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            initSectionToggle();
             initSettings();
         });
     </script>

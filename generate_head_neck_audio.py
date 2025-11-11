@@ -21,9 +21,9 @@ def extract_ai_questions_from_html(html_file_path: str) -> list[str]:
     """head-neck.htmlからAI生成の質問文を抽出"""
     with open(html_file_path, 'r', encoding='utf-8') as f:
         content = f.read()
-    
+
     soup = BeautifulSoup(content, 'html.parser')
-    
+
     # data-text属性に(ai)を含む要素を抽出
     questions = []
     for item in soup.find_all('li', class_='question-item'):
@@ -33,7 +33,7 @@ def extract_ai_questions_from_html(html_file_path: str) -> list[str]:
             text = data_text.replace(' (ai)', '').strip()
             if text:
                 questions.append(text)
-    
+
     return questions
 
 
@@ -98,10 +98,10 @@ def generate_audio_files(html_file_path: str, output_dir: str = "audio", voice: 
     if os.path.exists(map_file):
         with open(map_file, 'r', encoding='utf-8') as f:
             existing_map = json.load(f)
-    
+
     # 新しいマッピングを追加
     existing_map.update(audio_map)
-    
+
     # マッピングJSONファイルを保存
     with open(map_file, 'w', encoding='utf-8') as f:
         json.dump(existing_map, f, ensure_ascii=False, indent=2)
@@ -142,4 +142,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     generate_audio_files(args.html_file, args.output_dir, args.voice, args.overwrite)
-

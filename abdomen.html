@@ -10,9 +10,16 @@
             --bg-color: #f5f5f5;
             --container-bg: #ffffff;
             --text-color: #333;
-            --question-bg: #f8f9fa;
+            --text-color-secondary: #555;
+            --text-color-tertiary: #666;
             --heading-color: #2c3e50;
+            --heading-color-secondary: #34495e;
             --border-color: #3498db;
+            --question-bg: #f8f9fa;
+            --question-hover-bg: #e8f4f8;
+            --question-playing-bg: #d4edda;
+            --info-box-bg: #e7f3ff;
+            --info-box-text: #1976D2;
             --shadow: rgba(0,0,0,0.1);
         }
 
@@ -20,9 +27,16 @@
             --bg-color: #000000;
             --container-bg: #0a0a0a;
             --text-color: #e0e0e0;
-            --question-bg: #1a1a1a;
+            --text-color-secondary: #b0b0b0;
+            --text-color-tertiary: #999;
             --heading-color: #ffffff;
+            --heading-color-secondary: #e0e0e0;
             --border-color: #4a9eff;
+            --question-bg: #1a1a1a;
+            --question-hover-bg: #2a2a2a;
+            --question-playing-bg: #1a3a2a;
+            --info-box-bg: #0a1a2a;
+            --info-box-text: #64b5f6;
             --shadow: rgba(0,0,0,0.8);
         }
 
@@ -156,12 +170,131 @@
             transition: color 0.3s ease, border-color 0.3s ease;
         }
 
-        .empty-message {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-color);
-            opacity: 0.6;
-            font-size: 18px;
+        h2 {
+            color: var(--heading-color-secondary);
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 24px;
+            padding-left: 10px;
+            border-left: 4px solid var(--border-color);
+            transition: color 0.3s ease, border-color 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 30px;
+        }
+
+        h2::after {
+            content: "▼";
+            position: absolute;
+            right: 0;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+            color: var(--border-color);
+        }
+
+        h2.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        h2:hover {
+            color: var(--border-color);
+        }
+
+        h3 {
+            color: var(--text-color-secondary);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 20px;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 30px;
+        }
+
+        h3::after {
+            content: "▼";
+            position: absolute;
+            right: 0;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+            color: var(--border-color);
+        }
+
+        h3.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        h3:hover {
+            color: var(--border-color);
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section.section-collapsed > h3,
+        .section.section-collapsed > h4,
+        .section.section-collapsed > p {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+        }
+
+        .section.section-collapsed > h2 + ul {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden;
+            margin: 0 !important;
+        }
+
+        h3.collapsed + p,
+        h4.collapsed + p {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+        }
+
+        h3.collapsed + ul,
+        h4.collapsed + ul {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+        }
+
+        .section:not(.section-collapsed) > h3.collapsed + p,
+        .section:not(.section-collapsed) > h4.collapsed + p {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .section:not(.section-collapsed) > h3:not(.collapsed) + p,
+        .section:not(.section-collapsed) > h4:not(.collapsed) + p {
+            max-height: none;
+            opacity: 1;
+            overflow: visible;
+            margin: 15px 0;
+            padding: 10px;
+        }
+
+        .description {
+            color: var(--text-color-secondary);
+            font-style: italic;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: var(--question-bg);
+            border-radius: 5px;
         }
 
         /* 設定ボタン */
@@ -419,9 +552,143 @@
     <div class="container">
         <a href="index.html" class="back-link">← トップページに戻る</a>
         <h1>腹部診察 (Abdominal Examination)</h1>
-        <div class="empty-message">
-            このセクションは準備中です。<br>
-            今後、内容を追加予定です。
+
+        <!-- 視診 -->
+        <div class="section">
+            <h2>視診 (Inspection)</h2>
+            <p class="description">両膝を伸展した状態で腹壁の形態と皮膚の状態をみます。</p>
+
+            <h3>輪郭・形状・腫瘤の視診 (Contour, Shape, and Mass Inspection)</h3>
+            <p class="description">平坦、膨隆、陥凹、および腫瘤などの有無を観察します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>皮膚の視診 (Skin Inspection)</h3>
+            <p class="description">皮疹、着色斑、手術瘢痕、静脈怒張、皮膚線条、拍動などの有無を観察します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+        </div>
+
+        <!-- 聴診 -->
+        <div class="section">
+            <h2>聴診 (Auscultation)</h2>
+            <p class="description">腸蠕動音と腹部動脈の血管音、振水音を聴取します。</p>
+
+            <h3>腸蠕動音の聴診 (Bowel Sounds Auscultation)</h3>
+            <p class="description">頻度（亢進・減弱・消失）や音の性状（金属性などの異常音の有無）を判断します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>腹部の血管音の聴診 (Abdominal Vascular Sounds Auscultation)</h3>
+            <p class="description">腹部大動脈、腎動脈（両側）、総腸骨動脈（両側）で血管雑音の有無を判断します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>＊振水音の聴診 (Succession Splash)</h3>
+            <p class="description">腸閉塞が疑われる場合、腸管内のガスと水の貯留の有無を判断します。（レベルが高いため、今回の例文生成の対象外）</p>
+        </div>
+
+        <!-- 打診 -->
+        <div class="section">
+            <h2>打診 (Percussion)</h2>
+            <p class="description">視診や触診による所見を補い、痛みの評価や臓器の評価を行います。</p>
+
+            <h3>腹部全体の打診 (General Abdominal Percussion)</h3>
+            <p class="description">打診音の異常と痛みの有無を判断します（痛みがある場合、その部位の打診は最後に行います）。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>肝臓の打診 (Liver Percussion)</h3>
+            <p class="description">腫大の有無を判断します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>脾臓の打診 (Spleen Percussion)</h3>
+            <p class="description">腫大の有無を判断します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+        </div>
+
+        <!-- 叩打診 -->
+        <div class="section">
+            <h2>＊叩打診 (Percussion Tenderness)</h2>
+            <p class="description">炎症や結石などがある場合、叩くと疼痛を生じることがあります。（レベルが高いため、今回の例文生成の対象外）</p>
+
+            <h3>肝臓の叩打診 (Liver Percussion Tenderness)</h3>
+            <p class="description">叩打痛の有無を診察します。</p>
+
+            <h3>脾臓の叩打診 (Spleen Percussion Tenderness)</h3>
+            <p class="description">叩打痛の有無を診察します。</p>
+
+            <h3>腎臓の叩打診 (Kidney Percussion Tenderness)</h3>
+            <p class="description">叩打痛の有無を診察します。両側で行います。</p>
+        </div>
+
+        <!-- 触診 -->
+        <div class="section">
+            <h2>触診 (Palpation)</h2>
+            <p class="description">腹部の診察で最も重要な手技です。系統的にまんべんなく行います。</p>
+
+            <h3>浅い触診 (Light Palpation)</h3>
+            <p class="description">圧痛や筋抵抗、表層の臓器の状態や腫瘤の有無を判断します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>深い触診 (Deep Palpation)</h3>
+            <p class="description">腫瘤の有無を判断します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>肝臓の触診 (Liver Palpation)</h3>
+            <p class="description">腫大などの有無を判断します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>脾臓の触診 (Spleen Palpation)</h3>
+            <p class="description">腫大などの有無を判断します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>＊腎臓の触診 (Kidney Palpation)</h3>
+            <p class="description">腫大などの有無を判断します。（レベルが高いため、今回の例文生成の対象外）</p>
+        </div>
+
+        <!-- 病態に応じた診察 -->
+        <div class="section">
+            <h2>病態に応じた診察 (Condition-Specific Examination)</h2>
+            <p class="description">腹水や腹膜刺激徴候など、いくつかの特異的所見に対する重点的な診察を行います。</p>
+
+            <h3>＊腹水の評価 (Assessment of Ascites)</h3>
+            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+
+            <h3>痛みがある部位の触診 (Palpation of Painful Area)</h3>
+            <p class="description">痛みがある部位を触診します。</p>
+            <ul>
+                <!-- 今後、実際の診察で使用する英語表現を追加予定 -->
+            </ul>
+
+            <h3>＊腹膜刺激徴候の評価 (Assessment of Peritoneal Irritation)</h3>
+            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+
+            <h3>＊腹部腫瘤の触診 (Abdominal Mass Palpation)</h3>
+            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+
+            <h3>＊鼠径部の診察 (Inguinal Region Examination)</h3>
+            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
+
+            <h3>＊直腸診 (Digital Rectal Examination)</h3>
+            <p class="description">（レベルが高いため、今回の例文生成の対象外）</p>
         </div>
     </div>
 
@@ -635,7 +902,56 @@
             });
         }
 
+        // セクションのトグル機能
+        function initSectionToggle() {
+            const sectionH2s = document.querySelectorAll('.section > h2');
+
+            sectionH2s.forEach(h2 => {
+                const section = h2.parentElement;
+
+                section.classList.add('section-collapsed');
+                h2.classList.add('collapsed');
+
+                h2.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    section.classList.toggle('section-collapsed');
+                    h2.classList.toggle('collapsed');
+                });
+            });
+
+            const subsectionHeaders = document.querySelectorAll('h3, h4');
+
+            subsectionHeaders.forEach(header => {
+                header.classList.add('collapsed');
+
+                let nextElement = header.nextElementSibling;
+                let pElement = null;
+                let ulElement = null;
+
+                if (nextElement && nextElement.tagName === 'P') {
+                    pElement = nextElement;
+                    let nextAfterP = pElement.nextElementSibling;
+                    if (nextAfterP && nextAfterP.tagName === 'UL') {
+                        ulElement = nextAfterP;
+                        ulElement.classList.remove('expanded');
+                    }
+                } else if (nextElement && nextElement.tagName === 'UL') {
+                    ulElement = nextElement;
+                    ulElement.classList.remove('expanded');
+                }
+
+                header.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    header.classList.toggle('collapsed');
+                    if (ulElement) {
+                        ulElement.classList.toggle('expanded');
+                    }
+                });
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            initSectionToggle();
             initSettings();
         });
     </script>
