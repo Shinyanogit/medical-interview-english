@@ -3,23 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>医療面接対策 - 英語質問集</title>
+    <title>医療面接・身体診察対策</title>
     <style>
         /* CSS変数でテーマカラーを管理 */
         :root {
             --bg-color: #f5f5f5;
             --container-bg: #ffffff;
             --text-color: #333;
-            --text-color-secondary: #555;
-            --text-color-tertiary: #666;
             --heading-color: #2c3e50;
-            --heading-color-secondary: #34495e;
             --border-color: #3498db;
-            --question-bg: #f8f9fa;
-            --question-hover-bg: #e8f4f8;
-            --question-playing-bg: #d4edda;
-            --info-box-bg: #e7f3ff;
-            --info-box-text: #1976D2;
+            --card-bg: #ffffff;
+            --card-hover-bg: #f8f9fa;
             --shadow: rgba(0,0,0,0.1);
         }
 
@@ -28,16 +22,10 @@
             --bg-color: #000000;
             --container-bg: #0a0a0a;
             --text-color: #e0e0e0;
-            --text-color-secondary: #b0b0b0;
-            --text-color-tertiary: #999;
             --heading-color: #ffffff;
-            --heading-color-secondary: #e0e0e0;
             --border-color: #4a9eff;
-            --question-bg: #1a1a1a;
-            --question-hover-bg: #2a2a2a;
-            --question-playing-bg: #1a3a2a;
-            --info-box-bg: #0a1a2a;
-            --info-box-text: #64b5f6;
+            --card-bg: #1a1a1a;
+            --card-hover-bg: #2a2a2a;
             --shadow: rgba(0,0,0,0.8);
         }
 
@@ -57,322 +45,74 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             background-color: var(--container-bg);
-            padding: 30px;
+            padding: 40px;
             border-radius: 10px;
             box-shadow: 0 2px 10px var(--shadow);
-            position: relative;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        /* 広い画面で2段組レイアウト */
-        @media (min-width: 1024px) {
-            .container {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 40px;
-                align-items: start;
-                grid-auto-flow: row;
-            }
-
-            .container > h1 {
-                grid-column: 1 / -1;
-                margin-bottom: 20px;
-            }
-
-            .section {
-                margin-bottom: 15px;
-                min-height: 0;
-                overflow: visible;
-            }
-
-            /* h2の間隔を詰める */
-            .section h2 {
-                margin-top: 10px;
-                margin-bottom: 10px;
-            }
-
-            /* 2段組の最初のセクションのh2のマージンを調整 */
-            .section:first-of-type h2 {
-                margin-top: 0;
-            }
-
-            /* 右カラムの最初のセクションのh2のマージンを調整 */
-            .section:nth-of-type(2) h2 {
-                margin-top: 0;
-            }
         }
 
         h1 {
             color: var(--heading-color);
-            margin-bottom: 30px;
-            font-size: 28px;
+            margin-bottom: 40px;
+            font-size: 32px;
+            text-align: center;
             border-bottom: 3px solid var(--border-color);
-            padding-bottom: 10px;
+            padding-bottom: 20px;
             transition: color 0.3s ease, border-color 0.3s ease;
         }
 
-        h2 {
-            color: var(--heading-color-secondary);
+        .sections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
             margin-top: 40px;
-            margin-bottom: 20px;
-            font-size: 24px;
-            padding-left: 10px;
-            border-left: 4px solid var(--border-color);
-            transition: color 0.3s ease, border-color 0.3s ease;
-            cursor: pointer;
-            user-select: none;
-            position: relative;
-            padding-right: 30px;
         }
 
-        h2::after {
-            content: "▼";
-            position: absolute;
-            right: 0;
-            font-size: 14px;
-            transition: transform 0.3s ease;
-            color: var(--border-color);
-        }
-
-        h2.collapsed::after {
-            transform: rotate(-90deg);
-        }
-
-        h2:hover {
-            color: var(--border-color);
-        }
-
-        h3 {
-            color: var(--text-color-secondary);
-            margin-top: 30px;
-            margin-bottom: 15px;
-            font-size: 20px;
-            transition: color 0.3s ease;
-            cursor: pointer;
-            user-select: none;
-            position: relative;
-            padding-right: 30px;
-        }
-
-        h3::after {
-            content: "▼";
-            position: absolute;
-            right: 0;
-            font-size: 14px;
-            transition: transform 0.3s ease;
-            color: var(--border-color);
-        }
-
-        h3.collapsed::after {
-            transform: rotate(-90deg);
-        }
-
-        h3:hover {
-            color: var(--border-color);
-        }
-
-        h4 {
-            color: var(--text-color-tertiary);
-            margin-top: 20px;
-            margin-bottom: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            transition: color 0.3s ease;
-            cursor: pointer;
-            user-select: none;
-            position: relative;
-            padding-right: 30px;
-        }
-
-        h4::after {
-            content: "▼";
-            position: absolute;
-            right: 0;
-            font-size: 12px;
-            transition: transform 0.3s ease;
-            color: var(--border-color);
-        }
-
-        h4.collapsed::after {
-            transform: rotate(-90deg);
-        }
-
-        h4:hover {
-            color: var(--border-color);
-        }
-
-        .question-item {
-            margin: 15px 0;
-            padding: 15px;
-            background-color: var(--question-bg);
-            border-left: 3px solid var(--border-color);
-            border-radius: 5px;
+        .section-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
-            padding-left: 50px;
-        }
-
-        .question-item:hover {
-            background-color: var(--question-hover-bg);
-            transform: translateX(5px);
+            text-decoration: none;
+            color: var(--text-color);
+            display: block;
             box-shadow: 0 2px 5px var(--shadow);
         }
 
-        .question-item:active {
-            transform: translateX(3px);
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px var(--shadow);
+            background-color: var(--card-hover-bg);
+            border-color: var(--border-color);
         }
 
-        .question-item::before {
-            content: "🔊";
-            position: absolute;
-            left: 15px;
-            font-size: 18px;
-            opacity: 0.6;
+        .section-card:active {
+            transform: translateY(-2px);
         }
 
-        .question-item.playing {
-            background-color: var(--question-playing-bg);
-            border-left-color: #28a745;
+        .section-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
         }
 
-        .question-item.playing::before {
-            content: "▶️";
-            opacity: 1;
-        }
-
-        .question-text {
-            font-size: 16px;
-            line-height: 1.6;
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
             color: var(--heading-color);
+            margin-bottom: 10px;
             transition: color 0.3s ease;
         }
 
-        /* パラフレーズ（括弧内）のスタイル */
-        .paraphrase {
-            opacity: 0.5;
-            font-size: 0.95em;
-        }
-
-        ul {
-            list-style: none;
-            padding-left: 0;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
-            opacity: 0;
-            margin: 0;
-        }
-
-        ul.expanded {
-            max-height: 1000px;
-            opacity: 1;
-            margin: 15px 0;
-        }
-
-        /* h2で展開されている場合、h2の直下のulを表示（優先度を高く） */
-        .section:not(.section-collapsed) > h2 + ul {
-            max-height: 1000px !important;
-            opacity: 1 !important;
-            margin: 15px 0 !important;
-        }
-
-        .section {
-            margin-bottom: 40px;
-        }
-
-        /* h2単位でセクション全体を折りたたむ */
-        .section.section-collapsed > h3,
-        .section.section-collapsed > h4 {
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            margin: 0;
-            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
-        }
-
-        /* h2の直下のulも折りたたむ */
-        .section.section-collapsed > h2 + ul {
-            max-height: 0 !important;
-            opacity: 0 !important;
-            overflow: hidden;
-            margin: 0 !important;
-        }
-
-        /* h2で展開されている場合、h3やh4の個別トグルが動作するように */
-        .section:not(.section-collapsed) > h3 + ul.expanded,
-        .section:not(.section-collapsed) > h4 + ul.expanded {
-            max-height: 1000px;
-            opacity: 1;
-            margin: 15px 0;
-        }
-
-        .subsection {
-            margin-left: 20px;
-            margin-top: 20px;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-
-            .container {
-                padding: 20px;
-            }
-
-            h1 {
-                font-size: 24px;
-            }
-
-            h2 {
-                font-size: 20px;
-            }
-
-            h3 {
-                font-size: 18px;
-            }
-
-            .question-item {
-                padding: 12px;
-                padding-left: 45px;
-            }
-
-            .question-text {
-                font-size: 15px;
-            }
-
-            .settings-button {
-                top: 10px;
-                right: 10px;
-                width: 40px;
-                height: 40px;
-                font-size: 18px;
-                border-width: 1.5px;
-            }
-
-            .settings-content {
-                padding: 20px;
-                max-width: 90%;
-            }
-        }
-
-        .info-box {
-            background-color: var(--info-box-bg);
-            border-left: 4px solid var(--border-color);
-            padding: 15px;
-            margin-bottom: 30px;
-            border-radius: 5px;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-
-        .info-box p {
-            margin: 0;
-            color: var(--info-box-text);
-            font-size: 14px;
+        .section-subtitle {
+            font-size: 16px;
+            color: var(--text-color);
+            opacity: 0.8;
             transition: color 0.3s ease;
         }
 
@@ -415,7 +155,6 @@
             border-color: var(--border-color);
         }
 
-        /* ダークモードでの設定ボタン */
         [data-theme="dark"] .settings-button {
             background-color: rgba(10, 10, 10, 0.7);
             border-color: rgba(74, 158, 255, 0.5);
@@ -426,22 +165,45 @@
             border-color: var(--border-color);
         }
 
+        @media (max-width: 768px) {
+            .settings-button {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+                border-width: 1.5px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .sections-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
         /* 設定モーダル */
         .settings-modal {
             display: none;
             position: fixed;
-            top: 0;
+            z-index: 2000;
             left: 0;
+            top: 0;
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
+            backdrop-filter: blur(5px);
         }
 
         .settings-modal.active {
             display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .settings-content {
@@ -450,7 +212,7 @@
             border-radius: 10px;
             max-width: 400px;
             width: 90%;
-            box-shadow: 0 4px 20px var(--shadow);
+            box-shadow: 0 5px 20px var(--shadow);
             transition: background-color 0.3s ease;
         }
 
@@ -462,10 +224,9 @@
         }
 
         .settings-header h2 {
+            color: var(--heading-color);
             margin: 0;
-            font-size: 24px;
-            border: none;
-            padding: 0;
+            transition: color 0.3s ease;
         }
 
         .close-button {
@@ -485,23 +246,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--question-bg);
-        }
-
-        .settings-item:last-child {
-            border-bottom: none;
+            margin-bottom: 15px;
         }
 
         .settings-label {
-            font-size: 16px;
             color: var(--text-color);
+            font-size: 16px;
             transition: color 0.3s ease;
         }
 
-        /* トグルスイッチ */
         .toggle-switch {
             position: relative;
+            display: inline-block;
             width: 50px;
             height: 26px;
         }
@@ -569,694 +325,43 @@
     </div>
 
     <div class="container">
-        <h1>医療面接対策 - 英語質問集</h1>
+        <h1>医療面接・身体診察対策</h1>
 
-        <div class="section">
-            <h2>OPQRST (症状聴取の基本フレームワーク)</h2>
+        <div class="sections-grid">
+            <a href="medical-interview.html" class="section-card">
+                <div class="section-icon">💬</div>
+                <div class="section-title">医療面接</div>
+                <div class="section-subtitle">Medical Interview</div>
+            </a>
 
-            <h3>O: Onset (発症)</h3>
-            <ul>
-                <li class="question-item" data-text='When did the symptoms start? Was it sudden or gradual?'>
-                    <div class="question-text">"When did the symptoms start? Was it <b>sudden</b> or <b>gradual</b>?"</div>
-                </li>
-                <li class="question-item" data-text='What were you doing when the symptoms began?'>
-                    <div class="question-text">"What were you doing when the symptoms <b>began</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Were there any events or activities that preceded the symptoms?'>
-                    <div class="question-text">"Were there any events or activities that <b>preceded</b> the symptoms?"</div>
-                </li>
-            </ul>
+            <a href="head-neck.html" class="section-card">
+                <div class="section-icon">👤</div>
+                <div class="section-title">頭頸部</div>
+                <div class="section-subtitle">Head and Neck</div>
+            </a>
 
-            <h3>P: Palliative (Alleviating) & Provocative (Aggravating) factors (増悪・寛解因子)</h3>
-            <ul>
-                <li class="question-item" data-text='Is there anything that makes the symptoms better or worse?'>
-                    <div class="question-text">"Is there anything that makes the symptoms <b>better</b> or <b>worse</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Does rest, activity, or certain positions affect the symptoms?'>
-                    <div class="question-text">"Does <b>rest</b>, <b>activity</b>, or certain <b>positions</b> affect the symptoms?"</div>
-                </li>
-                <li class="question-item" data-text='Have you tried anything that helped relieve the symptoms?'>
-                    <div class="question-text">"Have you tried anything that helped <b>relieve</b> the symptoms?"</div>
-                </li>
-            </ul>
+            <a href="neurological.html" class="section-card">
+                <div class="section-icon">🧠</div>
+                <div class="section-title">神経</div>
+                <div class="section-subtitle">Neurological Examination</div>
+            </a>
 
-            <h3>Q: Quality (性状)</h3>
-            <ul>
-                <li class="question-item" data-text='How would you describe the symptom? For example, is it sharp, dull, burning, or aching?'>
-                    <div class="question-text">"How would you describe the symptom? For example, is it <b>sharp</b>, <b>dull</b>, <b>burning</b>, or <b>aching</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Does the symptom occur with exertion or at rest?'>
-                    <div class="question-text">"Does the symptom occur with <b>exertion</b> or at <b>rest</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Is the symptom affected by changes in position?'>
-                    <div class="question-text">"Is the symptom affected by changes in <b>position</b>?"</div>
-                </li>
-            </ul>
+            <a href="chest.html" class="section-card">
+                <div class="section-icon">🫁</div>
+                <div class="section-title">胸部</div>
+                <div class="section-subtitle">Chest Examination</div>
+            </a>
 
-            <h3>R: Region and Radiation (部位と放散)</h3>
-            <ul>
-                <li class="question-item" data-text='Where exactly is the symptom located? Can you point to it?'>
-                    <div class="question-text">"Where exactly is the symptom <b>located</b>? Can you <b>point</b> to it?"</div>
-                </li>
-                <li class="question-item" data-text='Does the symptom spread or move to any other areas?'>
-                    <div class="question-text">"Does the symptom <b>spread</b> or <b>move</b> to any other areas?"</div>
-                </li>
-                <li class="question-item" data-text='Is the symptom localized to one area, or does it affect a wider region?'>
-                    <div class="question-text">"Is the symptom <b>localized</b> to one area, or does it affect a wider <b>region</b>?"</div>
-                </li>
-            </ul>
-
-            <h3>S: Severity & Associated Symptoms (重症度と随伴症状)</h3>
-            <ul>
-                <li class="question-item" data-text='On a scale from 1 (no pain) to 10 (worst pain imaginable), how severe is it?'>
-                    <div class="question-text">"On a <b>scale</b> from 1 <span class="paraphrase">(no pain)</span> to 10 <span class="paraphrase">(worst pain imaginable)</span>, how <b>severe</b> is it?"</div>
-                </li>
-                <li class="question-item" data-text='How much does this symptom interfere with your daily activities?'>
-                    <div class="question-text">"How much does this symptom <b>interfere with</b> your daily activities?"</div>
-                </li>
-                <li class="question-item" data-text='Are there any other symptoms that come along with this, such as nausea, sweating, or shortness of breath?'>
-                    <div class="question-text">"Are there any other symptoms that come along with this, such as <b>nausea</b>, <b>sweating</b>, or <b>shortness of breath</b>?"</div>
-                </li>
-            </ul>
-
-            <h3>T: Time course (時間経過)</h3>
-            <ul>
-                <li class="question-item" data-text='How long does the symptom last when it occurs?'>
-                    <div class="question-text">"How long does the symptom <b>last</b> when it occurs?"</div>
-                </li>
-                <li class="question-item" data-text='Is the symptom constant, or does it come and go (intermittent)?'>
-                    <div class="question-text">"Is the symptom <b>constant</b>, or does it <b>come and go</b> <span class="paraphrase">(intermittent)</span>?"</div>
-                </li>
-                <li class="question-item" data-text='Is there any particular time of day when the symptom is better or worse?'>
-                    <div class="question-text">"Is there any particular <b>time of day</b> when the symptom is better or worse?"</div>
-                </li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>相槌・共感表現 (Empathetic Responses & Acknowledgments)</h2>
-
-            <h3>共感を示す (Showing empathy)</h3>
-            <ul>
-                <li class="question-item" data-text="I'm sorry to hear that.">
-                    <div class="question-text">"I'm <b>sorry</b> to hear that."</div>
-                </li>
-                <li class="question-item" data-text="That must be tough for you.">
-                    <div class="question-text">"That must be <b>tough</b> <span class="paraphrase">(difficult, hard, challenging)</span> for you."</div>
-                </li>
-                <li class="question-item" data-text="That sounds really challenging.">
-                    <div class="question-text">"That sounds really <b>challenging</b> <span class="paraphrase">(difficult, tough)</span>."</div>
-                </li>
-            </ul>
-
-            <h3>理解を示す (Showing understanding)</h3>
-            <ul>
-                <li class="question-item" data-text="I understand.">
-                    <div class="question-text">"I <b>understand</b> <span class="paraphrase">(see, got it)</span>."</div>
-                </li>
-                <li class="question-item" data-text="I hear what you're saying.">
-                    <div class="question-text">"I <b>hear</b> what you're saying."</div>
-                </li>
-                <li class="question-item" data-text="That makes sense.">
-                    <div class="question-text">"That makes <b>sense</b>."</div>
-                </li>
-            </ul>
-
-            <h3>励まし・安心させる (Reassurance)</h3>
-            <ul>
-                <li class="question-item" data-text="I'm here to help you.">
-                    <div class="question-text">"I'm here to <b>help</b> you."</div>
-                </li>
-                <li class="question-item" data-text="We'll work through this together.">
-                    <div class="question-text">"We'll <b>work through</b> this together."</div>
-                </li>
-                <li class="question-item" data-text="Thank you for sharing that.">
-                    <div class="question-text">"Thank you for <b>sharing</b> <span class="paraphrase">(telling me)</span> that."</div>
-                </li>
-            </ul>
-
-            <h3>傾聴を示す (Active listening)</h3>
-            <ul>
-                <li class="question-item" data-text="Please, go on. I'm listening.">
-                    <div class="question-text">"Please, <b>go on</b> <span class="paraphrase">(continue)</span>. I'm listening."</div>
-                </li>
-                <li class="question-item" data-text="Tell me more about that.">
-                    <div class="question-text">"<b>Tell me more</b> about that."</div>
-                </li>
-                <li class="question-item" data-text="Is there anything else you'd like to add?">
-                    <div class="question-text">"Is there <b>anything else</b> you'd like to add?"</div>
-                </li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>便・尿・体重・食欲・睡眠(流れで聞きたい)</h2>
-
-            <h4>便 (Bowel movements):</h4>
-            <ul>
-                <li class="question-item" data-text='How often do you have bowel movements?'>
-                    <div class="question-text">"How often do you have <b>bowel movements</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Have you noticed any changes in your bowel habits, such as diarrhea or constipation?'>
-                    <div class="question-text">"Have you noticed any changes in your <b>bowel habits</b>, such as <b>diarrhea</b> or <b>constipation</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Is there any blood or unusual color in your stool?'>
-                    <div class="question-text">"Is there any <b>blood</b> or unusual color in your <b>stool</b>?"</div>
-                </li>
-            </ul>
-
-            <h4>尿 (Urination):</h4>
-            <ul>
-                <li class="question-item" data-text='How often do you urinate during the day and night?'>
-                    <div class="question-text">"How often do you <b>urinate</b> during the day and night?"</div>
-                </li>
-                <li class="question-item" data-text='Do you have any pain, burning sensation, or difficulty when urinating?'>
-                    <div class="question-text">"Do you have any pain, <b>burning sensation</b>, or difficulty when urinating?"</div>
-                </li>
-                <li class="question-item" data-text='Have you noticed any changes in the color or smell of your urine?'>
-                    <div class="question-text">"Have you noticed any changes in the color or smell of your <b>urine</b>?"</div>
-                </li>
-            </ul>
-
-            <h4>体重 (Weight):</h4>
-            <ul>
-                <li class="question-item" data-text='Have you experienced any weight loss or weight gain recently?'>
-                    <div class="question-text">"Have you experienced any <b>weight loss</b> or <b>weight gain</b> recently?"</div>
-                </li>
-                <li class="question-item" data-text='If so, how much weight have you lost or gained, and over what period of time?'>
-                    <div class="question-text">"If so, how much weight have you lost or gained, and over what <b>period of time</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Was this weight change intentional or unintentional?'>
-                    <div class="question-text">"Was this weight change <b>intentional</b> or <b>unintentional</b>?"</div>
-                </li>
-            </ul>
-
-            <h4>食欲 (Appetite):</h4>
-            <ul>
-                <li class="question-item" data-text='How is your appetite? Have you noticed any changes?'>
-                    <div class="question-text">"How is your <b>appetite</b>? Have you noticed any changes?"</div>
-                </li>
-                <li class="question-item" data-text='Are you eating less or more than usual?'>
-                    <div class="question-text">"Are you eating <b>less</b> or <b>more</b> than usual?"</div>
-                </li>
-                <li class="question-item" data-text='Do you have any difficulty swallowing or nausea after eating?'>
-                    <div class="question-text">"Do you have any difficulty <b>swallowing</b> or <b>nausea</b> after eating?"</div>
-                </li>
-            </ul>
-
-            <h4>睡眠 (Sleep):</h4>
-            <ul>
-                <li class="question-item" data-text='How many hours of sleep do you get per night?'>
-                    <div class="question-text">"How many hours of <b>sleep</b> do you get per night?"</div>
-                </li>
-                <li class="question-item" data-text='Do you have any difficulty falling asleep or staying asleep?'>
-                    <div class="question-text">"Do you have any difficulty <b>falling asleep</b> or <b>staying asleep</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Do you feel well-rested when you wake up in the morning?'>
-                    <div class="question-text">"Do you feel <b>well-rested</b> when you wake up in the morning?"</div>
-                </li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>か：家族歴 (Family History)</h2>
-            <ul>
-                <li class="question-item" data-text='Is there any history of serious illnesses in your family, such as heart disease, diabetes, or cancer?'>
-                    <div class="question-text">"Is there any <b>history</b> of serious illnesses in your family, such as <b>heart disease</b>, <b>diabetes</b>, or <b>cancer</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Are your parents still alive? If not, what did they pass away from?'>
-                    <div class="question-text">"Are your parents still alive? If not, what did they <b>pass away</b> from?"</div>
-                </li>
-                <li class="question-item" data-text='Do any of your siblings or close relatives have similar symptoms or conditions?'>
-                    <div class="question-text">"Do any of your <b>siblings</b> or close <b>relatives</b> have similar symptoms or conditions?"</div>
-                </li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>き：既往歴 (Past Medical History)</h2>
-            <ul>
-                <li class="question-item" data-text='Have you had any major illnesses, surgeries, or hospitalizations in the past?'>
-                    <div class="question-text">"Have you had any major illnesses, <b>surgeries</b>, or <b>hospitalizations</b> in the past?"</div>
-                </li>
-                <li class="question-item" data-text='Do you have any chronic medical conditions, such as diabetes, hypertension, or asthma?'>
-                    <div class="question-text">"Do you have any <b>chronic</b> medical conditions, such as <b>diabetes</b>, <b>hypertension</b>, or <b>asthma</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Have you ever been diagnosed with this condition before?'>
-                    <div class="question-text">"Have you ever been <b>diagnosed</b> with this condition before?"</div>
-                </li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>く：薬 (Medications)</h2>
-            <ul>
-                <li class="question-item" data-text='Are you currently taking any medications, including over-the-counter drugs or supplements?'>
-                    <div class="question-text">"Are you currently taking any <b>medications</b>, including <b>over-the-counter drugs</b> or <b>supplements</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Can you tell me the names and dosages of your medications?'>
-                    <div class="question-text">"Can you tell me the names and <b>dosages</b> of your medications?"</div>
-                </li>
-                <li class="question-item" data-text='Do you have any allergies to medications?'>
-                    <div class="question-text">"Do you have any <b>allergies</b> to medications?"</div>
-                </li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>け：健康診断 (Health Screenings)</h2>
-            <ul>
-                <li class="question-item" data-text='When was your last health check-up or physical examination?'>
-                    <div class="question-text">"When was your last <b>health check-up</b> or <b>physical examination</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Have you had any recent blood tests, X-rays, or other screening tests?'>
-                    <div class="question-text">"Have you had any recent <b>blood tests</b>, <b>X-rays</b>, or other <b>screening tests</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Were there any abnormal findings in your recent health screenings?'>
-                    <div class="question-text">"Were there any <b>abnormal findings</b> in your recent health screenings?"</div>
-                </li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>こ：対処行動 (Coping Behaviors / Travel History)</h2>
-            <ul>
-                <li class="question-item" data-text='Have you done anything to treat or manage these symptoms?'>
-                    <div class="question-text">"Have you done anything to <b>treat</b> or <b>manage</b> these symptoms?"</div>
-                </li>
-                <li class="question-item" data-text='Have you tried any home remedies or alternative treatments?'>
-                    <div class="question-text">"Have you tried any <b>home remedies</b> or <b>alternative treatments</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Have you traveled abroad recently? If so, where and when?'>
-                    <div class="question-text">"Have you <b>traveled abroad</b> recently? If so, where and when?"</div>
-                </li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>さ：酒タバコ (Alcohol and Tobacco - 量と期間を聴取)</h2>
-
-            <h4>飲酒 (Alcohol):</h4>
-            <ul>
-                <li class="question-item" data-text='Do you drink alcohol? If so, how often and how much do you drink?'>
-                    <div class="question-text">"Do you <b>drink alcohol</b>? If so, <b>how often</b> and <b>how much</b> do you drink?"</div>
-                </li>
-                <li class="question-item" data-text='How many years have you been drinking?'>
-                    <div class="question-text">"How many <b>years</b> have you been drinking?"</div>
-                </li>
-                <li class="question-item" data-text='What type of alcohol do you usually drink, and how many drinks per day or week?'>
-                    <div class="question-text">"What type of alcohol do you usually drink, and how many <b>drinks per day or week</b>?"</div>
-                </li>
-            </ul>
-
-            <h4>喫煙 (Tobacco):</h4>
-            <ul>
-                <li class="question-item" data-text='Do you smoke? If so, how many cigarettes do you smoke per day?'>
-                    <div class="question-text">"Do you <b>smoke</b>? If so, how many <b>cigarettes</b> do you smoke per day?"</div>
-                </li>
-                <li class="question-item" data-text='How many years have you been smoking, or when did you quit?'>
-                    <div class="question-text">"How many years have you been smoking, or when did you <b>quit</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Have you ever tried to quit smoking?'>
-                    <div class="question-text">"Have you ever <b>tried to quit</b> smoking?"</div>
-                </li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>し：仕事 (Work / Occupation)</h2>
-            <ul>
-                <li class="question-item" data-text='What do you do for a living?'>
-                    <div class="question-text">"What do you do <b>for a living</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Does your work involve any physical labor or exposure to chemicals or hazardous materials?'>
-                    <div class="question-text">"Does your work involve any <b>physical labor</b> or exposure to <b>chemicals</b> or <b>hazardous materials</b>?"</div>
-                </li>
-                <li class="question-item" data-text='How stressful is your job, and does it affect your health?'>
-                    <div class="question-text">"How <b>stressful</b> is your job, and does it affect your health?"</div>
-                </li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>す：ストレス・睡眠 (Stress and Sleep)</h2>
-
-            <h4>ストレス (Stress):</h4>
-            <ul>
-                <li class="question-item" data-text='Have you been under a lot of stress recently?'>
-                    <div class="question-text">"Have you been under a lot of <b>stress</b> recently?"</div>
-                </li>
-                <li class="question-item" data-text='What are the main sources of stress in your life right now?'>
-                    <div class="question-text">"What are the main <b>sources of stress</b> in your life right now?"</div>
-                </li>
-                <li class="question-item" data-text='How do you usually cope with stress?'>
-                    <div class="question-text">"How do you usually <b>cope with</b> stress?"</div>
-                </li>
-            </ul>
-
-            <h4>睡眠 (Sleep):</h4>
-            <ul>
-                <li class="question-item" data-text='How would you describe the quality of your sleep?'>
-                    <div class="question-text">"How would you describe the <b>quality</b> of your sleep?"</div>
-                </li>
-                <li class="question-item" data-text='Do you snore or has anyone noticed you stop breathing during sleep?'>
-                    <div class="question-text">"Do you <b>snore</b> or has anyone noticed you <b>stop breathing</b> during sleep?"</div>
-                </li>
-                <li class="question-item" data-text='Do you take any medications or supplements to help you sleep?'>
-                    <div class="question-text">"Do you take any medications or supplements to <b>help you sleep</b>?"</div>
-                </li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>せ：生理・性生活 (Menstruation and Sexual History)</h2>
-
-            <h4>生理 (Menstruation - for female patients):</h4>
-            <ul>
-                <li class="question-item" data-text='When was the first day of your last menstrual period?'>
-                    <div class="question-text">"When was the first day of your last <b>menstrual period</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Are your periods regular? How many days does your cycle last?'>
-                    <div class="question-text">"Are your <b>periods</b> regular? How many days does your <b>cycle</b> last?"</div>
-                </li>
-                <li class="question-item" data-text='Do you experience any pain, heavy bleeding, or other symptoms during your period?'>
-                    <div class="question-text">"Do you experience any pain, <b>heavy bleeding</b>, or other symptoms during your period?"</div>
-                </li>
-            </ul>
-
-            <h4>性生活 (Sexual History):</h4>
-            <ul>
-                <li class="question-item" data-text='Are you currently sexually active?'>
-                    <div class="question-text">"Are you currently <b>sexually active</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Do you use any form of contraception or protection?'>
-                    <div class="question-text">"Do you use any form of <b>contraception</b> or <b>protection</b>?"</div>
-                </li>
-                <li class="question-item" data-text='Have you ever been diagnosed with or treated for sexually transmitted infections?'>
-                    <div class="question-text">"Have you ever been diagnosed with or treated for <b>sexually transmitted infections</b>?"</div>
-                </li>
-            </ul>
+            <a href="presentation.html" class="section-card">
+                <div class="section-icon">📊</div>
+                <div class="section-title">プレゼン</div>
+                <div class="section-subtitle">Case Presentation</div>
+            </a>
         </div>
     </div>
 
     <script>
-        // 音声マッピングを直接定義（CORSエラーを回避するため）
-        const audioMap = {
-          "When did the symptoms start? Was it sudden or gradual?": "38d57b94e7c32f9c7e4bd85f11a243f0.mp3",
-          "What were you doing when the symptoms began?": "94fdefa704aa120e89f4dc16e766a799.mp3",
-          "Were there any events or activities that preceded the symptoms?": "b03589c686eef5f29c8f55ecd071153a.mp3",
-          "Is there anything that makes the symptoms better or worse?": "91eb6b225de65b3b6074e5a41079e6f6.mp3",
-          "Does rest, activity, or certain positions affect the symptoms?": "00bc46098eb3de5f136412119d015e42.mp3",
-          "Have you tried anything that helped relieve the symptoms?": "262d6ff6bee60b8db3b5ae73859c776b.mp3",
-          "How would you describe the symptom? For example, is it sharp, dull, burning, or aching?": "d87f8903db1f8b5c1c0a19e7dc746151.mp3",
-          "Does the symptom occur with exertion or at rest?": "07bfa1b1c28e97c5baa33970185ad859.mp3",
-          "Is the symptom affected by changes in position?": "ec30bd492e06399723bac67be53b652c.mp3",
-          "Where exactly is the symptom located? Can you point to it?": "06dd62ecd05d17dbf0d2196624418fba.mp3",
-          "Does the symptom spread or move to any other areas?": "fa536396f7b4bf6cbee476a17207ce39.mp3",
-          "Is the symptom localized to one area, or does it affect a wider region?": "0d26f86486f64f29ba415a8335d68303.mp3",
-          "On a scale from 1 to 10, how severe is it?": "37f5f90d5e3e25cc5fa1a5e03439ca2a.mp3",
-          "How much does this symptom interfere with your daily activities?": "62f70c774e362837860126c884a67954.mp3",
-          "Are there any other symptoms that come along with this, such as nausea, sweating, or shortness of breath?": "b3c1bcfb2d626663772f0e8ff5e2c6cc.mp3",
-          "How long does the symptom last when it occurs?": "b101594c927886e08f521304e40d148b.mp3",
-          "Is the symptom constant, or does it come and go?": "3ebac984b374b770aac69bde9c1d42a7.mp3",
-          "Is there any particular time of day when the symptom is better or worse?": "9bea49288b4add253773a9dfa5d1034a.mp3",
-          "I'm sorry to hear that.": "60ad2c7bccc5aa3209349f77988dee5d.mp3",
-          "That must be tough for you.": "24cf5abe2a8b6efe7fbf84c2f8b784f6.mp3",
-          "That sounds really challenging.": "d23057585eeb1a25abc80c52ea00ae3f.mp3",
-          "I understand.": "e6743827d260b141f8f4915daa38d1bf.mp3",
-          "I hear what you're saying.": "877362adcb97d865b0223354c282641f.mp3",
-          "That makes sense.": "0d816d868c1ddb6f605d4e50fb8e7c76.mp3",
-          "I'm here to help you.": "0e470555442fd67e0e683b0cc1a631d0.mp3",
-          "We'll work through this together.": "cf590a1627e4e554e16697ecac21123c.mp3",
-          "Thank you for sharing that.": "b9f1456b12669325237adb59983f7f17.mp3",
-          "Please, go on. I'm listening.": "ca8a92ca3242c3b83bdd70e8cf3e1145.mp3",
-          "Tell me more about that.": "78f015a76f52ab02aa1b4fed5a10724c.mp3",
-          "Is there anything else you'd like to add?": "1e9d23026653b17e8bc8f8c25317bafb.mp3",
-          "How often do you have bowel movements?": "1f3aae9e96f168db3c9f4c0177042926.mp3",
-          "Have you noticed any changes in your bowel habits, such as diarrhea or constipation?": "4c27a9a87e9166cc9b74a9540c71b883.mp3",
-          "Is there any blood or unusual color in your stool?": "6e5793b48bb1c7bf209d3905e72ad9f9.mp3",
-          "How often do you urinate during the day and night?": "babe96ee0d5da413c7ec3b0b66fa8d0b.mp3",
-          "Do you have any pain, burning sensation, or difficulty when urinating?": "7310b2e8b3a0308b17590fea68b06dc7.mp3",
-          "Have you noticed any changes in the color or smell of your urine?": "339328c55995936904655116406f3599.mp3",
-          "Have you experienced any weight loss or weight gain recently?": "bffb5a1edeec852f902f1f0ec2aa9acc.mp3",
-          "If so, how much weight have you lost or gained, and over what period of time?": "8a3b82c06238d143b8356c39262eca63.mp3",
-          "Was this weight change intentional or unintentional?": "d3a3d76065da30a7acd1e81faf1ce8ce.mp3",
-          "How is your appetite? Have you noticed any changes?": "6a1f1d8739064eacb9444d47cd85a278.mp3",
-          "Are you eating less or more than usual?": "eff5bac80b1cdcb92d618ceaa2414076.mp3",
-          "Do you have any difficulty swallowing or nausea after eating?": "f1fa63d01a2b1a8b69a35b084fe5ced4.mp3",
-          "How many hours of sleep do you get per night?": "d353e9528a07151d6a5950d65c41bab3.mp3",
-          "Do you have any difficulty falling asleep or staying asleep?": "4ebe721f86f77557ee09b21fa75c1c0a.mp3",
-          "Do you feel well-rested when you wake up in the morning?": "fb8dc382fc87e4a52894a2d8a9c058fd.mp3",
-          "Is there any history of serious illnesses in your family, such as heart disease, diabetes, or cancer?": "6e1295dda144405eb8963b24e24d1569.mp3",
-          "Are your parents still alive? If not, what did they pass away from?": "5d3abfcaf355f4bacce83df7a7ae355d.mp3",
-          "Do any of your siblings or close relatives have similar symptoms or conditions?": "a7083028daf4b07b5acc1827bf9094f8.mp3",
-          "Have you had any major illnesses, surgeries, or hospitalizations in the past?": "7431a764c8fae2ca1326e078544036ab.mp3",
-          "Do you have any chronic medical conditions, such as diabetes, hypertension, or asthma?": "e4cddfbbedd353b3ba9d78357c704c1f.mp3",
-          "Have you ever been diagnosed with this condition before?": "bd7119937d34542117d5642209506f74.mp3",
-          "Are you currently taking any medications, including over-the-counter drugs or supplements?": "595a02030662e52b0672ab13bcf409f1.mp3",
-          "Can you tell me the names and dosages of your medications?": "799cc16808f3ad0cea4deb510d3e44ac.mp3",
-          "Do you have any allergies to medications?": "dd240dbd14f07f8cec4b74b6390518ff.mp3",
-          "When was your last health check-up or physical examination?": "11e8d1502e32c6da2353bfa807a97250.mp3",
-          "Have you had any recent blood tests, X-rays, or other screening tests?": "c253524ca037ace834ba5cca80b7f540.mp3",
-          "Were there any abnormal findings in your recent health screenings?": "6d747a2c78a2d4c7318778067421783c.mp3",
-          "Have you done anything to treat or manage these symptoms?": "41d303bccf28f03ef51ebac7bd700933.mp3",
-          "Have you tried any home remedies or alternative treatments?": "c16b0cc18b8f427e40ba5b98c6d1b356.mp3",
-          "Have you traveled abroad recently? If so, where and when?": "cc5065661da92dff1083a9acac13c75c.mp3",
-          "Do you drink alcohol? If so, how often and how much do you drink?": "3272fb0a311ae93a9662edd0389ea2b4.mp3",
-          "How many years have you been drinking?": "7f7e12edd00146d8d3618d30dd03223b.mp3",
-          "What type of alcohol do you usually drink, and how many drinks per day or week?": "58c982f1c1b7d26e3cbd7ac4214ff5b8.mp3",
-          "Do you smoke? If so, how many cigarettes do you smoke per day?": "f5493207e50d246a61da48f5686592db.mp3",
-          "How many years have you been smoking, or when did you quit?": "760de177f9c16cdb7a0f0c8f241d0643.mp3",
-          "Have you ever tried to quit smoking?": "fd71cd2d155e56672f7999fefcd77d39.mp3",
-          "What do you do for a living?": "7227af708952bd79a70b2f249a3aaa63.mp3",
-          "Does your work involve any physical labor or exposure to chemicals or hazardous materials?": "5c02547c34e09edd96700f1f9ecc7ee2.mp3",
-          "How stressful is your job, and does it affect your health?": "ac371113885969b46f9ba257627f08a6.mp3",
-          "Have you been under a lot of stress recently?": "0b947402d87962213f3f43c0b90f1ba5.mp3",
-          "What are the main sources of stress in your life right now?": "319fc8f66124963140c1bc1bd47901da.mp3",
-          "How do you usually cope with stress?": "0d6a0543e81e8fdd101c00c6944a536b.mp3",
-          "How would you describe the quality of your sleep?": "45be9ed2038141e7ad3c0de28d9fa69b.mp3",
-          "Do you snore or has anyone noticed you stop breathing during sleep?": "9244add3ca477776239b036f56c68fb4.mp3",
-          "Do you take any medications or supplements to help you sleep?": "6e46cd537a6ec97071fd95ec74cdb1d6.mp3",
-          "When was the first day of your last menstrual period?": "945787949b7080e7788aa245efdfb4ad.mp3",
-          "Are your periods regular? How many days does your cycle last?": "3165a8c8352fa42398c9cae01c791211.mp3",
-          "Do you experience any pain, heavy bleeding, or other symptoms during your period?": "007329e6b09b1a8d2d7bab22cddf9f77.mp3",
-          "Are you currently sexually active?": "0598c40bef6c922243c8e10209c72197.mp3",
-          "Do you use any form of contraception or protection?": "3c3c8d0d03bdfa1f30438663d25baa0e.mp3",
-          "Have you ever been diagnosed with or treated for sexually transmitted infections?": "51ef8ed9a65fc904dd2ccfc36e721dc1.mp3"
-        };
-
-        let currentAudio = null;
-        let currentUtterance = null;
-        let currentPlayingElement = null;
-
-        console.log('Audio map loaded:', Object.keys(audioMap).length, 'entries');
-
-        // 音声ファイルを使用して再生
-        function playAudioFile(text, element) {
-            console.log('Attempting to play audio for text:', text);
-            console.log('Audio map keys count:', Object.keys(audioMap).length);
-
-            // マッピングからファイル名を取得
-            const filename = audioMap[text];
-
-            if (!filename) {
-                // マッピングにない場合はWeb Speech APIにフォールバック
-                console.warn('Text not found in audio map:', text);
-                console.log('Available keys sample:', Object.keys(audioMap).slice(0, 3));
-                speakText(text, element);
-                return;
-            }
-
-            console.log('Found audio file:', filename);
-
-            try {
-                const audioPath = `audio/${filename}`;
-                console.log('Loading audio from:', audioPath);
-
-                // 前の音声を停止
-                if (currentAudio) {
-                    currentAudio.pause();
-                    currentAudio.currentTime = 0;
-                    currentAudio = null;
-                }
-                if (currentUtterance) {
-                    window.speechSynthesis.cancel();
-                    currentUtterance = null;
-                }
-                if (currentPlayingElement) {
-                    currentPlayingElement.classList.remove('playing');
-                    currentPlayingElement = null;
-                }
-
-                const audio = new Audio(audioPath);
-                audio.preload = 'auto';
-
-                // エラーハンドリングを最初に設定
-                audio.onerror = (e) => {
-                    console.error('Audio error:', e);
-                    console.error('Audio error code:', audio.error?.code);
-                    console.error('Audio error message:', audio.error?.message);
-                    element.classList.remove('playing');
-                    console.log('Audio file failed to load, using Web Speech API');
-                    speakText(text, element);
-                    return;
-                };
-
-                audio.onloadstart = () => {
-                    console.log('Audio loading started');
-                };
-
-                audio.oncanplay = () => {
-                    console.log('Audio can play');
-                };
-
-                audio.onloadeddata = () => {
-                    console.log('Audio data loaded');
-                };
-
-                audio.onplay = () => {
-                    console.log('Audio playback started successfully');
-                    element.classList.add('playing');
-                    currentPlayingElement = element;
-                };
-
-                audio.onended = () => {
-                    console.log('Audio playback ended');
-                    element.classList.remove('playing');
-                    currentPlayingElement = null;
-                    currentAudio = null;
-                };
-
-                // 音声を明示的に読み込む
-                audio.load();
-
-                currentAudio = audio;
-
-                // 再生可能になるまで待つ関数
-                const playWhenReady = () => {
-                    if (audio.readyState >= 3) { // HAVE_FUTURE_DATA以上
-                        console.log('Audio ready, playing now');
-                        audio.play().catch(error => {
-                            console.error('Error playing audio:', error);
-                            element.classList.remove('playing');
-                            speakText(text, element);
-                        });
-                    } else {
-                        // まだ準備できていない場合はイベントを待つ
-                        audio.addEventListener('canplaythrough', () => {
-                            console.log('Audio can play through - ready to play');
-                            audio.play().catch(error => {
-                                console.error('Error playing audio:', error);
-                                element.classList.remove('playing');
-                                speakText(text, element);
-                            });
-                        }, { once: true });
-                    }
-                };
-
-                // 即座に再生可能かチェック
-                playWhenReady();
-
-            } catch (error) {
-                // エラー時はWeb Speech APIにフォールバック
-                console.error('Error loading audio file, using Web Speech API:', error);
-                speakText(text, element);
-            }
-        }
-
-        // Web Speech APIを使用して音声読み上げ（フォールバック用）
-        function speakText(text, element) {
-            // 前の読み上げを停止
-            if (currentUtterance) {
-                window.speechSynthesis.cancel();
-            }
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                currentAudio = null;
-            }
-
-            // 前の要素のスタイルをリセット
-            if (currentPlayingElement) {
-                currentPlayingElement.classList.remove('playing');
-            }
-
-            // 新しい読み上げを開始
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US';
-            utterance.rate = 0.9; // 少しゆっくりめに
-            utterance.pitch = 1.0;
-            utterance.volume = 1.0;
-
-            utterance.onstart = () => {
-                element.classList.add('playing');
-                currentPlayingElement = element;
-            };
-
-            utterance.onend = () => {
-                element.classList.remove('playing');
-                currentPlayingElement = null;
-                currentUtterance = null;
-            };
-
-            utterance.onerror = () => {
-                element.classList.remove('playing');
-                currentPlayingElement = null;
-                currentUtterance = null;
-            };
-
-            currentUtterance = utterance;
-            window.speechSynthesis.speak(utterance);
-        }
-
-        // セクションのトグル機能
-        function initSectionToggle() {
-            // h2単位のトグル機能を追加
-            const sectionH2s = document.querySelectorAll('.section > h2');
-
-            sectionH2s.forEach(h2 => {
-                const section = h2.parentElement;
-
-                // デフォルトでセクション全体を折りたたむ
-                section.classList.add('section-collapsed');
-                h2.classList.add('collapsed');
-
-                // h2をクリックしたときの処理
-                h2.addEventListener('click', (e) => {
-                    e.stopPropagation();
-
-                    // セクション全体のトグル
-                    section.classList.toggle('section-collapsed');
-                    h2.classList.toggle('collapsed');
-                });
-            });
-
-            // h3、h4の個別トグル機能を追加
-            const subsectionHeaders = document.querySelectorAll('h3, h4');
-
-            subsectionHeaders.forEach(header => {
-                // 次のul要素を取得
-                const questionList = header.nextElementSibling;
-
-                if (questionList && questionList.tagName === 'UL') {
-                    // デフォルトで非表示
-                    questionList.classList.remove('expanded');
-                    header.classList.add('collapsed');
-
-                    // ヘッダーをクリックしたときの処理
-                    header.addEventListener('click', (e) => {
-                        // 質問項目のクリックイベントと競合しないように
-                        e.stopPropagation();
-
-                        // トグル
-                        questionList.classList.toggle('expanded');
-                        header.classList.toggle('collapsed');
-                    });
-                }
-            });
-        }
-
-        // システム設定に基づいてテーマを適用
+        // ダークモード機能
         function applyTheme(theme) {
             if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.setAttribute('data-theme', 'dark');
@@ -1265,233 +370,124 @@
             }
         }
 
-        // システム設定の変更を監視
         function watchSystemTheme() {
             const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
             mediaQuery.addEventListener('change', (e) => {
                 const savedTheme = localStorage.getItem('theme') || 'auto';
-                // 'auto'の場合のみシステム設定に従う
                 if (savedTheme === 'auto') {
                     applyTheme('auto');
-                }
-            });
-        }
-
-        // 設定ボタンのドラッグ&ドロップ機能（PCのみ）
-        function initDragAndDrop(button) {
-            // タッチデバイスでは無効
-            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-                return;
-            }
-
-            let isDragging = false;
-            let currentX;
-            let currentY;
-            let initialX;
-            let initialY;
-            let xOffset = 0;
-            let yOffset = 0;
-
-            // 保存された位置を読み込む
-            const savedPosition = localStorage.getItem('settingsButtonPosition');
-            if (savedPosition) {
-                const pos = JSON.parse(savedPosition);
-                xOffset = pos.x;
-                yOffset = pos.y;
-                button.style.left = pos.x + 'px';
-                button.style.top = pos.y + 'px';
-                button.style.right = 'auto';
-            }
-
-            button.addEventListener('mousedown', dragStart);
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('mouseup', dragEnd);
-
-            function dragStart(e) {
-                // 設定モーダルが開いている場合はドラッグしない
-                const settingsModal = document.getElementById('settingsModal');
-                if (settingsModal && settingsModal.classList.contains('active')) {
-                    return;
-                }
-
-                initialX = e.clientX - xOffset;
-                initialY = e.clientY - yOffset;
-
-                if (e.target === button || button.contains(e.target)) {
-                    isDragging = true;
-                    button.classList.add('dragging');
-                }
-            }
-
-            function drag(e) {
-                if (isDragging) {
-                    e.preventDefault();
-                    currentX = e.clientX - initialX;
-                    currentY = e.clientY - initialY;
-
-                    xOffset = currentX;
-                    yOffset = currentY;
-
-                    // 画面外に出ないように制限
-                    const rect = button.getBoundingClientRect();
-                    const maxX = window.innerWidth - rect.width;
-                    const maxY = window.innerHeight - rect.height;
-
-                    xOffset = Math.max(0, Math.min(xOffset, maxX));
-                    yOffset = Math.max(0, Math.min(yOffset, maxY));
-
-                    button.style.left = xOffset + 'px';
-                    button.style.top = yOffset + 'px';
-                    button.style.right = 'auto';
-                }
-            }
-
-            function dragEnd(e) {
-                if (isDragging) {
-                    initialX = currentX;
-                    initialY = currentY;
-                    isDragging = false;
-                    button.classList.remove('dragging');
-
-                    // 位置を保存
-                    localStorage.setItem('settingsButtonPosition', JSON.stringify({
-                        x: xOffset,
-                        y: yOffset
-                    }));
-                }
-            }
-
-            // クリックイベントとドラッグを区別
-            let clickStartTime = 0;
-            let clickStartX = 0;
-            let clickStartY = 0;
-
-            button.addEventListener('mousedown', (e) => {
-                clickStartTime = Date.now();
-                clickStartX = e.clientX;
-                clickStartY = e.clientY;
-            });
-
-            button.addEventListener('click', (e) => {
-                const clickDuration = Date.now() - clickStartTime;
-                const moveDistance = Math.sqrt(
-                    Math.pow(e.clientX - clickStartX, 2) +
-                    Math.pow(e.clientY - clickStartY, 2)
-                );
-
-                // 短時間で移動距離が小さい場合のみクリックとして扱う
-                if (clickDuration < 200 && moveDistance < 5) {
-                    const settingsModal = document.getElementById('settingsModal');
-                    if (settingsModal && !settingsModal.classList.contains('active')) {
-                        settingsModal.classList.add('active');
+                    const darkModeToggle = document.getElementById('darkModeToggle');
+                    if (darkModeToggle) {
+                        darkModeToggle.checked = e.matches;
                     }
                 }
             });
         }
 
-        // 設定機能
         function initSettings() {
             const settingsButton = document.getElementById('settingsButton');
             const settingsModal = document.getElementById('settingsModal');
             const closeSettings = document.getElementById('closeSettings');
             const darkModeToggle = document.getElementById('darkModeToggle');
 
-            // ドラッグ&ドロップ機能を初期化（PCのみ）
-            initDragAndDrop(settingsButton);
+            // ドラッグアンドドロップ機能（PCのみ）
+            let isDragging = false;
+            let startX, startY, startLeft, startTop;
 
-            // 保存されたテーマ設定を読み込む（デフォルトは'auto'でシステム設定に従う）
+            // タッチデバイスかどうかを判定
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+            if (!isTouchDevice) {
+                settingsButton.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    settingsButton.classList.add('dragging');
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    const rect = settingsButton.getBoundingClientRect();
+                    startLeft = rect.left;
+                    startTop = rect.top;
+                    e.preventDefault();
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const deltaX = e.clientX - startX;
+                    const deltaY = e.clientY - startY;
+                    const newLeft = startLeft + deltaX;
+                    const newTop = startTop + deltaY;
+
+                    // 画面内に収める
+                    const maxLeft = window.innerWidth - settingsButton.offsetWidth;
+                    const maxTop = window.innerHeight - settingsButton.offsetHeight;
+                    const finalLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                    const finalTop = Math.max(0, Math.min(newTop, maxTop));
+
+                    settingsButton.style.left = finalLeft + 'px';
+                    settingsButton.style.top = finalTop + 'px';
+                    settingsButton.style.right = 'auto';
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        settingsButton.classList.remove('dragging');
+                        // 位置を保存
+                        const rect = settingsButton.getBoundingClientRect();
+                        localStorage.setItem('settingsButtonPosition', JSON.stringify({
+                            left: rect.left,
+                            top: rect.top
+                        }));
+                    }
+                });
+            }
+
+            // 保存された位置を復元
+            const savedPosition = localStorage.getItem('settingsButtonPosition');
+            if (savedPosition && !isTouchDevice) {
+                try {
+                    const pos = JSON.parse(savedPosition);
+                    settingsButton.style.left = pos.left + 'px';
+                    settingsButton.style.top = pos.top + 'px';
+                    settingsButton.style.right = 'auto';
+                } catch (e) {
+                    console.error('Failed to restore button position:', e);
+                }
+            }
+
             let savedTheme = localStorage.getItem('theme') || 'auto';
-
-            // トグルスイッチの状態を設定
-            // 'dark'の場合のみON、それ以外（'auto'または'light'）はOFF
             darkModeToggle.checked = (savedTheme === 'dark');
 
-            // テーマを適用
             applyTheme(savedTheme);
-
-            // システム設定の変更を監視開始
             watchSystemTheme();
 
-            // トグルスイッチの変更を監視
             darkModeToggle.addEventListener('change', (e) => {
                 if (e.target.checked) {
-                    // ON: ダークモードに手動設定
                     localStorage.setItem('theme', 'dark');
                     applyTheme('dark');
                 } else {
-                    // OFF: システム設定に従う（デフォルト）
                     localStorage.setItem('theme', 'auto');
                     applyTheme('auto');
                 }
             });
 
-            // 設定ボタンをクリック（タッチデバイスの場合のみ）
-            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-                settingsButton.addEventListener('click', () => {
-                    settingsModal.classList.add('active');
-                });
-            }
+            settingsButton.addEventListener('click', () => {
+                settingsModal.classList.add('active');
+            });
 
-            // 閉じるボタンをクリック
             closeSettings.addEventListener('click', () => {
                 settingsModal.classList.remove('active');
             });
 
-            // モーダルの背景をクリック
             settingsModal.addEventListener('click', (e) => {
                 if (e.target === settingsModal) {
                     settingsModal.classList.remove('active');
                 }
             });
-
-            // ダークモード切り替え
-            darkModeToggle.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    // 手動でダークモードをONにした場合
-                    localStorage.setItem('theme', 'dark');
-                    applyTheme('dark');
-                    updateThemeStatus('dark');
-                } else {
-                    // 手動でダークモードをOFFにした場合
-                    localStorage.setItem('theme', 'light');
-                    applyTheme('light');
-                    updateThemeStatus('light');
-                }
-            });
-
-            // ESCキーでモーダルを閉じる
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && settingsModal.classList.contains('active')) {
-                    settingsModal.classList.remove('active');
-                }
-            });
         }
 
-        // すべての質問項目にクリックイベントを追加
+        // 初期化
         document.addEventListener('DOMContentLoaded', () => {
-            // セクションのトグル機能を初期化
-            initSectionToggle();
-
-            // 設定機能を初期化
             initSettings();
-
-            const questionItems = document.querySelectorAll('.question-item');
-
-            questionItems.forEach(item => {
-                item.addEventListener('click', (e) => {
-                    // h3のクリックイベントと競合しないように
-                    e.stopPropagation();
-
-                    const text = item.getAttribute('data-text');
-                    if (text) {
-                        // 引用符を除去
-                        const cleanText = text.replace(/^["']|["']$/g, '');
-                        // まず音声ファイルを試す
-                        playAudioFile(cleanText, item);
-                    }
-                });
-            });
         });
     </script>
 </body>
