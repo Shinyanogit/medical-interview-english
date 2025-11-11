@@ -10,6 +10,7 @@
             --bg-color: #f5f5f5;
             --container-bg: #ffffff;
             --text-color: #333;
+            --question-bg: #f8f9fa;
             --heading-color: #2c3e50;
             --border-color: #3498db;
             --shadow: rgba(0,0,0,0.1);
@@ -19,6 +20,7 @@
             --bg-color: #000000;
             --container-bg: #0a0a0a;
             --text-color: #e0e0e0;
+            --question-bg: #1a1a1a;
             --heading-color: #ffffff;
             --border-color: #4a9eff;
             --shadow: rgba(0,0,0,0.8);
@@ -40,13 +42,96 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background-color: var(--container-bg);
-            padding: 40px;
+            padding: 30px;
             border-radius: 10px;
             box-shadow: 0 2px 10px var(--shadow);
+            position: relative;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* レイアウトモード: 自動（デバイスに応じて） */
+        @media (min-width: 1024px) {
+            .container:not(.layout-single-column) {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+                align-items: start;
+                grid-auto-flow: row;
+            }
+
+            .container:not(.layout-single-column) > h1 {
+                grid-column: 1 / -1;
+                margin-bottom: 20px;
+            }
+
+            .container:not(.layout-single-column) .section {
+                margin-bottom: 15px;
+                min-height: 0;
+                overflow: visible;
+            }
+
+            .container:not(.layout-single-column) .section h2 {
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+
+            .container:not(.layout-single-column) .section:first-of-type h2 {
+                margin-top: 0;
+            }
+
+            .container:not(.layout-single-column) .section:nth-of-type(2) h2 {
+                margin-top: 0;
+            }
+        }
+
+        /* レイアウトモード: 常に2段組 */
+        .container.layout-two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+            grid-auto-flow: row;
+        }
+
+        .container.layout-two-column > h1 {
+            grid-column: 1 / -1;
+            margin-bottom: 20px;
+        }
+
+        .container.layout-two-column .section {
+            margin-bottom: 15px;
+            min-height: 0;
+            overflow: visible;
+        }
+
+        .container.layout-two-column .section h2 {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .container.layout-two-column .section:first-of-type h2 {
+            margin-top: 0;
+        }
+
+        .container.layout-two-column .section:nth-of-type(2) h2 {
+            margin-top: 0;
+        }
+
+        /* レイアウトモード: 常に1段組 */
+        .container.layout-single-column {
+            display: block;
+        }
+
+        .container.layout-single-column .section {
+            margin-bottom: 40px;
+        }
+
+        .container.layout-single-column .section h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
         }
 
         .back-link {
@@ -78,9 +163,259 @@
             opacity: 0.6;
             font-size: 18px;
         }
+
+        /* 設定ボタン */
+        .settings-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(52, 152, 219, 0.5);
+            cursor: move;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 2px 10px var(--shadow);
+            transition: opacity 0.3s ease, box-shadow 0.3s ease, transform 0.1s ease;
+            z-index: 1000;
+            opacity: 0.6;
+            backdrop-filter: blur(10px);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .settings-button.dragging {
+            cursor: grabbing;
+            opacity: 0.9;
+            transform: scale(1.1);
+            transition: none;
+        }
+
+        .settings-button:hover:not(.dragging) {
+            transform: rotate(90deg);
+            box-shadow: 0 4px 15px var(--shadow);
+            opacity: 1;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .settings-button {
+            background-color: rgba(10, 10, 10, 0.7);
+            border-color: rgba(74, 158, 255, 0.5);
+        }
+
+        [data-theme="dark"] .settings-button:hover:not(.dragging) {
+            background-color: rgba(10, 10, 10, 0.9);
+            border-color: var(--border-color);
+        }
+
+        /* 設定モーダル */
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-modal.active {
+            display: flex;
+        }
+
+        .settings-content {
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 4px 20px var(--shadow);
+            transition: background-color 0.3s ease;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .settings-header h2 {
+            margin: 0;
+            font-size: 24px;
+            border: none;
+            padding: 0;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+
+        .close-button:hover {
+            color: var(--border-color);
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--question-bg);
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-label {
+            font-size: 16px;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+
+        /* トグルスイッチ */
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--border-color);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* レイアウト選択ラジオボタン */
+        .layout-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .radio-option:hover {
+            background-color: var(--question-bg);
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .radio-option span {
+            font-size: 14px;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .settings-button {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+                border-width: 1.5px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- 設定ボタン -->
+    <button class="settings-button" id="settingsButton" aria-label="設定">
+        ⚙️
+    </button>
+
+    <!-- 設定モーダル -->
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2>設定</h2>
+                <button class="close-button" id="closeSettings">&times;</button>
+            </div>
+            <div class="settings-item">
+                <span class="settings-label">ダークモード</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="darkModeToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="settings-item">
+                <span class="settings-label">レイアウト</span>
+                <div class="layout-options">
+                    <label class="radio-option">
+                        <input type="radio" name="layoutMode" value="auto" id="layoutAuto">
+                        <span>自動</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="layoutMode" value="two-column" id="layoutTwoColumn">
+                        <span>2段組</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="layoutMode" value="single-column" id="layoutSingleColumn">
+                        <span>1段組</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <a href="index.html" class="back-link">← トップページに戻る</a>
         <h1>腹部診察 (Abdominal Examination)</h1>
@@ -91,13 +426,218 @@
     </div>
 
     <script>
-        // ダークモード設定を読み込む
-        const savedTheme = localStorage.getItem('theme') || 'auto';
-        if (savedTheme === 'dark' || (savedTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-            document.documentElement.setAttribute('data-theme', 'light');
+        // システム設定に基づいてテーマを適用
+        function applyTheme(theme) {
+            if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
         }
+
+        // システム設定の変更を監視
+        function watchSystemTheme() {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            mediaQuery.addEventListener('change', (e) => {
+                const savedTheme = localStorage.getItem('theme') || 'auto';
+                if (savedTheme === 'auto') {
+                    applyTheme('auto');
+                }
+            });
+        }
+
+        // 設定ボタンのドラッグ&ドロップ機能（PCのみ）
+        function initDragAndDrop(button) {
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                return;
+            }
+
+            let isDragging = false;
+            let currentX, currentY, initialX, initialY;
+            let xOffset = 0;
+            let yOffset = 0;
+
+            const savedPosition = localStorage.getItem('settingsButtonPosition');
+            if (savedPosition) {
+                const pos = JSON.parse(savedPosition);
+                xOffset = pos.x;
+                yOffset = pos.y;
+                button.style.left = pos.x + 'px';
+                button.style.top = pos.y + 'px';
+                button.style.right = 'auto';
+            }
+
+            button.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragEnd);
+
+            function dragStart(e) {
+                const settingsModal = document.getElementById('settingsModal');
+                if (settingsModal && settingsModal.classList.contains('active')) {
+                    return;
+                }
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+                if (e.target === button || button.contains(e.target)) {
+                    isDragging = true;
+                    button.classList.add('dragging');
+                }
+            }
+
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+                    xOffset = currentX;
+                    yOffset = currentY;
+                    const rect = button.getBoundingClientRect();
+                    const maxX = window.innerWidth - rect.width;
+                    const maxY = window.innerHeight - rect.height;
+                    xOffset = Math.max(0, Math.min(xOffset, maxX));
+                    yOffset = Math.max(0, Math.min(yOffset, maxY));
+                    button.style.left = xOffset + 'px';
+                    button.style.top = yOffset + 'px';
+                    button.style.right = 'auto';
+                }
+            }
+
+            function dragEnd(e) {
+                if (isDragging) {
+                    initialX = currentX;
+                    initialY = currentY;
+                    isDragging = false;
+                    button.classList.remove('dragging');
+                    localStorage.setItem('settingsButtonPosition', JSON.stringify({
+                        x: xOffset,
+                        y: yOffset
+                    }));
+                }
+            }
+
+            let clickStartTime = 0;
+            let clickStartX = 0;
+            let clickStartY = 0;
+
+            button.addEventListener('mousedown', (e) => {
+                clickStartTime = Date.now();
+                clickStartX = e.clientX;
+                clickStartY = e.clientY;
+            });
+
+            button.addEventListener('click', (e) => {
+                const clickDuration = Date.now() - clickStartTime;
+                const moveDistance = Math.sqrt(
+                    Math.pow(e.clientX - clickStartX, 2) +
+                    Math.pow(e.clientY - clickStartY, 2)
+                );
+                if (clickDuration < 200 && moveDistance < 5) {
+                    const settingsModal = document.getElementById('settingsModal');
+                    if (settingsModal && !settingsModal.classList.contains('active')) {
+                        settingsModal.classList.add('active');
+                    }
+                }
+            });
+        }
+
+        // レイアウト設定を適用
+        function applyLayout(layoutMode) {
+            const container = document.querySelector('.container');
+            if (!container) return;
+            container.classList.remove('layout-auto', 'layout-two-column', 'layout-single-column');
+            if (layoutMode === 'two-column') {
+                container.classList.add('layout-two-column');
+            } else if (layoutMode === 'single-column') {
+                container.classList.add('layout-single-column');
+            } else {
+                container.classList.add('layout-auto');
+            }
+        }
+
+        // 設定機能
+        function initSettings() {
+            const settingsButton = document.getElementById('settingsButton');
+            const settingsModal = document.getElementById('settingsModal');
+            const closeSettings = document.getElementById('closeSettings');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const layoutAuto = document.getElementById('layoutAuto');
+            const layoutTwoColumn = document.getElementById('layoutTwoColumn');
+            const layoutSingleColumn = document.getElementById('layoutSingleColumn');
+
+            initDragAndDrop(settingsButton);
+
+            let savedTheme = localStorage.getItem('theme') || 'auto';
+            darkModeToggle.checked = (savedTheme === 'dark');
+            applyTheme(savedTheme);
+            watchSystemTheme();
+
+            let savedLayout = localStorage.getItem('layoutMode') || 'auto';
+            if (savedLayout === 'two-column') {
+                layoutTwoColumn.checked = true;
+            } else if (savedLayout === 'single-column') {
+                layoutSingleColumn.checked = true;
+            } else {
+                layoutAuto.checked = true;
+            }
+            applyLayout(savedLayout);
+
+            layoutAuto.addEventListener('change', () => {
+                if (layoutAuto.checked) {
+                    localStorage.setItem('layoutMode', 'auto');
+                    applyLayout('auto');
+                }
+            });
+
+            layoutTwoColumn.addEventListener('change', () => {
+                if (layoutTwoColumn.checked) {
+                    localStorage.setItem('layoutMode', 'two-column');
+                    applyLayout('two-column');
+                }
+            });
+
+            layoutSingleColumn.addEventListener('change', () => {
+                if (layoutSingleColumn.checked) {
+                    localStorage.setItem('layoutMode', 'single-column');
+                    applyLayout('single-column');
+                }
+            });
+
+            darkModeToggle.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    localStorage.setItem('theme', 'dark');
+                    applyTheme('dark');
+                } else {
+                    localStorage.setItem('theme', 'auto');
+                    applyTheme('auto');
+                }
+            });
+
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                settingsButton.addEventListener('click', () => {
+                    settingsModal.classList.add('active');
+                });
+            }
+
+            closeSettings.addEventListener('click', () => {
+                settingsModal.classList.remove('active');
+            });
+
+            settingsModal.addEventListener('click', (e) => {
+                if (e.target === settingsModal) {
+                    settingsModal.classList.remove('active');
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && settingsModal.classList.contains('active')) {
+                    settingsModal.classList.remove('active');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initSettings();
+        });
     </script>
 </body>
 </html>

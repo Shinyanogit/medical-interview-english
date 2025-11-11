@@ -67,9 +67,10 @@
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
+        /* レイアウトモード: 自動（デバイスに応じて） */
         /* 広い画面で2段組レイアウト */
         @media (min-width: 1024px) {
-            .container {
+            .container:not(.layout-single-column) {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 gap: 40px;
@@ -77,32 +78,79 @@
                 grid-auto-flow: row;
             }
 
-            .container > h1 {
+            .container:not(.layout-single-column) > h1 {
                 grid-column: 1 / -1;
                 margin-bottom: 20px;
             }
 
-            .section {
+            .container:not(.layout-single-column) .section {
                 margin-bottom: 15px;
                 min-height: 0;
                 overflow: visible;
             }
 
             /* h2の間隔を詰める */
-            .section h2 {
+            .container:not(.layout-single-column) .section h2 {
                 margin-top: 10px;
                 margin-bottom: 10px;
             }
 
             /* 2段組の最初のセクションのh2のマージンを調整 */
-            .section:first-of-type h2 {
+            .container:not(.layout-single-column) .section:first-of-type h2 {
                 margin-top: 0;
             }
 
             /* 右カラムの最初のセクションのh2のマージンを調整 */
-            .section:nth-of-type(2) h2 {
+            .container:not(.layout-single-column) .section:nth-of-type(2) h2 {
                 margin-top: 0;
             }
+        }
+
+        /* レイアウトモード: 常に2段組 */
+        .container.layout-two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+            grid-auto-flow: row;
+        }
+
+        .container.layout-two-column > h1 {
+            grid-column: 1 / -1;
+            margin-bottom: 20px;
+        }
+
+        .container.layout-two-column .section {
+            margin-bottom: 15px;
+            min-height: 0;
+            overflow: visible;
+        }
+
+        .container.layout-two-column .section h2 {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .container.layout-two-column .section:first-of-type h2 {
+            margin-top: 0;
+        }
+
+        .container.layout-two-column .section:nth-of-type(2) h2 {
+            margin-top: 0;
+        }
+
+        /* レイアウトモード: 常に1段組 */
+        .container.layout-single-column {
+            display: block;
+        }
+
+        .container.layout-single-column .section {
+            margin-bottom: 40px;
+        }
+
+        .container.layout-single-column .section h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
         }
 
         h1 {
@@ -556,6 +604,37 @@
         .toggle-switch input:checked + .toggle-slider:before {
             transform: translateX(24px);
         }
+
+        /* レイアウト選択ラジオボタン */
+        .layout-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .radio-option:hover {
+            background-color: var(--question-bg);
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .radio-option span {
+            font-size: 14px;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -577,6 +656,23 @@
                     <input type="checkbox" id="darkModeToggle">
                     <span class="toggle-slider"></span>
                 </label>
+            </div>
+            <div class="settings-item">
+                <span class="settings-label">レイアウト</span>
+                <div class="layout-options">
+                    <label class="radio-option">
+                        <input type="radio" name="layoutMode" value="auto" id="layoutAuto">
+                        <span>自動</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="layoutMode" value="two-column" id="layoutTwoColumn">
+                        <span>2段組</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="layoutMode" value="single-column" id="layoutSingleColumn">
+                        <span>1段組</span>
+                    </label>
+                </div>
             </div>
         </div>
     </div>
@@ -1458,12 +1554,34 @@
             });
         }
 
+        // レイアウト設定を適用
+        function applyLayout(layoutMode) {
+            const container = document.querySelector('.container');
+            if (!container) return;
+
+            // 既存のレイアウトクラスを削除
+            container.classList.remove('layout-auto', 'layout-two-column', 'layout-single-column');
+
+            // 新しいレイアウトクラスを追加
+            if (layoutMode === 'two-column') {
+                container.classList.add('layout-two-column');
+            } else if (layoutMode === 'single-column') {
+                container.classList.add('layout-single-column');
+            } else {
+                // 'auto'の場合はクラスを追加しない（デフォルトのメディアクエリに従う）
+                container.classList.add('layout-auto');
+            }
+        }
+
         // 設定機能
         function initSettings() {
             const settingsButton = document.getElementById('settingsButton');
             const settingsModal = document.getElementById('settingsModal');
             const closeSettings = document.getElementById('closeSettings');
             const darkModeToggle = document.getElementById('darkModeToggle');
+            const layoutAuto = document.getElementById('layoutAuto');
+            const layoutTwoColumn = document.getElementById('layoutTwoColumn');
+            const layoutSingleColumn = document.getElementById('layoutSingleColumn');
 
             // ドラッグ&ドロップ機能を初期化（PCのみ）
             initDragAndDrop(settingsButton);
@@ -1480,6 +1598,43 @@
 
             // システム設定の変更を監視開始
             watchSystemTheme();
+
+            // 保存されたレイアウト設定を読み込む（デフォルトは'auto'）
+            let savedLayout = localStorage.getItem('layoutMode') || 'auto';
+
+            // ラジオボタンの状態を設定
+            if (savedLayout === 'two-column') {
+                layoutTwoColumn.checked = true;
+            } else if (savedLayout === 'single-column') {
+                layoutSingleColumn.checked = true;
+            } else {
+                layoutAuto.checked = true;
+            }
+
+            // レイアウトを適用
+            applyLayout(savedLayout);
+
+            // レイアウト選択の変更を監視
+            layoutAuto.addEventListener('change', () => {
+                if (layoutAuto.checked) {
+                    localStorage.setItem('layoutMode', 'auto');
+                    applyLayout('auto');
+                }
+            });
+
+            layoutTwoColumn.addEventListener('change', () => {
+                if (layoutTwoColumn.checked) {
+                    localStorage.setItem('layoutMode', 'two-column');
+                    applyLayout('two-column');
+                }
+            });
+
+            layoutSingleColumn.addEventListener('change', () => {
+                if (layoutSingleColumn.checked) {
+                    localStorage.setItem('layoutMode', 'single-column');
+                    applyLayout('single-column');
+                }
+            });
 
             // トグルスイッチの変更を監視
             darkModeToggle.addEventListener('change', (e) => {
