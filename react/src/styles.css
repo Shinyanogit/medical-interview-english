@@ -1,0 +1,225 @@
+/* CSS変数でテーマカラーを管理 */
+:root {
+  --bg-color: #f5f5f5;
+  --container-bg: #ffffff;
+  --text-color: #333;
+  --text-color-secondary: #555;
+  --text-color-tertiary: #666;
+  --heading-color: #2c3e50;
+  --heading-color-secondary: #34495e;
+  --border-color: #3498db;
+  --question-bg: #f8f9fa;
+  --question-hover-bg: #e8f4f8;
+  --card-bg: #ffffff;
+  --card-hover-bg: #f8f9fa;
+  --shadow: rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] {
+  --bg-color: #000000;
+  --container-bg: #0a0a0a;
+  --text-color: #e0e0e0;
+  --text-color-secondary: #b0b0b0;
+  --text-color-tertiary: #999;
+  --heading-color: #ffffff;
+  --heading-color-secondary: #e0e0e0;
+  --border-color: #4a9eff;
+  --question-bg: #1a1a1a;
+  --question-hover-bg: #2a2a2a;
+  --card-bg: #1a1a1a;
+  --card-hover-bg: #2a2a2a;
+  --shadow: rgba(0,0,0,0.8);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  padding: 20px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: var(--container-bg);
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px var(--shadow);
+  position: relative;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+@media (min-width: 1024px) {
+  .container:not(.layout-single-column) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+    grid-auto-flow: row;
+  }
+
+  .container:not(.layout-single-column) > h1 { grid-column: 1 / -1; margin-bottom: 20px; }
+  /* Ensure the home cards section spans full width in two-column container */
+  .container:not(.layout-single-column) > .sections-grid { grid-column: 1 / -1; }
+}
+
+.container.layout-two-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+  grid-auto-flow: row;
+}
+
+.container.layout-single-column { display: block; }
+
+h1 {
+  color: var(--heading-color);
+  margin-bottom: 30px;
+  font-size: 28px;
+  border-bottom: 3px solid var(--border-color);
+  padding-bottom: 10px;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+.container > h1,
+.container.layout-single-column > h1,
+.container.layout-two-column > h1 {
+  text-align: center;
+}
+
+h2, h3, h4 {
+  color: var(--heading-color-secondary);
+  margin-top: 24px;
+  margin-bottom: 12px;
+  transition: color 0.3s ease;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-right: 30px;
+}
+
+h2 { font-size: 24px; border-left: 4px solid var(--border-color); padding-left: 10px; }
+h3 { font-size: 20px; color: var(--text-color-secondary); padding-left: 16px; }
+h4 { font-size: 18px; color: var(--text-color-tertiary); font-weight: 600; padding-left: 24px; }
+
+h2::after, h3::after, h4::after {
+  content: "▼";
+  position: absolute;
+  right: 0;
+  font-size: 12px;
+  transition: transform 0.3s ease;
+  color: var(--border-color);
+}
+
+.collapsed::after { transform: rotate(-90deg); }
+
+.section { margin-bottom: 24px; }
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: var(--border-color);
+  text-decoration: none;
+  font-size: 16px;
+  transition: opacity 0.3s ease;
+}
+.back-link:hover { opacity: 0.7; }
+
+p { margin: 12px 0; line-height: 1.8; }
+
+.description {
+  font-size: 14px;
+  color: var(--text-color-tertiary);
+  background: transparent;
+  border-left: 3px solid var(--border-color);
+  padding: 10px 15px;
+  margin: 15px 0;
+  opacity: 0.8;
+}
+
+/* Collapsible content */
+.section-content.collapsed { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.3s ease; margin: 0; padding: 0; }
+.section-content.expanded { max-height: 1000px; opacity: 1; transition: all 0.3s ease; margin: 12px 0; }
+
+/* Settings */
+.settings-button {
+  position: fixed; top: 20px; right: 20px; width: 50px; height: 50px; border-radius: 50%;
+  background-color: rgba(255,255,255,0.7); border: 2px solid rgba(52,152,219,0.5);
+  display: flex; align-items: center; justify-content: center; font-size: 24px;
+  box-shadow: 0 2px 10px var(--shadow); z-index: 1000; opacity: 0.6; cursor: pointer;
+}
+[data-theme="dark"] .settings-button { background-color: rgba(10,10,10,0.7); border-color: rgba(74,158,255,0.5); }
+
+.settings-modal { display: flex; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(5px); align-items: center; justify-content: center; }
+.settings-content { background-color: var(--container-bg); padding: 30px; border-radius: 10px; max-width: 420px; width: 90%; box-shadow: 0 5px 20px var(--shadow); }
+.settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.close-button { background: none; border: none; font-size: 28px; cursor: pointer; color: var(--text-color); }
+.settings-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.settings-label { font-size: 16px; color: var(--text-color); }
+.toggle-switch { position: relative; width: 50px; height: 26px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; cursor: pointer; inset: 0; background-color: #ccc; transition: 0.3s; border-radius: 26px; }
+.toggle-slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; }
+.toggle-switch input:checked + .toggle-slider { background-color: var(--border-color); }
+.toggle-switch input:checked + .toggle-slider:before { transform: translateX(24px); }
+.layout-options { display: flex; flex-direction: column; gap: 10px; }
+.radio-option { display: flex; align-items: center; cursor: pointer; padding: 8px 12px; border-radius: 5px; }
+.radio-option:hover { background-color: var(--question-bg); }
+.radio-option input { margin-right: 8px; }
+
+/* Cards (Home) */
+.sections-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+  max-width: 100%;
+}
+/* デスクトップでは常に3列固定 */
+@media (min-width: 769px) {
+  .sections-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+/* タブレット以下では2列 */
+@media (max-width: 768px) {
+  .sections-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+/* モバイルでは1列 */
+@media (max-width: 480px) {
+  .sections-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.section-card { background-color: var(--card-bg); border: 2px solid var(--border-color); border-radius: 10px; padding: 20px; text-align: center; text-decoration: none; color: var(--text-color); display: block; transition: all 0.2s ease; box-shadow: 0 2px 5px var(--shadow); }
+.section-card:hover { transform: translateY(-3px); background-color: var(--card-hover-bg); box-shadow: 0 4px 12px var(--shadow); }
+.section-icon { font-size: 36px; margin-bottom: 10px; }
+.section-title { font-size: 18px; font-weight: bold; color: var(--heading-color); margin-bottom: 6px; }
+.section-subtitle { font-size: 14px; opacity: 0.8; }
+
+/* Question items (for Medical Interview) */
+.question-item { list-style: none; margin: 8px 0; padding: 12px 14px 12px 36px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; position: relative; background: var(--container-bg); transition: background-color 0.2s ease, box-shadow 0.2s ease; }
+.question-item::before { content: '🔊'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: 0.8; }
+.question-item:hover { background-color: var(--question-hover-bg); box-shadow: 0 2px 6px var(--shadow); }
+.question-item.playing { background-color: #d4edda; border-color: #2ecc71; }
+.question-text { color: var(--text-color); }
+
+/* Make injected content's children participate directly in container grid */
+.injected { display: contents; }
+
+/* Visual indentation for nested content imported from external HTML */
+.heading-l3 { margin-left: 8px; }
+.heading-l4 { margin-left: 16px; }
+/* Content under h3 should sit further right than the h3 itself */
+/* Indentation blocks for content under headers */
+.indent-1 { margin-left: 24px; padding-left: 8px; }
+.indent-2 { margin-left: 40px; padding-left: 12px; }
+/* Ensure lists also indent clearly under nested sections */
+.indent-1 li { margin-left: 24px; }
+.indent-2 li { margin-left: 40px; }
