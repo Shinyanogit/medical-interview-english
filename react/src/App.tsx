@@ -228,6 +228,17 @@ const App: React.FC = () => {
       }
     : undefined;
 
+  const basePath =
+    import.meta.env.BASE_URL === "/" || import.meta.env.BASE_URL === ""
+      ? ""
+      : import.meta.env.BASE_URL.replace(/\/$/, "");
+
+  const buildAppPath = (relative: string) => {
+    const trimmed = relative.replace(/^\/+/, "");
+    const url = `${basePath}/${trimmed}`.replace(/^\/\//, "/");
+    return url.startsWith("/") ? url : `/${url}`;
+  };
+
   const renderPage = (
     baseTitle: string,
     url: string,
@@ -253,7 +264,7 @@ const App: React.FC = () => {
               path="/medical-interview"
               element={renderPage(
                 "医療面接",
-                "https://shinyanogit.github.io/medical-interview-english/medical-interview.html",
+                buildAppPath("legacy/medical-interview.html"),
                 {
                   enableAudio: true,
                 }
@@ -263,7 +274,7 @@ const App: React.FC = () => {
               path="/head-neck"
               element={renderPage(
                 "頭頸部",
-                "https://shinyanogit.github.io/medical-interview-english/head-neck.html",
+                buildAppPath("legacy/head-neck.html"),
                 {
                   enableAudio: true,
                 }
@@ -271,29 +282,21 @@ const App: React.FC = () => {
             />
             <Route
               path="/chest"
-              element={renderPage(
-                "胸部",
-                "https://shinyanogit.github.io/medical-interview-english/chest.html",
-                {
-                  enableAudio: true,
-                }
-              )}
+              element={renderPage("胸部", buildAppPath("legacy/chest.html"), {
+                enableAudio: true,
+              })}
             />
             <Route
               path="/abdomen"
-              element={renderPage(
-                "腹部",
-                "https://shinyanogit.github.io/medical-interview-english/abdomen.html",
-                {
-                  enableAudio: true,
-                }
-              )}
+              element={renderPage("腹部", buildAppPath("legacy/abdomen.html"), {
+                enableAudio: true,
+              })}
             />
             <Route
               path="/neurological"
               element={renderPage(
                 "神経",
-                "https://shinyanogit.github.io/medical-interview-english/neurological.html",
+                buildAppPath("legacy/neurological.html"),
                 {
                   enableAudio: true,
                 }
@@ -303,7 +306,7 @@ const App: React.FC = () => {
               path="/presentation"
               element={renderPage(
                 "プレゼン",
-                "https://shinyanogit.github.io/medical-interview-english/presentation.html",
+                buildAppPath("legacy/presentation.html"),
                 {
                   enableAudio: true,
                 }

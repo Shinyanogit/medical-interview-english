@@ -2,6 +2,17 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLayout } from '../context/LayoutContext';
 
+const basePath =
+  import.meta.env.BASE_URL === '/' || import.meta.env.BASE_URL === ''
+    ? ''
+    : import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const resolveAppPath = (relative: string) => {
+  const trimmed = relative.replace(/^\/+/, '');
+  const url = `${basePath}/${trimmed}`.replace(/^\/\//, '/');
+  return url.startsWith('/') ? url : `/${url}`;
+};
+
 type Props = {
   url: string;
   title: string;
@@ -36,6 +47,7 @@ const ExternalHtmlPage: React.FC<Props> = ({ url, title, enableAudio = false }) 
         if (topH1 && topH1.parentElement) topH1.parentElement.removeChild(topH1);
         if (containerRef.current) {
           containerRef.current.innerHTML = container.innerHTML;
+          annotateParaphrases(containerRef.current);
         }
         // After mount, wire behaviors
         setTimeout(() => {
@@ -168,8 +180,58 @@ function initToggles(root: HTMLElement) {
   });
 }
 
+function annotateParaphrases(root: HTMLElement) {
+  if (!root) return;
+  const targets = Array.from(root.querySelectorAll('li.question-item'));
+  const regex = /\(([^()]+)\)/g;
+
+  targets.forEach((target) => {
+    const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT, null);
+    const nodes: Text[] = [];
+    let current = walker.nextNode();
+    while (current) {
+      if (current.nodeType === Node.TEXT_NODE) {
+        nodes.push(current as Text);
+      }
+      current = walker.nextNode();
+    }
+
+    nodes.forEach((node) => {
+      const text = node.textContent ?? '';
+      regex.lastIndex = 0;
+      if (!regex.test(text)) return;
+      regex.lastIndex = 0;
+      const parent = node.parentElement;
+      if (!parent || parent.closest('.paraphrase')) return;
+
+      const fragment = document.createDocumentFragment();
+      let lastIndex = 0;
+      let match: RegExpExecArray | null;
+
+      while ((match = regex.exec(text)) !== null) {
+        const start = match.index ?? 0;
+        const end = start + match[0].length;
+        if (start > lastIndex) {
+          fragment.appendChild(document.createTextNode(text.slice(lastIndex, start)));
+        }
+        const span = document.createElement('span');
+        span.className = 'paraphrase';
+        span.textContent = match[0];
+        fragment.appendChild(span);
+        lastIndex = end;
+      }
+
+      if (lastIndex < text.length) {
+        fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+      }
+
+      parent.replaceChild(fragment, node);
+    });
+  });
+}
+
 async function initAudio(root: HTMLElement) {
-  const mapUrl = 'https://shinyanogit.github.io/medical-interview-english/audio/audio_map.json';
+  const mapUrl = resolveAppPath('audio/audio_map.json');
   let audioMap: Record<string, string> = {};
   try {
     audioMap = await fetch(mapUrl).then(r => r.json());
@@ -216,7 +278,7 @@ async function initAudio(root: HTMLElement) {
         console.warn('Audio not found for:', key);
         return;
       }
-      const src = `https://shinyanogit.github.io/medical-interview-english/audio/${file}`;
+      const src = resolveAppPath(`audio/${file}`);
       if (current === li && audioEl) {
         if (!audioEl.paused) {
           audioEl.pause();
