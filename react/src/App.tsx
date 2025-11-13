@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { ThemeProvider } from "./context/ThemeContext";
 import { LayoutProvider, useLayout } from "./context/LayoutContext";
 import SettingsModal from "./components/SettingsModal";
+import RealtimeCallLauncher from "./components/RealtimeCallLauncher";
 import Section from "./components/Section";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import ExternalHtmlPage from "./pages/ExternalHtmlPage";
@@ -330,6 +331,7 @@ const App: React.FC = () => {
             setContentMode={setContentMode}
           />
         </BrowserRouter>
+        <RealtimeCallLauncher />
       </LayoutProvider>
     </ThemeProvider>
   );
