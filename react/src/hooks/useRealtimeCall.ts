@@ -35,13 +35,21 @@ const envDefaults: ApiKeys = {
 
 const OPENAI_DEFAULT_MODEL =
   import.meta.env.VITE_OPENAI_REALTIME_MODEL || "gpt-4o-realtime-preview";
+// 本番環境では直接OpenAI APIを呼び出す（GitHub Pagesではプロキシが使えない）
 const OPENAI_DEFAULT_URL =
-  import.meta.env.VITE_OPENAI_REALTIME_URL || "/api/openai";
+  import.meta.env.VITE_OPENAI_REALTIME_URL ||
+  (import.meta.env.PROD
+    ? "https://api.openai.com/v1/realtime"
+    : "/api/openai");
 
 const GEMINI_DEFAULT_MODEL =
   import.meta.env.VITE_GEMINI_LIVE_MODEL || "gemini-live-2.5-flash-preview";
+// 本番環境では直接Gemini APIを呼び出す（GitHub Pagesではプロキシが使えない）
 const GEMINI_DEFAULT_BASE_URL =
-  import.meta.env.VITE_GEMINI_LIVE_BASE_URL || "/api/gemini";
+  import.meta.env.VITE_GEMINI_LIVE_BASE_URL ||
+  (import.meta.env.PROD
+    ? "https://generativelanguage.googleapis.com/v1beta/models"
+    : "/api/gemini");
 
 type TranscriptEntry = {
   id: string;
@@ -97,12 +105,22 @@ const providerConfigs: Record<RealtimeProvider, ProviderConfig> = {
       const endpoint = `${OPENAI_DEFAULT_URL}?model=${encodeURIComponent(
         OPENAI_DEFAULT_MODEL
       )}`;
+      // 本番環境では直接OpenAI APIを呼び出す（Authorizationヘッダーを使用）
+      const headers: HeadersInit = {
+        "Content-Type": "application/sdp",
+      };
+      
+      if (import.meta.env.PROD) {
+        // 本番環境: OpenAI APIの標準的な認証方法
+        headers["Authorization"] = `Bearer ${apiKey}`;
+      } else {
+        // 開発環境: プロキシ経由（X-Api-Keyを使用）
+        headers["X-Api-Key"] = apiKey;
+      }
+      
       const response = await fetch(endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/sdp",
-          "X-Api-Key": apiKey,
-        },
+        headers,
         body: offer.sdp ?? "",
       });
       const answer = await response.text();
@@ -142,12 +160,26 @@ const providerConfigs: Record<RealtimeProvider, ProviderConfig> = {
       const endpoint = `${GEMINI_DEFAULT_BASE_URL}/${encodeURIComponent(
         GEMINI_DEFAULT_MODEL
       )}:connect`;
-      const response = await fetch(endpoint, {
+      
+      // 本番環境では直接Gemini APIを呼び出す（クエリパラメータでAPIキーを渡す）
+      let url = endpoint;
+      if (import.meta.env.PROD) {
+        // 本番環境: APIキーをクエリパラメータとして追加
+        url = `${endpoint}?key=${encodeURIComponent(apiKey)}`;
+      }
+      
+      const headers: HeadersInit = {
+        "Content-Type": "application/sdp",
+      };
+      
+      if (!import.meta.env.PROD) {
+        // 開発環境: プロキシ経由（X-Api-Keyを使用）
+        headers["X-Api-Key"] = apiKey;
+      }
+      
+      const response = await fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/sdp",
-          "X-Api-Key": apiKey,
-        },
+        headers,
         body: offer.sdp ?? "",
       });
 
