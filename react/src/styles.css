@@ -929,6 +929,9 @@ p { margin: 12px 0; line-height: 1.8; }
   border-color: #2c80c9;
 }
 
+.call-collapsible { display: none; margin-top: 10px; }
+.call-collapsible.is-open { display: block; }
+
 .call-audio {
   display: none;
 }
@@ -1028,4 +1031,108 @@ p { margin: 12px 0; line-height: 1.8; }
 
 [data-theme="dark"] .call-feedback-text {
   background: rgba(0, 0, 0, 0.22);
+}
+
+/* Scoring (採点) */
+.grading-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
+}
+.grading-col {
+  background: var(--card-bg);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+}
+[data-theme="dark"] .grading-col {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.grading-checklist {
+  list-style: none;
+  margin: 8px 0 12px 0;
+  padding: 0;
+}
+.grading-checklist li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+.grading-overall {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  margin-top: 12px;
+}
+.grading-overall-grade {
+  display: inline-block;
+  min-width: 36px;
+  text-align: center;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #e5f3ff;
+  color: #0b6ea8;
+}
+.grading-overall-grade.grade-a { background: #e6ffed; color: #067d2d; }
+.grading-overall-grade.grade-b { background: #f0fff4; color: #2f855a; }
+.grading-overall-grade.grade-c { background: #fffbea; color: #975a16; }
+.grading-overall-grade.grade-d { background: #fff5f5; color: #9b2c2c; }
+.grading-overall-grade.grade-e { background: #ffe6e6; color: #8b0000; }
+
+/* Docked call panel (landscape split) */
+.call-dock {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--container-bg);
+  color: var(--text-color);
+  border-left: 1px solid rgba(0,0,0,0.08);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -8px 0 24px rgba(0,0,0,0.18);
+}
+.call-dock-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+.call-dock-header .spacer { flex: 1; }
+.call-dock-body {
+  padding: 12px;
+  overflow-y: auto;
+}
+.call-dock-resizer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: col-resize;
+  z-index: 41;
+  background: transparent;
+}
+.call-dock-resizer:hover { background: rgba(52,152,219,0.18); }
+
+/* Subtitles */
+.call-subtitles {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  max-width: min(90vw, 960px);
+  background: rgba(0,0,0,0.72);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  z-index: 50;
 }

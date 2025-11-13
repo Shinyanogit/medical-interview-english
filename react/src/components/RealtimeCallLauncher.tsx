@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import useRealtimeCall, {
   RealtimeProvider,
 } from "../hooks/useRealtimeCall";
+import ScoringPanel from "./ScoringPanel";
+import ScoreDialog from "./ScoreDialog";
 
 const PROVIDER_OPTIONS: Array<{
   id: RealtimeProvider;
@@ -24,6 +26,7 @@ const STATUS_LABEL: Record<string, string> = {
   idle: "未接続",
   connecting: "接続中…",
   connected: "通話中",
+  ending: "終了処理中…",
   error: "エラー",
 };
 
@@ -47,11 +50,82 @@ const RealtimeCallLauncher: React.FC = () => {
     clearError,
     feedbackEntries,
     transcriptEntries,
+    scoreResult,
+    endedWithoutScore,
+    awaitingFinalScore,
     availableScenarios,
     scenarioId,
     setScenarioId,
     activeScenario,
+    requestScoring,
+    pendingAssistantText,
   } = useRealtimeCall();
+
+  // Wide-screen detection for split (right dock)
+  const [isWide, setIsWide] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    const w = window.innerWidth;
+    const h = window.innerHeight || 1;
+    return w / h > 1.2;
+  });
+  useEffect(() => {
+    const onResize = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight || 1;
+      setIsWide(w / h > 1.2);
+    };
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("orientationchange", onResize);
+    };
+  }, []);
+  const [dockWidth, setDockWidth] = useState<number>(
+    Math.min(520, Math.floor((typeof window !== "undefined" ? window.innerWidth : 1200) * 0.45))
+  );
+  // Push main document to the left when dock is visible
+  useEffect(() => {
+    const showDock = (open && isWide) || ((status === "connected" || status === "connecting" || status === "ending") && isWide);
+    if (!showDock) {
+      document.body.style.marginRight = "";
+      return;
+    }
+    document.body.style.marginRight = `${dockWidth}px`;
+    return () => {
+      document.body.style.marginRight = "";
+    };
+  }, [open, isWide, status, dockWidth]);
+  // Show dock when panel is open in landscape, or during call/ending
+  const showDock = (open && isWide) || ((status === "connected" || status === "connecting" || status === "ending") && isWide);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const max = Math.max(320, Math.floor(window.innerWidth * 0.8));
+    setDockWidth((w) => Math.min(Math.max(320, w), max));
+  }, [isWide]);
+  const isResizingRef = useRef(false);
+  const startResize = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    isResizingRef.current = true;
+    e.preventDefault();
+  }, []);
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!isResizingRef.current) return;
+      const vw = window.innerWidth;
+      const x = e.clientX;
+      const newWidth = Math.max(320, Math.min(vw - 200, vw - x));
+      setDockWidth(newWidth);
+    };
+    const onUp = () => {
+      isResizingRef.current = false;
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, []);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -177,13 +251,47 @@ const RealtimeCallLauncher: React.FC = () => {
     return `${hours}:${minutes}`;
   }, []);
 
+  const lastAssistant = useMemo(() => {
+    for (let i = transcriptEntries.length - 1; i >= 0; i--) {
+      const e = transcriptEntries[i];
+      if (e.role === "assistant" && e.text) return e.text;
+    }
+    return "";
+  }, [transcriptEntries]);
+
+  const assistantSubtitle = pendingAssistantText || lastAssistant;
+
+  const handleLauncherClick = useCallback(() => {
+    if (status === "connecting" || status === "connected" || status === "ending") {
+      stopCall();
+      return;
+    }
+
+    if (!open) {
+      setOpen(true);
+      return;
+    }
+
+    if (status === "idle" || status === "error") {
+      startCall({ provider });
+    }
+  }, [status, open, startCall, stopCall, provider]);
+
+  const [scoreOpen, setScoreOpen] = useState(false);
+  // Open score dialog automatically when a new score arrives after ending or hangup
+  useEffect(() => {
+    if ((awaitingFinalScore || scoreResult || endedWithoutScore) && (status === "idle" || status === "ending")) {
+      setScoreOpen(true);
+    }
+  }, [awaitingFinalScore, scoreResult, endedWithoutScore, status]);
+
   return (
     <>
       <button
         type="button"
         className={launcherClassName}
         aria-label="音声ロールプレイを開始"
-        onClick={handleOpen}
+        onClick={handleLauncherClick}
       >
         🎧
         {unreadFeedbackCount > 0 && (
@@ -192,7 +300,7 @@ const RealtimeCallLauncher: React.FC = () => {
           </span>
         )}
       </button>
-      {(status === "connected" || status === "connecting") && !open && (
+      {(status === "connected" || status === "connecting" || status === "ending") && !open && (
         <div className={`call-mini-status call-mini-status-${status}`}>
           <div className="call-mini-details">
             <span className="call-mini-status-label">{activeStatusLabel}</span>
@@ -228,7 +336,7 @@ const RealtimeCallLauncher: React.FC = () => {
         playsInline
         hidden
       />
-      {open && (
+      {open && !showDock && (
         <div className="call-modal" onMouseDown={handleBackdropClick}>
           <div
             className="call-modal-content"
@@ -262,31 +370,7 @@ const RealtimeCallLauncher: React.FC = () => {
               )}
             </div>
 
-            <div className="call-section">
-              <h3>プロバイダー</h3>
-              <div className="call-provider-options">
-                {PROVIDER_OPTIONS.map((option) => {
-                  const active = option.id === provider;
-                  return (
-                    <button
-                      key={option.id}
-                      type="button"
-                      className={`call-provider-button ${
-                        active ? "is-active" : ""
-                      }`}
-                      onClick={() => onProviderChange(option.id)}
-                    >
-                      <span className="call-provider-label">
-                        {option.label}
-                      </span>
-                      <span className="call-provider-description">
-                        {option.description}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            {/* プロバイダー・接続設定は設定画面に移動 */}
 
             <div className="call-section">
               <h3>シナリオ</h3>
@@ -334,43 +418,11 @@ const RealtimeCallLauncher: React.FC = () => {
               )}
             </div>
 
-            <div className="call-section">
-              <label className="call-field-label" htmlFor="call-api-key">
-                APIキー
-              </label>
-              <input
-                id="call-api-key"
-                className="call-field-input"
-                type="password"
-                placeholder="sk- または AI... で始まるキーを入力"
-                value={currentKey}
-                onChange={handleKeyChange}
-                autoComplete="off"
-                spellCheck={false}
-              />
-              <p className="call-hint">
-                入力したキーはブラウザの LocalStorage にのみ保存されます。
-                セキュリティ上、公開リポジトリへのコミットや画面共有などで漏洩しないよう十分ご注意ください。
-              </p>
-            </div>
+            {/* 接続（APIキー）は設定画面に移動 */}
 
-            <div className="call-section">
-              <label className="call-field-label" htmlFor="call-system-prompt">
-                患者の設定
-              </label>
-              <textarea
-                id="call-system-prompt"
-                className="call-field-textarea"
-                rows={6}
-                value={systemPrompt}
-                onChange={(event) => setSystemPrompt(event.target.value)}
-              />
-              <p className="call-hint">
-                開始時にプロバイダーへ送信する指示です。診療科・性格・症状などを自由に設定できます。
-              </p>
-            </div>
+            {/* 患者の設定編集はこの画面では不可（シナリオは上で選択） */}
 
-            {transcriptEntries.length > 0 && (
+            {(transcriptEntries.length > 0 || pendingAssistantText) && (
               <div className="call-section">
                 <h3>会話ログ</h3>
                 <ul className="call-transcript-list">
@@ -391,6 +443,15 @@ const RealtimeCallLauncher: React.FC = () => {
                       <p className="call-transcript-text">{entry.text}</p>
                     </li>
                   ))}
+                  {pendingAssistantText && (
+                    <li className="call-transcript-item">
+                      <span className="call-transcript-meta">
+                        <span className="call-transcript-role role-assistant">患者</span>
+                        <time>{formatTimestamp(Date.now())}</time>
+                      </span>
+                      <p className="call-transcript-text">{pendingAssistantText}</p>
+                    </li>
+                  )}
                 </ul>
               </div>
             )}
@@ -425,22 +486,29 @@ const RealtimeCallLauncher: React.FC = () => {
               )}
             </div>
 
+            <ScoringPanel
+              transcriptEntries={transcriptEntries}
+              feedbackEntries={feedbackEntries}
+              scenarioTitle={activeScenario?.title}
+              scoreResult={scoreResult}
+            />
+
             {error && <p className="call-error">{error}</p>}
 
             <div className="call-actions">
               <button
                 type="button"
                 className="call-button call-button-primary"
-                onClick={onConnect}
-                disabled={connectDisabled}
+                onClick={() => startCall({ provider })}
+                disabled={status === "connecting" || status === "connected"}
               >
-                {status === "connecting" ? "接続中…" : "接続する"}
+                {status === "connecting" ? "接続中…" : status === "connected" ? "通話中" : "通話を開始"}
               </button>
               <button
                 type="button"
                 className="call-button"
                 onClick={stopCall}
-                disabled={hangupDisabled}
+                disabled={status !== "connected" && status !== "connecting"}
               >
                 通話を終了
               </button>
@@ -448,6 +516,104 @@ const RealtimeCallLauncher: React.FC = () => {
           </div>
         </div>
       )}
+
+      {showDock && (
+        <>
+          <div className="call-dock" style={{ width: dockWidth }}>
+            <div className="call-dock-header">
+              <strong>音声ロールプレイ</strong>
+              <div className="spacer" />
+              <span className={`call-status-badge call-status-${status}`}>{activeStatusLabel}</span>
+              <button type="button" className="call-modal-close" onClick={handleHangup} aria-label="終了">×</button>
+            </div>
+            <div className="call-dock-body">
+              {/* プロバイダー・接続設定は設定画面に移動 */}
+
+              {/* Scenario */}
+              <div className="call-section">
+                <h3>シナリオ</h3>
+                <label className="call-field-label" htmlFor="call-scenario-select-dock">臨床ストーリー</label>
+                <select id="call-scenario-select-dock" className="call-field-input" value={scenarioId} onChange={handleScenarioChange}>
+                  {availableScenarios.map((scenario) => (
+                    <option key={scenario.id} value={scenario.id}>{scenario.title}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 接続設定は設定画面に移動 */}
+
+              {(transcriptEntries.length > 0 || pendingAssistantText) && (
+                <div className="call-section">
+                  <h3>会話ログ</h3>
+                  <ul className="call-transcript-list">
+                    {transcriptEntries.map((entry) => (
+                      <li key={entry.id} className="call-transcript-item">
+                        <span className="call-transcript-meta">
+                          <span className={`call-transcript-role role-${entry.role}`}>
+                            {entry.role === "user" ? "医師" : entry.role === "assistant" ? "患者" : "システム"}
+                          </span>
+                          <time dateTime={new Date(entry.timestamp).toISOString()}>{formatTimestamp(entry.timestamp)}</time>
+                        </span>
+                        <p className="call-transcript-text">{entry.text}</p>
+                      </li>
+                    ))}
+                    {pendingAssistantText && (
+                      <li className="call-transcript-item">
+                        <span className="call-transcript-meta">
+                          <span className="call-transcript-role role-assistant">患者</span>
+                          <time>{formatTimestamp(Date.now())}</time>
+                        </span>
+                        <p className="call-transcript-text">{pendingAssistantText}</p>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              )}
+
+              <div className="call-section">
+                <h3>リアルタイムフィードバック</h3>
+                {feedbackEntries.length === 0 ? (
+                  <p className="call-hint">通話中の発話内容に対するフィードバックがここに表示されます。</p>
+                ) : (
+                  <ul className="call-feedback-list">
+                    {feedbackEntries.map((entry) => (
+                      <li key={entry.id} className="call-feedback-item">
+                        <div className="call-feedback-header">
+                          <span className="call-feedback-provider">{entry.provider === "openai" ? "OpenAI" : "Gemini"}</span>
+                          <time dateTime={new Date(entry.timestamp).toISOString()}>{formatTimestamp(entry.timestamp)}</time>
+                        </div>
+                        <p className="call-feedback-text">{entry.text}</p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <ScoringPanel
+                transcriptEntries={transcriptEntries}
+                feedbackEntries={feedbackEntries}
+                scenarioTitle={activeScenario?.title}
+                scoreResult={scoreResult}
+              />
+
+              {/* 通話開始/終了は🎧ボタンに集約 */}
+            </div>
+          </div>
+          <div className="call-dock-resizer" style={{ left: `calc(100vw - ${dockWidth + 4}px)` }} onMouseDown={startResize} />
+        </>
+      )}
+      {(status === "connected" || status === "connecting") && assistantSubtitle && (
+        <div className="call-subtitles">
+          {assistantSubtitle}
+        </div>
+      )}
+      <ScoreDialog
+        open={scoreOpen}
+        onClose={() => setScoreOpen(false)}
+        result={scoreResult}
+        awaiting={awaitingFinalScore && !scoreResult && !endedWithoutScore}
+        failed={endedWithoutScore && !scoreResult}
+      />
     </>
   );
 };

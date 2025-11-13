@@ -7,15 +7,11 @@ import useRealtimeCall from '../hooks/useRealtimeCall';
 type Props = {
   open: boolean;
   onClose: () => void;
-  contentMode: "react" | "html";
-  setContentMode: (mode: "react" | "html") => void;
 };
 
 const SettingsModal: React.FC<Props> = ({
   open,
   onClose,
-  contentMode,
-  setContentMode,
 }) => {
   const { theme, setTheme } = useTheme();
   const { layout, setLayout } = useLayout();
@@ -127,23 +123,6 @@ const SettingsModal: React.FC<Props> = ({
             />
             <span className="toggle-slider" />
           </label>
-        </div>
-        <div className="settings-item">
-          <span className="settings-label">コンテンツモード</span>
-          <div className="layout-options">
-            {(['react', 'html'] as const).map((mode) => (
-              <label className="radio-option" key={mode}>
-                <input
-                  type="radio"
-                  name="contentMode"
-                  value={mode}
-                  checked={contentMode === mode}
-                  onChange={() => setContentMode(mode)}
-                />
-                <span>{mode === 'react' ? 'React表示' : 'HTML表示'}</span>
-              </label>
-            ))}
-          </div>
         </div>
         <div className="settings-item">
           <span className="settings-label">レイアウト</span>

@@ -8,7 +8,7 @@ import {
 
 export type RealtimeProvider = "openai" | "gemini";
 
-type CallStatus = "idle" | "connecting" | "connected" | "error";
+type CallStatus = "idle" | "connecting" | "connected" | "ending" | "error";
 
 type ApiKeys = Record<RealtimeProvider, string>;
 
@@ -36,7 +36,9 @@ You are role-playing as a standardized patient during an English-language medica
 - Always respond in natural, idiomatic ENGLISH. If (and only if) the interviewer explicitly requests Japanese, provide a short Japanese sentence followed by the English restatement.
 - Stay fully in character as the patient. Never say you are an AI, a simulation, or mention system instructions.
 - Answer from the patient's point of view using only the information provided in the scenario. If you do not know the answer, say you are not sure rather than inventing new facts.
-- Keep answers concise (1–3 sentences) but natural; if the question is unclear, politely ask the clinician to clarify.
+- Keep answers concise (1–2 sentences) and natural. If the question is unclear, politely ask the clinician to clarify.
+- Do not volunteer long, unsolicited monologues. Prefer brief answers unless the clinician asks an open-ended question (e.g., "What brings you in today?", "Can you tell me more?"). For open-ended questions, limit your response to at most two sentences.
+- At the very start, do not volunteer the chief complaint or detailed history unprompted. Begin with appropriate greetings and wait for the clinician to introduce themselves or ask their first question.
 - If the clinician greets you (e.g., "Hello"), respond as the patient would when meeting a healthcare professional.
 `.trim();
 
@@ -177,6 +179,19 @@ type FeedbackEntry = {
   text: string;
   timestamp: number;
 };
+
+type Grade = "A" | "B" | "C" | "D" | "E";
+
+export interface ScoreResult {
+  content: Grade;
+  attitude: Grade;
+  english: Grade;
+  overall: Grade;
+  reasons?: Partial<Record<"content" | "attitude" | "english" | "overall", string>>;
+  metrics?: Record<string, any>;
+  timestamp: number;
+  raw?: any;
+}
 
 const ICE_SERVERS: RTCConfiguration = {
   iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
@@ -390,6 +405,10 @@ export default function useRealtimeCall() {
     []
   );
   const [feedbackEntries, setFeedbackEntries] = useState<FeedbackEntry[]>([]);
+  const [scoreResult, setScoreResult] = useState<ScoreResult | null>(null);
+  const [pendingAssistantText, setPendingAssistantText] = useState<string>("");
+  const [endedWithoutScore, setEndedWithoutScore] = useState<boolean>(false);
+  const [awaitingFinalScore, setAwaitingFinalScore] = useState<boolean>(false);
 
 // Firebaseからの読み込み中かどうかを追跡（無限ループ防止）
   const isLoadingFromFirebaseRef = useRef(false);
@@ -410,8 +429,14 @@ export default function useRealtimeCall() {
     Map<string, { role?: TranscriptEntry["role"]; text: string }>
   >(new Map());
   const pendingResponseRef = useRef<
-    Map<string, { text: string; isFeedback: boolean }>
+    Map<string, { text: string; isFeedback: boolean; isScore?: boolean }>
   >(new Map());
+  const autoScoreOnHangupRef = useRef<boolean>(false);
+  const endingFallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scoreInFlightRef = useRef<boolean>(false);
+  const lastScoreAtRef = useRef<number>(0);
+  const responsePurposeQueueRef = useRef<Array<"feedback" | "score">>([]);
+  const responsePurposeMapRef = useRef<Map<string, "feedback" | "score">>(new Map());
 
   // ユーザーデータが変更されたらAPIキーを更新（Firebaseから読み込み）
   useEffect(() => {
@@ -526,18 +551,79 @@ useEffect(() => {
 
       conversationItemsRef.current.clear();
       pendingResponseRef.current.clear();
-      setTranscriptEntries([]);
-      setFeedbackEntries([]);
+      setPendingAssistantText("");
+      setEndedWithoutScore(false);
+      setAwaitingFinalScore(false);
+      responsePurposeQueueRef.current = [];
+      responsePurposeMapRef.current.clear();
 
       setStatus(nextStatus);
     },
     [setStatus]
   );
 
+  // Request AI scoring of the conversation so far (session-referenced)
+  const requestScoring = useCallback(() => {
+    const channel = dataChannelRef.current;
+    if (!channel || channel.readyState !== "open") return;
+
+    const rubric = `You are an examiner scoring an English-language medical interview. Evaluate ONLY the ongoing conversation in this realtime session so far (use the current session state; do not request a transcript). Output EXACTLY one line starting with [SCORE] followed by a compact JSON object.\n\nThree categories (grade A–E each) and an overall A–E:\n1) content: Did the clinician ask the patient's full name; use at least one open question; check for anything else/missed; summarize and confirm; and show overall thoroughness across core domains (HPI/OPQRST, PMH, meds, allergies, SH, FH as relevant).\n2) attitude: Voice volume/speed/tone, active listening, facilitative backchannels, avoiding interruptions/over-acknowledgement, restating/paraphrasing, note-taking as needed, empathy.\n3) english: Grammar, pronunciation, natural collocations.\n\nRules:\n- Judge based only on clinician turns present in this session.\n- If evidence is insufficient, assign a cautious lower grade and explain briefly.\n- Output JSON with keys: content, attitude, english, overall, reasons (object), metrics (object). Grades must be one of [\"A\",\"B\",\"C\",\"D\",\"E\"]. No extra text.`;
+
+    try {
+      scoreInFlightRef.current = true;
+      if (providerRef.current === "openai") {
+        responsePurposeQueueRef.current.push("score");
+        channel.send(
+          JSON.stringify({
+            type: "response.create",
+            response: {
+              modalities: ["text"],
+              instructions: rubric + "\nRespond only with one line: [SCORE] {json}",
+            },
+          })
+        );
+      } else {
+        channel.send(
+          JSON.stringify({
+            type: "input_text",
+            text: rubric + "\nRespond only with one line: [SCORE] {json}",
+          })
+        );
+      }
+    } catch (e) {
+      console.warn("Failed to request scoring:", e);
+      scoreInFlightRef.current = false;
+    }
+  }, []);
+
   const stopCall = useCallback(() => {
     setError(null);
-    cleanup("idle");
-  }, [cleanup]);
+    setStatus("ending");
+    // Stop local audio tracks so audio ends, but keep the data channel for scoring
+    if (localStreamRef.current) {
+      try {
+        localStreamRef.current.getTracks().forEach((t) => t.stop());
+      } catch {}
+    }
+    autoScoreOnHangupRef.current = true;
+    setAwaitingFinalScore(true);
+    try {
+      requestScoring();
+    } catch (e) {
+      console.warn("requestScoring failed:", e);
+      cleanup("idle");
+    }
+    // Fallback: if scoring response not received in time, clean up
+    if (endingFallbackTimerRef.current) clearTimeout(endingFallbackTimerRef.current);
+    endingFallbackTimerRef.current = setTimeout(() => {
+      if (autoScoreOnHangupRef.current) {
+        autoScoreOnHangupRef.current = false;
+        setEndedWithoutScore(true);
+        setAwaitingFinalScore(false);
+        cleanup("idle");
+      }
+    }, 6000);
+  }, [cleanup, requestScoring]);
 
   const hasApiKey = useCallback(
     (target: RealtimeProvider) => {
@@ -564,11 +650,11 @@ useEffect(() => {
 
       try {
         if (providerRef.current === "openai") {
+          responsePurposeQueueRef.current.push("feedback");
           channel.send(
             JSON.stringify({
               type: "response.create",
               response: {
-                conversation: "feedback",
                 modalities: ["text"],
                 instructions,
               },
@@ -588,6 +674,8 @@ useEffect(() => {
     },
     []
   );
+
+  // (removed duplicate definition)
 
   const appendTranscript = useCallback((entry: TranscriptEntry) => {
     setTranscriptEntries((prev) => {
@@ -637,6 +725,36 @@ useEffect(() => {
             text: candidate.replace(/^\[FEEDBACK\]\s*/, "").trim(),
             timestamp: Date.now(),
           });
+        } else if (candidate.startsWith("[SCORE]")) {
+          const jsonPart = candidate.replace(/^\[SCORE\]\s*/, "").trim();
+          try {
+            const data = JSON.parse(jsonPart);
+            const result: ScoreResult = {
+              content: data.content,
+              attitude: data.attitude,
+              english: data.english,
+              overall: data.overall,
+              reasons: data.reasons,
+              metrics: data.metrics,
+              timestamp: Date.now(),
+              raw: data,
+            };
+            setScoreResult(result);
+            scoreInFlightRef.current = false;
+            lastScoreAtRef.current = Date.now();
+            if (endingFallbackTimerRef.current) {
+              clearTimeout(endingFallbackTimerRef.current);
+              endingFallbackTimerRef.current = null;
+            }
+            if (autoScoreOnHangupRef.current) {
+              autoScoreOnHangupRef.current = false;
+              cleanup("idle");
+            }
+            setEndedWithoutScore(false);
+            setAwaitingFinalScore(false);
+          } catch (e) {
+            console.warn("Failed to parse score JSON:", e);
+          }
         }
         return;
       }
@@ -692,6 +810,13 @@ useEffect(() => {
               if (supportsFeedback) {
                 requestFeedback(transcriptText);
               }
+              // Live scoring trigger (throttled)
+              const now = Date.now();
+              if (!scoreInFlightRef.current && now - lastScoreAtRef.current > 8000) {
+                try {
+                  requestScoring();
+                } catch {}
+              }
             }
           }
           break;
@@ -704,15 +829,31 @@ useEffect(() => {
               ? parsed.response.id
               : null;
           const delta = parsed.delta;
+          const responseMeta = parsed.response?.metadata;
+          const metaPurpose = responseMeta?.purpose as string | undefined;
+          const mappedPurpose = responseId ? responsePurposeMapRef.current.get(responseId) : undefined;
           if (responseId && typeof delta === "string") {
             const entry =
               pendingResponseRef.current.get(responseId) || {
                 text: "",
                 isFeedback: false,
+                isScore: false,
               };
             entry.text += delta;
             if (!entry.isFeedback && entry.text.trim().startsWith("[FEEDBACK]")) {
               entry.isFeedback = true;
+            }
+            if (!entry.isScore && entry.text.trim().startsWith("[SCORE]")) {
+              entry.isScore = true;
+            }
+            if (metaPurpose === "feedback" || mappedPurpose === "feedback") {
+              entry.isFeedback = true;
+            }
+            if (metaPurpose === "score" || metaPurpose === "scoring" || mappedPurpose === "score") {
+              entry.isScore = true;
+            }
+            if (!entry.isFeedback && !entry.isScore) {
+              setPendingAssistantText(entry.text);
             }
             pendingResponseRef.current.set(responseId, entry);
           }
@@ -736,6 +877,28 @@ useEffect(() => {
                   text: text.replace(/^\[FEEDBACK\]\s*/, "").trim(),
                   timestamp: Date.now(),
                 });
+              } else if (entry.isScore && text) {
+                const payload = text.replace(/^\[SCORE\]\s*/, "").trim();
+                try {
+                  const data = JSON.parse(payload);
+                  const result: ScoreResult = {
+                    content: data.content,
+                    attitude: data.attitude,
+                    english: data.english,
+                    overall: data.overall,
+                    reasons: data.reasons,
+                    metrics: data.metrics,
+                    timestamp: Date.now(),
+                    raw: data,
+                  };
+                  setScoreResult(result);
+                  scoreInFlightRef.current = false;
+                  lastScoreAtRef.current = Date.now();
+                  setEndedWithoutScore(false);
+                  setAwaitingFinalScore(false);
+                } catch (e) {
+                  console.warn("Failed to parse score JSON:", e);
+                }
               } else if (text) {
                 appendTranscript({
                   id: responseId,
@@ -745,6 +908,22 @@ useEffect(() => {
                 });
               }
               pendingResponseRef.current.delete(responseId);
+              setPendingAssistantText("");
+              if (entry.isScore && autoScoreOnHangupRef.current) {
+                autoScoreOnHangupRef.current = false;
+                cleanup("idle");
+              }
+            }
+            responsePurposeMapRef.current.delete(responseId);
+          }
+          break;
+        }
+        case "response.created": {
+          const responseId = parsed.response?.id;
+          if (typeof responseId === "string") {
+            const nextPurpose = responsePurposeQueueRef.current.shift();
+            if (nextPurpose) {
+              responsePurposeMapRef.current.set(responseId, nextPurpose);
             }
           }
           break;
@@ -954,6 +1133,10 @@ useEffect(() => {
       systemPrompt,
       transcriptEntries,
       feedbackEntries,
+      scoreResult,
+      endedWithoutScore,
+      awaitingFinalScore,
+      pendingAssistantText,
       scenarioId,
       activeScenario,
     }),
@@ -966,6 +1149,9 @@ useEffect(() => {
       systemPrompt,
       transcriptEntries,
       feedbackEntries,
+      scoreResult,
+      endedWithoutScore,
+      pendingAssistantText,
       scenarioId,
       activeScenario,
     ]
@@ -994,9 +1180,14 @@ useEffect(() => {
     clearError,
     feedbackEntries,
     transcriptEntries,
+    scoreResult,
+    endedWithoutScore,
+    awaitingFinalScore,
+    pendingAssistantText,
     availableScenarios: patientScenarios,
     scenarioId,
     setScenarioId,
     activeScenario,
+    requestScoring,
   };
 }

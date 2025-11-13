@@ -7,7 +7,6 @@ import RealtimeCallLauncher from "./components/RealtimeCallLauncher";
 import Section from "./components/Section";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import ExternalHtmlPage from "./pages/ExternalHtmlPage";
-import PageIframe from "./components/PageIframe";
 
 const Home: React.FC = () => {
   const { layout } = useLayout();
@@ -87,17 +86,8 @@ const Home: React.FC = () => {
   );
 };
 
-type ContentMode = "react" | "html";
-
 const AppInner: React.FC = () => {
   const [open, setOpen] = useState(false);
-  const [contentMode, setContentMode] = useState<ContentMode>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("contentMode");
-      if (saved === "html" || saved === "react") return saved;
-    }
-    return "react";
-  });
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const [buttonPos, setButtonPos] = useState<{
     left: number;
@@ -112,9 +102,27 @@ const AppInner: React.FC = () => {
     startTop: 0,
   });
 
+  const clampPosition = (pos: { left: number; top: number }) => {
+    const button = buttonRef.current;
+    if (!button) return pos;
+    const padding = 8;
+    const maxLeft = Math.max(
+      padding,
+      window.innerWidth - button.offsetWidth - padding
+    );
+    const maxTop = Math.max(
+      padding,
+      window.innerHeight - button.offsetHeight - padding
+    );
+    const clampedLeft = Math.min(Math.max(pos.left, padding), maxLeft);
+    const clampedTop = Math.min(Math.max(pos.top, padding), maxTop);
+    return { left: clampedLeft, top: clampedTop };
+  };
+
   const applyPosition = (pos: { left: number; top: number }) => {
-    positionRef.current = pos;
-    setButtonPos(pos);
+    const clamped = clampPosition(pos);
+    positionRef.current = clamped;
+    setButtonPos(clamped);
   };
 
   useEffect(() => {
@@ -214,14 +222,6 @@ const AppInner: React.FC = () => {
     setOpen(true);
   };
 
-  useEffect(() => {
-    try {
-      localStorage.setItem("contentMode", contentMode);
-    } catch (e) {
-      console.warn("Failed to save content mode:", e);
-    }
-  }, [contentMode]);
-
   const buttonStyle = buttonPos
     ? {
         left: `${buttonPos.left}px`,
@@ -245,16 +245,13 @@ const AppInner: React.FC = () => {
     baseTitle: string,
     url: string,
     options?: { enableAudio?: boolean }
-  ) =>
-    contentMode === "react" ? (
-      <ExternalHtmlPage
-        title={`${baseTitle}(r)`}
-        url={url}
-        enableAudio={options?.enableAudio}
-      />
-    ) : (
-      <PageIframe title={`${baseTitle}（HTML版）`} src={url} />
-    );
+  ) => (
+    <ExternalHtmlPage
+      title={baseTitle}
+      url={url}
+      enableAudio={options?.enableAudio}
+    />
+  );
 
   return (
     <ThemeProvider>
@@ -328,8 +325,6 @@ const AppInner: React.FC = () => {
           <SettingsModal
             open={open}
             onClose={() => setOpen(false)}
-            contentMode={contentMode}
-            setContentMode={setContentMode}
           />
         </BrowserRouter>
         <RealtimeCallLauncher />
