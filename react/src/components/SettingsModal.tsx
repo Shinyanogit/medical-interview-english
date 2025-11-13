@@ -19,7 +19,7 @@ const SettingsModal: React.FC<Props> = ({
 }) => {
   const { theme, setTheme } = useTheme();
   const { layout, setLayout } = useLayout();
-  const { currentUser, signUp, signIn, signInWithGoogle, logout } = useAuth();
+  const { currentUser, signUp, signIn, signInWithGoogle, logout, updateApiKeys } = useAuth();
   const { setApiKey, getApiKey } = useRealtimeCall();
   const [showAuth, setShowAuth] = useState(false);
   const [showApiKeys, setShowApiKeys] = useState(false);
@@ -47,10 +47,30 @@ const SettingsModal: React.FC<Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showApiKeys]); // showApiKeysが変更された時だけ実行
 
-  const handleApiKeySave = () => {
-    setApiKey("openai", openaiKey);
-    setApiKey("gemini", geminiKey);
-    setShowApiKeys(false);
+  const handleApiKeySave = async () => {
+    try {
+      setError("");
+      setLoading(true);
+      
+      // useRealtimeCallの状態も更新
+      setApiKey("openai", openaiKey);
+      setApiKey("gemini", geminiKey);
+      
+      // ログイン中の場合、Firebaseにも保存
+      if (currentUser) {
+        await updateApiKeys({
+          openai: openaiKey,
+          gemini: geminiKey,
+        });
+      }
+      
+      setShowApiKeys(false);
+      setError("");
+    } catch (err: any) {
+      setError(err.message || "APIキーの保存に失敗しました");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
@@ -215,8 +235,9 @@ const SettingsModal: React.FC<Props> = ({
                   type="button"
                   className="auth-button auth-button-primary"
                   onClick={handleApiKeySave}
+                  disabled={loading}
                 >
-                  保存
+                  {loading ? "保存中..." : "保存"}
                 </button>
                 <button
                   type="button"
@@ -229,6 +250,11 @@ const SettingsModal: React.FC<Props> = ({
                   キャンセル
                 </button>
               </div>
+              {error && (
+                <p className="auth-error" style={{ marginTop: '12px' }}>
+                  {error}
+                </p>
+              )}
               <p className="auth-hint" style={{ marginTop: '12px', fontSize: '12px' }}>
                 {currentUser
                   ? "ログイン中です。APIキーはFirebaseに保存されます。"
