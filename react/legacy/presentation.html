@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Presentation - ケースプレゼンテーションの手引き</title>
+    <style>
+        /* CSS変数でテーマカラーを管理 */
+        :root {
+            --bg-color: #f5f5f5;
+            --container-bg: #ffffff;
+            --text-color: #333;
+            --text-color-secondary: #555;
+            --text-color-tertiary: #666;
+            --heading-color: #2c3e50;
+            --heading-color-secondary: #34495e;
+            --border-color: #3498db;
+            --question-bg: #f8f9fa;
+            --question-hover-bg: #e8f4f8;
+            --question-playing-bg: #d4edda;
+            --info-box-bg: #e7f3ff;
+            --info-box-text: #1976D2;
+            --shadow: rgba(0,0,0,0.1);
+        }
+
+        /* ダークモード */
+        [data-theme="dark"] {
+            --bg-color: #000000;
+            --container-bg: #0a0a0a;
+            --text-color: #e0e0e0;
+            --text-color-secondary: #b0b0b0;
+            --text-color-tertiary: #999;
+            --heading-color: #ffffff;
+            --heading-color-secondary: #e0e0e0;
+            --border-color: #4a9eff;
+            --question-bg: #1a1a1a;
+            --question-hover-bg: #2a2a2a;
+            --question-playing-bg: #1a3a2a;
+            --info-box-bg: #0a1a2a;
+            --info-box-text: #64b5f6;
+            --shadow: rgba(0,0,0,0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            padding: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px var(--shadow);
+            position: relative;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* レイアウトモード: 自動（デバイスに応じて） */
+        @media (min-width: 1024px) {
+            .container:not(.layout-single-column) {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+                align-items: start;
+                grid-auto-flow: row;
+            }
+
+            .container:not(.layout-single-column) > h1 {
+                grid-column: 1 / -1;
+                margin-bottom: 20px;
+            }
+
+            .container:not(.layout-single-column) .section {
+                margin-bottom: 15px;
+                min-height: 0;
+                overflow: visible;
+            }
+
+            .container:not(.layout-single-column) .section h2 {
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+
+            .container:not(.layout-single-column) .section:first-of-type h2 {
+                margin-top: 0;
+            }
+
+            .container:not(.layout-single-column) .section:nth-of-type(2) h2 {
+                margin-top: 0;
+            }
+        }
+
+        .container.layout-two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+            grid-auto-flow: row;
+        }
+
+        .container.layout-two-column > h1 {
+            grid-column: 1 / -1;
+            margin-bottom: 20px;
+        }
+
+        .container.layout-two-column .section {
+            margin-bottom: 15px;
+            min-height: 0;
+            overflow: visible;
+        }
+
+        .container.layout-two-column .section h2 {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .container.layout-two-column .section:first-of-type h2 {
+            margin-top: 0;
+        }
+
+        .container.layout-two-column .section:nth-of-type(2) h2 {
+            margin-top: 0;
+        }
+
+        .container.layout-single-column {
+            display: block;
+        }
+
+        .container.layout-single-column .section {
+            margin-bottom: 40px;
+        }
+
+        .container.layout-single-column .section h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--heading-color);
+            margin-bottom: 30px;
+            font-size: 28px;
+            border-bottom: 3px solid var(--border-color);
+            padding-bottom: 10px;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        h2 {
+            color: var(--heading-color-secondary);
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 24px;
+            padding-left: 10px;
+            border-left: 4px solid var(--border-color);
+            transition: color 0.3s ease, border-color 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 30px;
+        }
+
+        h2::after {
+            content: "▼";
+            position: absolute;
+            right: 0;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+            color: var(--border-color);
+        }
+
+        h2.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        h2:hover {
+            color: var(--border-color);
+        }
+
+        h3 {
+            color: var(--text-color-secondary);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 20px;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 30px;
+        }
+
+        h3::after {
+            content: "▼";
+            position: absolute;
+            right: 0;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+            color: var(--border-color);
+        }
+
+        h3.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        h3:hover {
+            color: var(--border-color);
+        }
+
+        h4 {
+            color: var(--text-color-tertiary);
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 30px;
+            display: block;
+            opacity: 1;
+            max-height: none;
+        }
+
+        h4::after {
+            content: "▼";
+            position: absolute;
+            right: 0;
+            font-size: 12px;
+            transition: transform 0.3s ease;
+            color: var(--border-color);
+        }
+
+        h4.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        h4:hover {
+            color: var(--border-color);
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        /* h2単位でセクション全体を折りたたむ */
+        .section.section-collapsed > h3,
+        .section.section-collapsed > h4,
+        .section.section-collapsed > p,
+        .section.section-collapsed > blockquote {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+        }
+
+        h3.collapsed + p,
+        h4.collapsed + p {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+        }
+
+        h3:not(.collapsed) + p,
+        h4:not(.collapsed) + p {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
+        }
+
+        /* h2がcollapsed状態のとき、そのセクション内のすべての要素を非表示 */
+        .section.section-collapsed ul,
+        .section.section-collapsed ul li,
+        .section.section-collapsed ol,
+        .section.section-collapsed ol li,
+        .section.section-collapsed blockquote,
+        .section.section-collapsed p {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* h2の直下のulやolも折りたたむ */
+        .section.section-collapsed > h2 + ul,
+        .section.section-collapsed > h2 + ol,
+        .section.section-collapsed > h2 + p,
+        .section.section-collapsed > h2 + blockquote {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        h3.collapsed + ul,
+        h4.collapsed + ul,
+        h3.collapsed + ol,
+        h4.collapsed + ol,
+        h3.collapsed + p + ul,
+        h4.collapsed + p + ul,
+        h3.collapsed + p + ol,
+        h4.collapsed + p + ol,
+        h3.collapsed + blockquote,
+        h4.collapsed + blockquote,
+        h3.collapsed + p + blockquote,
+        h4.collapsed + p + blockquote {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+        }
+
+        .section.section-collapsed ul.expanded,
+        .section.section-collapsed ol.expanded {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+        }
+
+        h3.collapsed + p,
+        h3.collapsed + ul,
+        h3.collapsed + ol,
+        h3.collapsed + blockquote,
+        h4.collapsed + p,
+        h4.collapsed + ul,
+        h4.collapsed + ol,
+        h4.collapsed + blockquote,
+        h3.collapsed + p + ul,
+        h3.collapsed + p + ol,
+        h3.collapsed + p + blockquote,
+        h4.collapsed + p + ul,
+        h4.collapsed + p + ol,
+        h4.collapsed + p + blockquote {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* h3がcollapsed状態のとき、その下位のh4も非表示 */
+        h3.collapsed ~ h4 {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: none !important;
+        }
+
+        /* h3がcollapsed状態のとき、その下位のh4の次の要素も非表示 */
+        h3.collapsed ~ h4 + p,
+        h3.collapsed ~ h4 + ul,
+        h3.collapsed ~ h4 + ol,
+        h3.collapsed ~ h4 + blockquote {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* h3が展開されているとき、その下位のh4を表示（h4のcollapsed状態は個別に制御） */
+        /* h3が展開されているときは、h4のデフォルトスタイルを維持 */
+        /* h4のcollapsed状態は、h4:not(.collapsed) + p などのルールで制御される */
+
+        h3:not(.collapsed) + p,
+        h4:not(.collapsed) + p,
+        h3:not(.collapsed) + ul,
+        h4:not(.collapsed) + ul,
+        h3:not(.collapsed) + ol,
+        h4:not(.collapsed) + ol,
+        h3:not(.collapsed) + blockquote,
+        h4:not(.collapsed) + blockquote {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--border-color);
+            text-decoration: none;
+            font-size: 16px;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-link:hover {
+            opacity: 0.7;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 0;
+            margin: 0;
+        }
+
+        ol {
+            list-style: decimal;
+            padding-left: 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 0;
+            margin: 0;
+        }
+
+        ul.expanded,
+        ol.expanded {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
+        }
+
+        /* h2が展開されているとき、h2の直下の要素を表示 */
+        .section:not(.section-collapsed) > h2 + ul,
+        .section:not(.section-collapsed) > h2 + ol,
+        .section:not(.section-collapsed) > h2 + p,
+        .section:not(.section-collapsed) > h2 + blockquote {
+            max-height: 1000px !important;
+            opacity: 1 !important;
+            margin: 15px 0 !important;
+            display: block !important;
+        }
+
+        /* h2の直下のulやolのliも表示 */
+        .section:not(.section-collapsed) > h2 + ul li,
+        .section:not(.section-collapsed) > h2 + ol li {
+            max-height: none !important;
+            opacity: 1 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: list-item !important;
+        }
+
+        /* h2が展開されているとき、h2の直下のpの後に続くulやolも表示 */
+        .section:not(.section-collapsed) > h2 + p + ul,
+        .section:not(.section-collapsed) > h2 + p + ol,
+        .section:not(.section-collapsed) > h2 + p + blockquote {
+            max-height: 1000px !important;
+            opacity: 1 !important;
+            margin: 15px 0 !important;
+            display: block !important;
+        }
+
+        .section:not(.section-collapsed) > h3 + ul.expanded,
+        .section:not(.section-collapsed) > h4 + ul.expanded,
+        .section:not(.section-collapsed) > h3 + ol.expanded,
+        .section:not(.section-collapsed) > h4 + ol.expanded {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
+        }
+
+        h3:not(.collapsed) + p,
+        h4:not(.collapsed) + p,
+        h3:not(.collapsed) + blockquote,
+        h4:not(.collapsed) + blockquote {
+            max-height: 1000px;
+            opacity: 1;
+            margin: 15px 0;
+        }
+
+        .description {
+            font-size: 14px;
+            color: var(--text-color-tertiary);
+            background: transparent;
+            border-left: 3px solid var(--border-color);
+            padding: 10px 15px;
+            margin: 15px 0;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        p {
+            margin: 15px 0;
+            line-height: 1.8;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 0;
+        }
+
+        .description {
+            font-size: 14px;
+            color: var(--text-color-tertiary);
+            background: transparent;
+            border-left: 3px solid var(--border-color);
+            padding: 10px 15px;
+            margin: 15px 0;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        blockquote {
+            border-left: 3px solid var(--border-color);
+            padding-left: 15px;
+            margin: 15px 0;
+            font-style: italic;
+            color: var(--text-color-secondary);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 0;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            h3 {
+                font-size: 18px;
+            }
+
+            .settings-button {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+                border-width: 1.5px;
+            }
+
+            .settings-content {
+                padding: 20px;
+                max-width: 90%;
+            }
+        }
+
+        .settings-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(52, 152, 219, 0.5);
+            cursor: move;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 2px 10px var(--shadow);
+            transition: opacity 0.3s ease, box-shadow 0.3s ease, transform 0.1s ease;
+            z-index: 1000;
+            opacity: 0.6;
+            backdrop-filter: blur(10px);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .settings-button.dragging {
+            cursor: grabbing;
+            opacity: 0.9;
+            transform: scale(1.1);
+            transition: none;
+        }
+
+        .settings-button:hover:not(.dragging) {
+            transform: rotate(90deg);
+            box-shadow: 0 4px 15px var(--shadow);
+            opacity: 1;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .settings-button {
+            background-color: rgba(10, 10, 10, 0.7);
+            border-color: rgba(74, 158, 255, 0.5);
+        }
+
+        [data-theme="dark"] .settings-button:hover:not(.dragging) {
+            background-color: rgba(10, 10, 10, 0.9);
+            border-color: var(--border-color);
+        }
+
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-modal.active {
+            display: flex;
+        }
+
+        .settings-content {
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 4px 20px var(--shadow);
+            transition: background-color 0.3s ease;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .settings-header h2 {
+            margin: 0;
+            font-size: 24px;
+            border: none;
+            padding: 0;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+
+        .close-button:hover {
+            color: var(--border-color);
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--question-bg);
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-label {
+            font-size: 16px;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--border-color);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .layout-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .radio-option:hover {
+            background-color: var(--question-bg);
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .radio-option span {
+            font-size: 14px;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- 設定ボタン -->
+    <button class="settings-button" id="settingsButton" aria-label="設定">
+        ⚙️
+    </button>
+
+    <!-- 設定モーダル -->
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2>設定</h2>
+                <button class="close-button" id="closeSettings">&times;</button>
+            </div>
+            <div class="settings-item">
+                <span class="settings-label">ダークモード</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="darkModeToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="settings-item">
+                <span class="settings-label">レイアウト</span>
+                <div class="layout-options">
+                    <label class="radio-option">
+                        <input type="radio" name="layoutMode" value="auto" id="layoutAuto">
+                        <span>自動</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="layoutMode" value="two-column" id="layoutTwoColumn">
+                        <span>2段組</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="layoutMode" value="single-column" id="layoutSingleColumn">
+                        <span>1段組</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <a href="index.html" class="back-link">← トップページに戻る</a>
+        <h1>A Guide to Case Presentations（ケースプレゼンテーションの手引き）</h1>
+
+        <div class="section">
+            <h2>総論（General Description）</h2>
+            <ul>
+                <li>病棟回診での口頭プレゼンテーションは、医学生にとって<strong>非常に重要なスキル</strong>である。</li>
+                <li>これは、<strong>迅速かつ簡潔に医療情報を報告する能力</strong>を意味する。</li>
+                <li>まずデータを収集し、それを<strong>文書として正確に記録できること</strong>、さらに<strong>他の医療従事者に明確に伝達できること</strong>が求められる。</li>
+            </ul>
+
+            <p>成功のためには、以下を理解しておく必要がある：</p>
+            <ul>
+                <li>患者の医学的疾患</li>
+                <li>心理社会的背景（HPIに関与する要素）</li>
+                <li>身体診察所見</li>
+            </ul>
+
+            <ul>
+                <li>これらを理解した上で、<strong>最も本質的な情報のみを簡潔・体系的にまとめる</strong>。</li>
+                <li>聴き手は、余分な情報を省いた状態で<strong>自ら鑑別診断を構築できるように</strong>話が展開されるべきである。</li>
+                <li>自分を「裁判官を説得する弁護士」としてイメージするとよい。事実を歪めずに、説得力のある説明をすることが目的である。</li>
+            </ul>
+
+            <p>同じ患者でも、目的に応じてプレゼンの内容は変わる：</p>
+            <ul>
+                <li>心不全治療方針を助言する循環器内科医に対して</li>
+                <li>大動脈弁置換を検討する外科医に対して</li>
+                <li>障害年金の支援をするソーシャルワーカーに対して</li>
+                <li>昨晩の入院患者を知りたい指導医に対して</li>
+            </ul>
+
+            <ul>
+                <li>それぞれ焦点が異なるため、<strong>情報の取捨選択と編集力</strong>が重要になる。</li>
+                <li>学生の段階では、まず「完全な病歴・身体所見」を集めることを学ぶ。</li>
+                <li>しかし、<strong>口頭プレゼンはそのうちの最も重要な部分だけを抽出して提示</strong>するものであり、書面よりもさらに簡潔にすべきである。</li>
+            </ul>
+
+            <h3>プレゼン・SOAP・SBARの違い</h3>
+            <ul>
+                <li><strong>Case Presentation</strong>：病棟回診での口頭報告。II/CC → HPI → Other Problems → Meds/Allergies → Social Hx → PE → Summary → Assessment/Plan</li>
+                <li><strong>SOAP</strong>：進歩記録（Progress Note）。Subjective → Objective → Assessment → Plan</li>
+                <li><strong>SBAR</strong>：緊急時の報告。Situation → Background → Assessment → Recommendation</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>プレゼンの基本原則（Basic Principles）</h2>
+            <ul>
+                <li>口頭プレゼンは<strong>単なるカルテの朗読ではない</strong>。編集・要約された最重要情報の提示である。</li>
+                <li>臨床実習（3年目以降）では、<strong>基本的に暗記して話す</strong>のが理想。メモを見ても良いが、「読み上げ」は避ける。</li>
+                <li><strong>時間の目安</strong>：
+                    <ul>
+                        <li>内科の正式な回診：5分以内</li>
+                        <li>病棟の廊下での報告：3分以内</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>基本構造（Basic Structure for Oral Case Presentations）</h2>
+
+            <h3>Identifying information / Chief Complaint（患者情報と主訴）</h3>
+            <ul>
+                <li>聴き手が患者像を思い描けるよう、最低限の背景を加える。</li>
+            </ul>
+
+            <p><strong>構文例：</strong></p>
+            <blockquote>
+                "Mr./Mrs./Ms. ___ is a ___ year-old man/woman who presents with a chief complaint of ___ (or who was electively admitted for evaluation of ___, or who comes in to clinic for follow up of _____)."
+            </blockquote>
+
+            <ul>
+                <li>人種や民族は、診断上意味がある場合のみ言及する。</li>
+                <li>聴き手を導くため、関連する<strong>主要な基礎疾患（最大4つ程度）</strong>を最初に診断名として列挙する。</li>
+            </ul>
+
+            <p><strong>良い例：</strong></p>
+            <blockquote>
+                Mr. Smith is a 55 year-old man with a long history of diabetes mellitus, cirrhosis, and chronic obstructive lung disease, who presents with a chief complaint of fever and productive cough.
+            </blockquote>
+            <blockquote>
+                Mrs. Jones is a 39 year-old woman who was electively admitted for evaluation of exertional dyspnea. Her active problems include rheumatoid arthritis and hypertension. She was in her normal state of health until…
+            </blockquote>
+
+            <p><strong>悪い例：</strong></p>
+            <ul>
+                <li>過剰に細かい既往歴を冒頭で述べると、主訴が埋もれてしまう。</li>
+                <li>良い例では簡潔にし、詳細はHPIまたは他の項目で説明する。</li>
+            </ul>
+
+            <h3>History of Present Illness（現病歴+関連ROS）</h3>
+
+            <h4>導入文（Introductory Sentence）</h4>
+            <blockquote>
+                Mr./Mrs./Ms.____ was in his/her usual state of ____ until ____ when he/she developed the ___ onset of _____.
+            </blockquote>
+
+            <ul>
+                <li>慢性疾患が現在の病態に関係している場合は、その文中に含めてもよい。</li>
+                <li>日付は「3日前」「入院2時間前」など、<strong>入院日を基準に相対的に表現</strong>する。</li>
+            </ul>
+
+            <p><strong>例：</strong></p>
+            <blockquote>
+                Mr. Smith has a long history of chronic obstructive lung disease characterized by two block dyspnea on exertion, FEV1 of 1.0 liter, and home oxygen therapy. He was in this usual state of health until three days prior to admission when he developed the gradual worsening of his shortness of breath...
+            </blockquote>
+
+            <h4>HPIの内容</h4>
+            <ul>
+                <li>主訴の特徴を具体的に記載し、患者の認識（原因と思っていること）、既往の同様発作、合併症、関連するROSや疫学的要因も含める。</li>
+            </ul>
+
+            <p><strong>Mnemonic: C-L-E-A-R-A-S-T</strong></p>
+            <ul>
+                <li>C: Character（性状）</li>
+                <li>L: Location（部位）</li>
+                <li>E: Exacerbating factors（増悪因子）</li>
+                <li>A: Alleviating factors（寛解因子）</li>
+                <li>R: Radiation（放散）</li>
+                <li>A: Associated symptoms（随伴症状）</li>
+                <li>S: Severity（重症度）</li>
+                <li>T: Temporal features（時間経過）</li>
+            </ul>
+
+            <p><strong>不十分な例：</strong></p>
+            <blockquote>
+                ...admitted for evaluation of chest pain. He was well until three weeks prior...
+            </blockquote>
+
+            <p><strong>良い例：</strong></p>
+            <blockquote>
+                ...admitted for evaluation of chest pain. He was in his usual state of excellent health until three weeks prior... characterized as poorly localized deep substernal heaviness which radiated to his left shoulder...
+            </blockquote>
+
+            <h3>Other active medical problems（他の併存疾患）</h3>
+            <ul>
+                <li>現病に関係のある<strong>活動性の慢性疾患のみ</strong>を詳細に述べる。</li>
+                <li>各疾患を<strong>発症から現在までの経過順に説明</strong>する。</li>
+                <li>重要度の高い疾患から順に述べる。</li>
+            </ul>
+
+            <p><strong>例：</strong></p>
+            <blockquote>
+                …his other medical problems include insulin-requiring diabetes for 12 years, complicated by retinopathy, polyneuropathy, and nephropathy. His recent creatinine was 1.7…
+            </blockquote>
+
+            <p><strong>キーワードの構成要素：</strong></p>
+            <ul>
+                <li>診断時期</li>
+                <li>治療内容</li>
+                <li>現在の症状・合併症</li>
+                <li>最近の検査値</li>
+            </ul>
+
+            <p><strong>不要な情報の例：</strong></p>
+            <ul>
+                <li>古い感染症や白癬など、現在の問題と関連のない疾患は省く。</li>
+            </ul>
+
+            <h3>Medications / Allergies / Substance use（薬剤・アレルギー・嗜好）</h3>
+            <ul>
+                <li>処方薬および重要な市販薬を挙げる。</li>
+                <li>アレルギーは<strong>薬名＋反応の種類</strong>を述べる。</li>
+                <li>HPIで嗜好歴（飲酒・喫煙など）を述べた場合は繰り返さない。</li>
+            </ul>
+
+            <h3>※完全なROSは口頭では不要</h3>
+            <ul>
+                <li>口頭プレゼンでは、完全なReview of Systems（ROS）を述べる必要はない。</li>
+                <li>現病歴に関連する重要な症状のみを述べる。</li>
+            </ul>
+
+            <h3>Brief Social History（社会的背景の要約）</h3>
+            <ul>
+                <li>患者を「職業・結婚歴・喫煙歴」だけで表すのは不十分である。</li>
+                <li>現状（生活環境、仕事、支援体制）を2～3文でまとめ、<strong>病気になったタイミングの背景</strong>を説明する。</li>
+                <li>必要に応じて、<strong>advance directives（事前指示）</strong>や<strong>治療希望</strong>も触れる。</li>
+            </ul>
+
+            <h3>Physical Examination（重要所見のみ）</h3>
+            <ul>
+                <li>一般所見は<strong>情景が浮かぶように</strong>描写する。
+                    <br>例：「The patient was sitting on the edge of the bed, leaning forward and gasping for breath.」</li>
+                <li>バイタルサインは必ず報告。</li>
+                <li>関連する陽性・陰性所見のみを簡潔に述べる。</li>
+            </ul>
+
+            <h3>One-line summary（1文要約）</h3>
+            <ul>
+                <li>患者の主な問題を1文で要約する。</li>
+                <li>例：「55歳男性、糖尿病・肝硬変・COPDの既往あり、発熱と咳嗽で入院。」</li>
+            </ul>
+
+            <h3>Assessment and Plan（評価と方針）</h3>
+            <p><strong>構文：</strong></p>
+            <blockquote>
+                "…the patient's major presenting problem is ____. The differential diagnosis includes ____, ______, and _____. The diagnosis of _____ appears to be the most likely of these because _____."
+            </blockquote>
+
+            <p><strong>例：</strong></p>
+            <blockquote>
+                …the patient's main problem is chest pain, which could be due to a myocardial infarction, a dissecting aortic aneurysm, pericarditis, and a variety of other diagnoses... MI seems most likely, because his description of chest pain is classic for angina and because his ECG reveals a new injury current...
+            </blockquote>
+        </div>
+
+        <div class="section">
+            <h2>よくある間違い（Common Mistakes）</h2>
+            <ol>
+                <li><strong>テンポが遅い・単調</strong>
+                    <br>→ 構成を練り、<strong>5分以内で話せるようリハーサル</strong>する。録音して自己評価も有効。</li>
+                <li><strong>HPIが短すぎる</strong>
+                    <br>→ 診断の90%は病歴から導かれる。全体の1/3〜1/2の時間をHPIに割く。</li>
+                <li><strong>時間の表現がバラバラ</strong>
+                    <br>→ 「入院3時間前」「入院2日前」など、<strong>相対表現</strong>で統一。</li>
+                <li><strong>途中で編集的コメントを入れる</strong>
+                    <br>→ 「Do you even want to hear this?」などは不要。</li>
+                <li><strong>否定形ではなく肯定形を使う</strong>
+                    <br>→ "normal heart size" の方が "no cardiomegaly" より明確。</li>
+                <li><strong>文構造の単調さ</strong>
+                    <br>→ "On pulmonary exam… On cardiac exam…" の繰り返しは避ける。</li>
+                <li><strong>準備不足による混乱</strong>
+                    <br>→ 忘れた内容は途中で自然に補足し、謝罪などで中断しない。</li>
+                <li><strong>身体所見の不正確な表現</strong>
+                    <br>→ "some small nodes" よりも "three soft tender mobile nodes…" のように<strong>数量・性状・位置を具体的に</strong>。</li>
+                <li><strong>診断名で所見を述べる</strong>のは誤り
+                    <br>→ "murmur of mitral regurgitation" ではなく
+                    <br>"a 2/6 holosystolic murmur heard at the apex radiating to the axilla"。</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <p style="font-size: 12px; text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); color: var(--text-color-tertiary);">
+                出典：Nancy Cochran, M.D., Dartmouth Medical School（一部 University of Washington School of Medicine, Dr. Steve McGee による内容を改変）
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // セクションのトグル機能
+        function initSectionToggle() {
+            const sectionH2s = document.querySelectorAll('.section > h2');
+
+            sectionH2s.forEach(h2 => {
+                const section = h2.parentElement;
+
+                // デフォルトでセクション全体を折りたたむ
+                section.classList.add('section-collapsed');
+                h2.classList.add('collapsed');
+
+                // h2をクリックしたときの処理
+                h2.addEventListener('click', (e) => {
+                    e.stopPropagation();
+
+                    const isCollapsing = section.classList.contains('section-collapsed');
+                    section.classList.toggle('section-collapsed');
+                    h2.classList.toggle('collapsed');
+
+                    if (!isCollapsing) {
+                        // セクションを閉じる場合
+                        const subsections = section.querySelectorAll('h3, h4');
+                        subsections.forEach(sub => {
+                            sub.classList.add('collapsed');
+                            // 次の要素を取得してexpandedクラスやshowクラスを削除
+                            let nextEl = sub.nextElementSibling;
+                            while (nextEl && nextEl.tagName !== 'H3' && nextEl.tagName !== 'H4' && nextEl.tagName !== 'H2') {
+                                if (nextEl.tagName === 'UL' || nextEl.tagName === 'OL') {
+                                    nextEl.classList.remove('expanded');
+                                }
+                                nextEl = nextEl.nextElementSibling;
+                            }
+                        });
+                    }
+                });
+            });
+
+            const subsectionHeaders = document.querySelectorAll('h3, h4');
+
+            subsectionHeaders.forEach(header => {
+                // デフォルトでcollapsed状態にする
+                header.classList.add('collapsed');
+
+                header.addEventListener('click', (e) => {
+                    e.stopPropagation();
+
+                    // 親セクションがcollapsed状態の場合は何もしない
+                    const section = header.closest('.section');
+                    if (section && section.classList.contains('section-collapsed')) {
+                        return;
+                    }
+
+                    // トグル
+                    const wasCollapsed = header.classList.contains('collapsed');
+                    header.classList.toggle('collapsed');
+
+                    // 次の要素を取得して展開/折りたたみ
+                    let nextEl = header.nextElementSibling;
+                    while (nextEl && nextEl.tagName !== 'H3' && nextEl.tagName !== 'H4' && nextEl.tagName !== 'H2') {
+                        if (wasCollapsed) {
+                            // 展開する場合
+                            if (nextEl.tagName === 'UL' || nextEl.tagName === 'OL') {
+                                nextEl.classList.add('expanded');
+                            }
+                            // pやblockquoteはCSSで自動的に表示される（h3:not(.collapsed) + p など）
+                        } else {
+                            // 折りたたむ場合
+                            if (nextEl.tagName === 'UL' || nextEl.tagName === 'OL') {
+                                nextEl.classList.remove('expanded');
+                            }
+                        }
+                        // 次の要素へ
+                        nextEl = nextEl.nextElementSibling;
+                    }
+
+                    // h3を閉じた場合、その下位のh4もcollapsed状態にして、その下の要素も非表示にする
+                    if (!wasCollapsed && header.tagName === 'H3') {
+                        // h3が閉じられた場合
+                        let nextHeader = header.nextElementSibling;
+                        while (nextHeader && nextHeader.tagName !== 'H3' && nextHeader.tagName !== 'H2') {
+                            if (nextHeader.tagName === 'H4') {
+                                // h4をcollapsed状態にする
+                                nextHeader.classList.add('collapsed');
+                                // h4の次の要素を非表示にする
+                                let nextEl = nextHeader.nextElementSibling;
+                                while (nextEl && nextEl.tagName !== 'H3' && nextEl.tagName !== 'H4' && nextEl.tagName !== 'H2') {
+                                    if (nextEl.tagName === 'UL' || nextEl.tagName === 'OL') {
+                                        nextEl.classList.remove('expanded');
+                                    }
+                                    nextEl = nextEl.nextElementSibling;
+                                }
+                            }
+                            nextHeader = nextHeader.nextElementSibling;
+                        }
+                    }
+                });
+            });
+        }
+
+        // システム設定に基づいてテーマを適用
+        function applyTheme(theme) {
+            if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        }
+
+        function watchSystemTheme() {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            mediaQuery.addEventListener('change', (e) => {
+                const savedTheme = localStorage.getItem('theme') || 'auto';
+                if (savedTheme === 'auto') {
+                    applyTheme('auto');
+                }
+            });
+        }
+
+        function initDragAndDrop(button) {
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                return;
+            }
+
+            let isDragging = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+            let xOffset = 0;
+            let yOffset = 0;
+
+            const savedPosition = localStorage.getItem('settingsButtonPosition');
+            if (savedPosition) {
+                const pos = JSON.parse(savedPosition);
+                xOffset = pos.x;
+                yOffset = pos.y;
+                button.style.left = pos.x + 'px';
+                button.style.top = pos.y + 'px';
+                button.style.right = 'auto';
+            }
+
+            button.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragEnd);
+
+            function dragStart(e) {
+                const settingsModal = document.getElementById('settingsModal');
+                if (settingsModal && settingsModal.classList.contains('active')) {
+                    return;
+                }
+
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+
+                if (e.target === button || button.contains(e.target)) {
+                    isDragging = true;
+                    button.classList.add('dragging');
+                }
+            }
+
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+
+                    xOffset = currentX;
+                    yOffset = currentY;
+
+                    const rect = button.getBoundingClientRect();
+                    const maxX = window.innerWidth - rect.width;
+                    const maxY = window.innerHeight - rect.height;
+
+                    xOffset = Math.max(0, Math.min(xOffset, maxX));
+                    yOffset = Math.max(0, Math.min(yOffset, maxY));
+
+                    button.style.left = xOffset + 'px';
+                    button.style.top = yOffset + 'px';
+                    button.style.right = 'auto';
+                }
+            }
+
+            function dragEnd(e) {
+                if (isDragging) {
+                    initialX = currentX;
+                    initialY = currentY;
+                    isDragging = false;
+                    button.classList.remove('dragging');
+
+                    localStorage.setItem('settingsButtonPosition', JSON.stringify({
+                        x: xOffset,
+                        y: yOffset
+                    }));
+                }
+            }
+
+            let clickStartTime = 0;
+            let clickStartX = 0;
+            let clickStartY = 0;
+
+            button.addEventListener('mousedown', (e) => {
+                clickStartTime = Date.now();
+                clickStartX = e.clientX;
+                clickStartY = e.clientY;
+            });
+
+            button.addEventListener('click', (e) => {
+                const clickDuration = Date.now() - clickStartTime;
+                const moveDistance = Math.sqrt(
+                    Math.pow(e.clientX - clickStartX, 2) + Math.pow(e.clientY - clickStartY, 2)
+                );
+
+                if (clickDuration < 200 && moveDistance < 5) {
+                    const settingsModal = document.getElementById('settingsModal');
+                    settingsModal.classList.add('active');
+                }
+            });
+        }
+
+        function initSettings() {
+            const settingsButton = document.getElementById('settingsButton');
+            const settingsModal = document.getElementById('settingsModal');
+            const closeSettings = document.getElementById('closeSettings');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const layoutAuto = document.getElementById('layoutAuto');
+            const layoutTwoColumn = document.getElementById('layoutTwoColumn');
+            const layoutSingleColumn = document.getElementById('layoutSingleColumn');
+
+            initDragAndDrop(settingsButton);
+
+            let savedTheme = localStorage.getItem('theme') || 'auto';
+            darkModeToggle.checked = (savedTheme === 'dark');
+
+            applyTheme(savedTheme);
+            watchSystemTheme();
+
+            darkModeToggle.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    localStorage.setItem('theme', 'dark');
+                    applyTheme('dark');
+                } else {
+                    localStorage.setItem('theme', 'auto');
+                    applyTheme('auto');
+                }
+            });
+
+            closeSettings.addEventListener('click', () => {
+                settingsModal.classList.remove('active');
+            });
+
+            settingsModal.addEventListener('click', (e) => {
+                if (e.target === settingsModal) {
+                    settingsModal.classList.remove('active');
+                }
+            });
+
+            // レイアウト設定
+            const savedLayout = localStorage.getItem('layoutMode') || 'auto';
+            if (savedLayout === 'two-column') {
+                layoutTwoColumn.checked = true;
+                document.querySelector('.container').classList.add('layout-two-column');
+            } else if (savedLayout === 'single-column') {
+                layoutSingleColumn.checked = true;
+                document.querySelector('.container').classList.add('layout-single-column');
+            } else {
+                layoutAuto.checked = true;
+            }
+
+            layoutAuto.addEventListener('change', () => {
+                const container = document.querySelector('.container');
+                container.classList.remove('layout-two-column', 'layout-single-column');
+                localStorage.setItem('layoutMode', 'auto');
+            });
+
+            layoutTwoColumn.addEventListener('change', () => {
+                const container = document.querySelector('.container');
+                container.classList.remove('layout-single-column');
+                container.classList.add('layout-two-column');
+                localStorage.setItem('layoutMode', 'two-column');
+            });
+
+            layoutSingleColumn.addEventListener('change', () => {
+                const container = document.querySelector('.container');
+                container.classList.remove('layout-two-column');
+                container.classList.add('layout-single-column');
+                localStorage.setItem('layoutMode', 'single-column');
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            initSectionToggle();
+            initSettings();
+        });
+    </script>
+</body>
+</html>

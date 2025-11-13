@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英語de診療</title>
+    <style>
+        /* CSS変数でテーマカラーを管理 */
+        :root {
+            --bg-color: #f5f5f5;
+            --container-bg: #ffffff;
+            --text-color: #333;
+            --heading-color: #2c3e50;
+            --border-color: #3498db;
+            --card-bg: #ffffff;
+            --card-hover-bg: #f8f9fa;
+            --shadow: rgba(0,0,0,0.1);
+        }
+
+        /* ダークモード */
+        [data-theme="dark"] {
+            --bg-color: #000000;
+            --container-bg: #0a0a0a;
+            --text-color: #e0e0e0;
+            --heading-color: #ffffff;
+            --border-color: #4a9eff;
+            --card-bg: #1a1a1a;
+            --card-hover-bg: #2a2a2a;
+            --shadow: rgba(0,0,0,0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            padding: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--container-bg);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px var(--shadow);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        h1 {
+            color: var(--heading-color);
+            margin-bottom: 40px;
+            font-size: 32px;
+            text-align: center;
+            border-bottom: 3px solid var(--border-color);
+            padding-bottom: 20px;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .sections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .section-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-color);
+            display: block;
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px var(--shadow);
+            background-color: var(--card-hover-bg);
+            border-color: var(--border-color);
+        }
+
+        .section-card:active {
+            transform: translateY(-2px);
+        }
+
+        .section-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--heading-color);
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+            color: var(--text-color);
+            opacity: 0.8;
+            transition: color 0.3s ease;
+        }
+
+        /* 設定ボタン */
+        .settings-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(52, 152, 219, 0.5);
+            cursor: move;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 2px 10px var(--shadow);
+            transition: opacity 0.3s ease, box-shadow 0.3s ease, transform 0.1s ease;
+            z-index: 1000;
+            opacity: 0.6;
+            backdrop-filter: blur(10px);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .settings-button.dragging {
+            cursor: grabbing;
+            opacity: 0.9;
+            transform: scale(1.1);
+            transition: none;
+        }
+
+        .settings-button:hover:not(.dragging) {
+            transform: rotate(90deg);
+            box-shadow: 0 4px 15px var(--shadow);
+            opacity: 1;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .settings-button {
+            background-color: rgba(10, 10, 10, 0.7);
+            border-color: rgba(74, 158, 255, 0.5);
+        }
+
+        [data-theme="dark"] .settings-button:hover:not(.dragging) {
+            background-color: rgba(10, 10, 10, 0.9);
+            border-color: var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .settings-button {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+                border-width: 1.5px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 22px;
+                margin-bottom: 25px;
+                padding-bottom: 15px;
+            }
+
+            .sections-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                margin-top: 20px;
+            }
+
+            .section-card {
+                padding: 15px 10px;
+            }
+
+            .section-icon {
+                font-size: 32px;
+                margin-bottom: 8px;
+            }
+
+            .section-title {
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
+
+            .section-subtitle {
+                font-size: 11px;
+            }
+        }
+
+        /* 設定モーダル */
+        .settings-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .settings-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-content {
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 5px 20px var(--shadow);
+            transition: background-color 0.3s ease;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .settings-header h2 {
+            color: var(--heading-color);
+            margin: 0;
+            transition: color 0.3s ease;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+
+        .close-button:hover {
+            color: var(--border-color);
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .settings-label {
+            color: var(--text-color);
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--border-color);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+    </style>
+</head>
+<body>
+    <!-- 設定ボタン -->
+    <button class="settings-button" id="settingsButton" aria-label="設定">
+        ⚙️
+    </button>
+
+    <!-- 設定モーダル -->
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2>設定</h2>
+                <button class="close-button" id="closeSettings">&times;</button>
+            </div>
+            <div class="settings-item">
+                <span class="settings-label">ダークモード</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="darkModeToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>英語de診療</h1>
+
+        <div class="sections-grid">
+            <a href="medical-interview.html" class="section-card">
+                <div class="section-icon">💬</div>
+                <div class="section-title">医療面接</div>
+                <div class="section-subtitle">Medical Interview</div>
+            </a>
+
+            <a href="head-neck.html" class="section-card">
+                <div class="section-icon">👤</div>
+                <div class="section-title">頭頸部</div>
+                <div class="section-subtitle">Head and Neck</div>
+            </a>
+
+            <a href="abdomen.html" class="section-card">
+                <div class="section-icon">🫃</div>
+                <div class="section-title">腹部</div>
+                <div class="section-subtitle">Abdominal Examination</div>
+            </a>
+
+            <a href="chest.html" class="section-card">
+                <div class="section-icon">🫁</div>
+                <div class="section-title">胸部</div>
+                <div class="section-subtitle">Chest Examination</div>
+            </a>
+
+            <a href="neurological.html" class="section-card">
+                <div class="section-icon">🧠</div>
+                <div class="section-title">神経</div>
+                <div class="section-subtitle">Neurological Examination</div>
+            </a>
+
+            <a href="presentation.html" class="section-card">
+                <div class="section-icon">📊</div>
+                <div class="section-title">プレゼン</div>
+                <div class="section-subtitle">Case Presentation</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // ダークモード機能
+        function applyTheme(theme) {
+            if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        }
+
+        function watchSystemTheme() {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            mediaQuery.addEventListener('change', (e) => {
+                const savedTheme = localStorage.getItem('theme') || 'auto';
+                if (savedTheme === 'auto') {
+                    applyTheme('auto');
+                    const darkModeToggle = document.getElementById('darkModeToggle');
+                    if (darkModeToggle) {
+                        darkModeToggle.checked = e.matches;
+                    }
+                }
+            });
+        }
+
+        function initSettings() {
+            const settingsButton = document.getElementById('settingsButton');
+            const settingsModal = document.getElementById('settingsModal');
+            const closeSettings = document.getElementById('closeSettings');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+
+            // ドラッグアンドドロップ機能（PCのみ）
+            let isDragging = false;
+            let startX, startY, startLeft, startTop;
+
+            // タッチデバイスかどうかを判定
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+            if (!isTouchDevice) {
+                settingsButton.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    settingsButton.classList.add('dragging');
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    const rect = settingsButton.getBoundingClientRect();
+                    startLeft = rect.left;
+                    startTop = rect.top;
+                    e.preventDefault();
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const deltaX = e.clientX - startX;
+                    const deltaY = e.clientY - startY;
+                    const newLeft = startLeft + deltaX;
+                    const newTop = startTop + deltaY;
+
+                    // 画面内に収める
+                    const maxLeft = window.innerWidth - settingsButton.offsetWidth;
+                    const maxTop = window.innerHeight - settingsButton.offsetHeight;
+                    const finalLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                    const finalTop = Math.max(0, Math.min(newTop, maxTop));
+
+                    settingsButton.style.left = finalLeft + 'px';
+                    settingsButton.style.top = finalTop + 'px';
+                    settingsButton.style.right = 'auto';
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        settingsButton.classList.remove('dragging');
+                        // 位置を保存
+                        const rect = settingsButton.getBoundingClientRect();
+                        localStorage.setItem('settingsButtonPosition', JSON.stringify({
+                            left: rect.left,
+                            top: rect.top
+                        }));
+                    }
+                });
+            }
+
+            // 保存された位置を復元
+            const savedPosition = localStorage.getItem('settingsButtonPosition');
+            if (savedPosition && !isTouchDevice) {
+                try {
+                    const pos = JSON.parse(savedPosition);
+                    settingsButton.style.left = pos.left + 'px';
+                    settingsButton.style.top = pos.top + 'px';
+                    settingsButton.style.right = 'auto';
+                } catch (e) {
+                    console.error('Failed to restore button position:', e);
+                }
+            }
+
+            let savedTheme = localStorage.getItem('theme') || 'auto';
+            darkModeToggle.checked = (savedTheme === 'dark');
+
+            applyTheme(savedTheme);
+            watchSystemTheme();
+
+            darkModeToggle.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    localStorage.setItem('theme', 'dark');
+                    applyTheme('dark');
+                } else {
+                    localStorage.setItem('theme', 'auto');
+                    applyTheme('auto');
+                }
+            });
+
+            settingsButton.addEventListener('click', () => {
+                settingsModal.classList.add('active');
+            });
+
+            closeSettings.addEventListener('click', () => {
+                settingsModal.classList.remove('active');
+            });
+
+            settingsModal.addEventListener('click', (e) => {
+                if (e.target === settingsModal) {
+                    settingsModal.classList.remove('active');
+                }
+            });
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            initSettings();
+        });
+    </script>
+</body>
+</html>
