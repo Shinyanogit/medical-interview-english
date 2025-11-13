@@ -253,15 +253,27 @@ const providerConfigs: Record<RealtimeProvider, ProviderConfig> = {
       try {
         channel.send(
           JSON.stringify({
-            type: "response.create",
-            response: {
-              conversation: "default",
+            type: "session.update",
+            session: {
               instructions: trimmed,
             },
           })
         );
       } catch (error) {
-        console.warn("Failed to send OpenAI instruction payload:", error);
+        console.warn("Failed to send OpenAI session.update payload:", error);
+        try {
+          channel.send(
+            JSON.stringify({
+              type: "response.create",
+              response: {
+                conversation: "default",
+                instructions: trimmed,
+              },
+            })
+          );
+        } catch (nested) {
+          console.warn("Fallback OpenAI instruction send failed:", nested);
+        }
       }
     },
     supportsFeedback: true,
