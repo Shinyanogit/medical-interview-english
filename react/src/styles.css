@@ -38,19 +38,29 @@ body {
   line-height: 1.6;
   color: var(--text-color);
   background-color: var(--bg-color);
-  padding: 20px;
+  padding: 12px;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+@media (min-width: 480px) {
+  body {
+    padding: 20px;
+  }
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
   background-color: var(--container-bg);
-  padding: 30px;
+  padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 10px var(--shadow);
   position: relative;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+@media (min-width: 480px) {
+  .container {
+    padding: 30px;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -67,12 +77,18 @@ body {
   .container:not(.layout-single-column) > .sections-grid { grid-column: 1 / -1; }
 }
 
-.container.layout-two-column {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  align-items: start;
-  grid-auto-flow: row;
+/* 2段組みレイアウトはデスクトップのみ */
+@media (min-width: 1024px) {
+  .container.layout-two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+    grid-auto-flow: row;
+  }
+  
+  .container.layout-two-column > h1 { grid-column: 1 / -1; margin-bottom: 20px; }
+  .container.layout-two-column > .sections-grid { grid-column: 1 / -1; }
 }
 
 .container.layout-single-column { display: block; }
@@ -180,18 +196,85 @@ p { margin: 12px 0; line-height: 1.8; }
 /* Cards (Home) */
 .sections-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  grid-template-columns: 1fr;
+  gap: 16px;
   width: 100%;
   max-width: 100%;
   justify-content: center;
   justify-items: stretch;
 }
-.section-card { background-color: var(--card-bg); border: 2px solid var(--border-color); border-radius: 10px; padding: 20px; text-align: center; text-decoration: none; color: var(--text-color); display: block; transition: all 0.2s ease; box-shadow: 0 2px 5px var(--shadow); }
-.section-card:hover { transform: translateY(-3px); background-color: var(--card-hover-bg); box-shadow: 0 4px 12px var(--shadow); }
-.section-icon { font-size: 36px; margin-bottom: 10px; }
-.section-title { font-size: 18px; font-weight: bold; color: var(--heading-color); margin-bottom: 6px; }
-.section-subtitle { font-size: 14px; opacity: 0.8; }
+/* タブレット以上では2列 */
+@media (min-width: 480px) {
+  .sections-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+/* デスクトップでは3列 */
+@media (min-width: 769px) {
+  .sections-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.section-card {
+  background-color: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px 12px;
+  text-align: center;
+  text-decoration: none;
+  color: var(--text-color);
+  display: block;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px var(--shadow);
+  min-width: 0;
+  overflow: hidden;
+}
+@media (min-width: 480px) {
+  .section-card {
+    padding: 20px;
+  }
+}
+.section-card:hover {
+  transform: translateY(-3px);
+  background-color: var(--card-hover-bg);
+  box-shadow: 0 4px 12px var(--shadow);
+}
+.section-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+  line-height: 1;
+  display: inline-block;
+}
+@media (min-width: 480px) {
+  .section-icon {
+    font-size: 36px;
+    margin-bottom: 10px;
+  }
+}
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--heading-color);
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+@media (min-width: 480px) {
+  .section-title {
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+}
+.section-subtitle {
+  font-size: 12px;
+  opacity: 0.8;
+  word-break: break-word;
+}
+@media (min-width: 480px) {
+  .section-subtitle {
+    font-size: 14px;
+  }
+}
 
 /* Question items (for Medical Interview) */
 .question-item { list-style: none; margin: 8px 0; padding: 12px 14px 12px 36px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; position: relative; background: var(--container-bg); transition: background-color 0.2s ease, box-shadow 0.2s ease; }
