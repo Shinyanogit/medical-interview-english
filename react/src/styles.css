@@ -180,25 +180,27 @@ p { margin: 12px 0; line-height: 1.8; }
 /* Cards (Home) */
 .sections-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 20px;
   width: 100%;
   max-width: 100%;
+  justify-content: center;
+  justify-items: stretch;
 }
 /* デスクトップでは常に3列固定 */
 @media (min-width: 769px) {
   .sections-grid {
-    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 /* タブレット以下では2列 */
 @media (max-width: 768px) {
   .sections-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
   }
 }
-/* モバイルでは1列 */
-@media (max-width: 480px) {
+/* モバイルでも2列を維持し、極端に狭い画面では1列 */
+@media (max-width: 360px) {
   .sections-grid {
     grid-template-columns: 1fr;
   }
