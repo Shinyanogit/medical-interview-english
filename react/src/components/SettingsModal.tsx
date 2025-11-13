@@ -19,7 +19,7 @@ const SettingsModal: React.FC<Props> = ({
 }) => {
   const { theme, setTheme } = useTheme();
   const { layout, setLayout } = useLayout();
-  const { currentUser, signUp, signIn, signInWithGoogle, logout, updateApiKeys } = useAuth();
+  const { currentUser, signUp, signIn, signInWithGoogle, logout } = useAuth();
   const { setApiKey, getApiKey } = useRealtimeCall();
   const [showAuth, setShowAuth] = useState(false);
   const [showApiKeys, setShowApiKeys] = useState(false);
@@ -47,30 +47,20 @@ const SettingsModal: React.FC<Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showApiKeys]); // showApiKeysが変更された時だけ実行
 
-  const handleApiKeySave = async () => {
-    try {
-      setError("");
-      setLoading(true);
-      
-      // useRealtimeCallの状態も更新
-      setApiKey("openai", openaiKey);
-      setApiKey("gemini", geminiKey);
-      
-      // ログイン中の場合、Firebaseにも保存
-      if (currentUser) {
-        await updateApiKeys({
-          openai: openaiKey,
-          gemini: geminiKey,
-        });
-      }
-      
-      setShowApiKeys(false);
-      setError("");
-    } catch (err: any) {
-      setError(err.message || "APIキーの保存に失敗しました");
-    } finally {
+  const handleApiKeySave = () => {
+    setError("");
+    setLoading(true);
+
+    // useRealtimeCallの状態も更新（デバウンス付きで保存されます）
+    setApiKey("openai", openaiKey);
+    setApiKey("gemini", geminiKey);
+
+    setShowApiKeys(false);
+
+    // デバウンス保存の完了を待たずにローディング表示を終了
+    setTimeout(() => {
       setLoading(false);
-    }
+    }, 1100);
   };
 
   const handleAuthSubmit = async (e: React.FormEvent) => {

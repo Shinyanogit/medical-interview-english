@@ -109,7 +109,7 @@ const providerConfigs: Record<RealtimeProvider, ProviderConfig> = {
       const headers: HeadersInit = {
         "Content-Type": "application/sdp",
       };
-      
+
       if (import.meta.env.PROD) {
         // 本番環境: OpenAI APIの標準的な認証方法
         headers["Authorization"] = `Bearer ${apiKey}`;
@@ -117,7 +117,7 @@ const providerConfigs: Record<RealtimeProvider, ProviderConfig> = {
         // 開発環境: プロキシ経由（X-Api-Keyを使用）
         headers["X-Api-Key"] = apiKey;
       }
-      
+
       const response = await fetch(endpoint, {
         method: "POST",
         headers,
@@ -160,23 +160,23 @@ const providerConfigs: Record<RealtimeProvider, ProviderConfig> = {
       const endpoint = `${GEMINI_DEFAULT_BASE_URL}/${encodeURIComponent(
         GEMINI_DEFAULT_MODEL
       )}:connect`;
-      
+
       // 本番環境では直接Gemini APIを呼び出す（クエリパラメータでAPIキーを渡す）
       let url = endpoint;
       if (import.meta.env.PROD) {
         // 本番環境: APIキーをクエリパラメータとして追加
         url = `${endpoint}?key=${encodeURIComponent(apiKey)}`;
       }
-      
+
       const headers: HeadersInit = {
         "Content-Type": "application/sdp",
       };
-      
+
       if (!import.meta.env.PROD) {
         // 開発環境: プロキシ経由（X-Api-Keyを使用）
         headers["X-Api-Key"] = apiKey;
       }
-      
+
       const response = await fetch(url, {
         method: "POST",
         headers,
@@ -250,7 +250,7 @@ export default function useRealtimeCall() {
     return loadInitialKeys();
   }, [currentUser, userData]);
 
-  const [apiKeys, setApiKeys] = useState<ApiKeys>(initialKeys);
+const [apiKeys, setApiKeys] = useState<ApiKeys>(initialKeys);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [transcriptEntries, setTranscriptEntries] = useState<TranscriptEntry[]>(
@@ -258,8 +258,10 @@ export default function useRealtimeCall() {
   );
   const [feedbackEntries, setFeedbackEntries] = useState<FeedbackEntry[]>([]);
 
-  // Firebaseからの読み込み中かどうかを追跡（無限ループ防止）
-  const isLoadingFromFirebaseRef = useRef(false);
+// Firebaseからの読み込み中かどうかを追跡（無限ループ防止）
+const isLoadingFromFirebaseRef = useRef(false);
+// APIキー保存用のデバウンスタイマー
+const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
@@ -296,35 +298,45 @@ export default function useRealtimeCall() {
   }, [currentUser, userData]);
 
   // FirebaseまたはlocalStorageにAPIキーを保存（Firebaseからの読み込み中は保存しない）
-  useEffect(() => {
-    // Firebaseからの読み込み中は保存しない（無限ループ防止）
-    if (isLoadingFromFirebaseRef.current) {
-      return;
-    }
+useEffect(() => {
+  // Firebaseからの読み込み中は保存しない（無限ループ防止）
+  if (isLoadingFromFirebaseRef.current) {
+    return;
+  }
 
-    if (currentUser && updateApiKeys) {
-      // ログイン中はFirebaseに保存
-      updateApiKeys(apiKeys).catch((err) => {
-        console.warn("Failed to save API keys to Firebase:", err);
-        // フォールバック: localStorageにも保存
-        try {
-          if (typeof window !== "undefined") {
-            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(apiKeys));
-          }
-        } catch (storageError) {
-          console.warn("Failed to persist realtime API keys to localStorage:", storageError);
-        }
-      });
-    } else {
-      // ログインしていない場合はlocalStorageに保存
+  // 既存のタイマーをクリアして再スケジュール（デバウンス）
+  if (saveTimeoutRef.current) {
+    clearTimeout(saveTimeoutRef.current);
+  }
+
+  saveTimeoutRef.current = setTimeout(() => {
+    const persistToLocalStorage = () => {
       if (typeof window === "undefined") return;
       try {
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(apiKeys));
       } catch (storageError) {
         console.warn("Failed to persist realtime API keys:", storageError);
       }
+    };
+
+    if (currentUser && updateApiKeys) {
+      updateApiKeys(apiKeys).catch((err) => {
+        console.warn("Failed to save API keys to Firebase:", err);
+        persistToLocalStorage();
+      });
+    } else {
+      persistToLocalStorage();
     }
-  }, [apiKeys, currentUser, updateApiKeys]);
+
+    saveTimeoutRef.current = null;
+  }, 1000);
+
+  return () => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+  };
+}, [apiKeys, currentUser, updateApiKeys]);
 
   useEffect(() => {
     providerRef.current = provider;
