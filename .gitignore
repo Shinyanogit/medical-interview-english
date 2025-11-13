@@ -28,6 +28,9 @@ Thumbs.db
 # サンプル資料（参考資料のためGitに含めない）
 サンプル資料/
 
+# ローカル開発用フォルダ（AI開発の引き継ぎ情報など）
+local/
+
 node_modules/
 react/node_modules/
 react/.vite/
