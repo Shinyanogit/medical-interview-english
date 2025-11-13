@@ -180,30 +180,12 @@ p { margin: 12px 0; line-height: 1.8; }
 /* Cards (Home) */
 .sections-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   width: 100%;
   max-width: 100%;
   justify-content: center;
   justify-items: stretch;
-}
-/* デスクトップでは常に3列固定 */
-@media (min-width: 769px) {
-  .sections-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-/* タブレット以下では2列 */
-@media (max-width: 768px) {
-  .sections-grid {
-    grid-template-columns: repeat(2, minmax(140px, 1fr));
-  }
-}
-/* モバイルでも2列を維持し、極端に狭い画面では1列 */
-@media (max-width: 360px) {
-  .sections-grid {
-    grid-template-columns: 1fr;
-  }
 }
 .section-card { background-color: var(--card-bg); border: 2px solid var(--border-color); border-radius: 10px; padding: 20px; text-align: center; text-decoration: none; color: var(--text-color); display: block; transition: all 0.2s ease; box-shadow: 0 2px 5px var(--shadow); }
 .section-card:hover { transform: translateY(-3px); background-color: var(--card-hover-bg); box-shadow: 0 4px 12px var(--shadow); }
