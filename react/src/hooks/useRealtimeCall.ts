@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import {
+  PatientScenario,
+  getScenarioById,
+  patientScenarios,
+} from "../data/patientScenarios";
 
 export type RealtimeProvider = "openai" | "gemini";
 
@@ -9,6 +14,7 @@ type ApiKeys = Record<RealtimeProvider, string>;
 
 interface StartCallOptions {
   provider?: RealtimeProvider;
+  scenarioId?: string;
 }
 
 interface ProviderConfig {
@@ -27,6 +33,107 @@ interface ProviderConfig {
 const STORAGE_KEY = "medical-interview-realtime-keys";
 const DEFAULT_PROMPT =
   "You are playing the role of a patient in a clinical interview simulation. Answer as a real patient would, keeping responses concise but natural. If you need to clarify information, ask the interviewer a follow-up question.";
+
+const DEFAULT_SCENARIO_ID = patientScenarios[0]?.id ?? "";
+
+function buildScenarioPrompt(
+  basePrompt: string,
+  scenario?: PatientScenario | null
+) {
+  if (!scenario) {
+    return basePrompt;
+  }
+
+  const spontaneousInfo = scenario.disclosurePlan.spontaneous
+    .map((item) => `- ${item}`)
+    .join("\n");
+  const ifAskedInfo = scenario.disclosurePlan.ifAsked
+    .map((item) => `- If asked about ${item.cue}: ${item.detail}`)
+    .join("\n");
+  const avoidInfo = scenario.disclosurePlan.avoidUnlessNecessary
+    ?.map((item) => `- ${item}`)
+    .join("\n");
+
+  const historySections: string[] = [];
+  if (scenario.history.presentIllness.length) {
+    historySections.push(
+      `History of Present Illness:\n${scenario.history.presentIllness
+        .map((line) => `- ${line}`)
+        .join("\n")}`
+    );
+  }
+  if (scenario.history.reviewOfSystems?.length) {
+    historySections.push(
+      `Review of Systems:\n${scenario.history.reviewOfSystems
+        .map((line) => `- ${line}`)
+        .join("\n")}`
+    );
+  }
+  if (scenario.history.pastMedicalHistory?.length) {
+    historySections.push(
+      `Past Medical History:\n${scenario.history.pastMedicalHistory
+        .map((line) => `- ${line}`)
+        .join("\n")}`
+    );
+  }
+  if (scenario.history.medications?.length) {
+    historySections.push(
+      `Medications:\n${scenario.history.medications
+        .map((line) => `- ${line}`)
+        .join("\n")}`
+    );
+  }
+  if (scenario.history.allergies?.length) {
+    historySections.push(
+      `Allergies:\n${scenario.history.allergies
+        .map((line) => `- ${line}`)
+        .join("\n")}`
+    );
+  }
+  if (scenario.history.socialHistory?.length) {
+    historySections.push(
+      `Social History:\n${scenario.history.socialHistory
+        .map((line) => `- ${line}`)
+        .join("\n")}`
+    );
+  }
+
+  return [
+    basePrompt,
+    "",
+    `PATIENT PROFILE:
+- Name: ${scenario.patient.name}
+- Age: ${scenario.patient.age}
+- Gender: ${scenario.patient.gender}
+${scenario.patient.occupation ? `- Occupation: ${scenario.patient.occupation}` : ""}
+- Chief complaint: ${scenario.chiefComplaint}
+- Personality: ${scenario.personality}`,
+    "",
+    `Role-play opening line (use this verbatim unless the interviewer sets the scene differently):
+"${scenario.openingStatement}"`,
+    "",
+    "Scenario-specific behaviour guidelines:",
+    ...scenario.instructions.map((line) => `- ${line}`),
+    "",
+    ...historySections,
+    "",
+    "Information disclosure plan:",
+    "Share the following spontaneously early in the interview:",
+    spontaneousInfo || "- (none)",
+    "",
+    "Only reveal these details if the interviewer asks the corresponding topic:",
+    ifAskedInfo || "- (none)",
+    "",
+    avoidInfo
+      ? `Avoid mentioning unless explicitly required:\n${avoidInfo}`
+      : undefined,
+    scenario.closingRemark
+      ? `Closing behaviour: ${scenario.closingRemark}`
+      : undefined,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
 
 const envDefaults: ApiKeys = {
   openai: import.meta.env.VITE_OPENAI_REALTIME_API_KEY || "",
@@ -250,7 +357,15 @@ export default function useRealtimeCall() {
     return loadInitialKeys();
   }, [currentUser, userData]);
 
-const [apiKeys, setApiKeys] = useState<ApiKeys>(initialKeys);
+  const [apiKeys, setApiKeys] = useState<ApiKeys>(initialKeys);
+  const [scenarioId, setScenarioId] = useState<string>(DEFAULT_SCENARIO_ID);
+  const activeScenario = useMemo(
+    () => (scenarioId ? getScenarioById(scenarioId) ?? null : null),
+    [scenarioId]
+  );
+  const scenarioRef = useRef<PatientScenario | null>(
+    activeScenario ?? null
+  );
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [transcriptEntries, setTranscriptEntries] = useState<TranscriptEntry[]>(
@@ -259,9 +374,13 @@ const [apiKeys, setApiKeys] = useState<ApiKeys>(initialKeys);
   const [feedbackEntries, setFeedbackEntries] = useState<FeedbackEntry[]>([]);
 
 // Firebaseからの読み込み中かどうかを追跡（無限ループ防止）
-const isLoadingFromFirebaseRef = useRef(false);
-// APIキー保存用のデバウンスタイマー
-const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isLoadingFromFirebaseRef = useRef(false);
+  // APIキー保存用のデバウンスタイマー
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    scenarioRef.current = activeScenario ?? null;
+  }, [activeScenario]);
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
@@ -620,11 +739,22 @@ useEffect(() => {
   );
 
   const startCall = useCallback(
-    async ({ provider: preferredProvider }: StartCallOptions = {}) => {
+    async ({
+      provider: preferredProvider,
+      scenarioId: requestedScenarioId,
+    }: StartCallOptions = {}) => {
       if (!navigator.mediaDevices?.getUserMedia) {
         setError("このブラウザではマイクへのアクセスがサポートされていません。");
         setStatus("error");
         return;
+      }
+
+      if (requestedScenarioId) {
+        const foundScenario = getScenarioById(requestedScenarioId);
+        if (foundScenario) {
+          scenarioRef.current = foundScenario;
+          setScenarioId(foundScenario.id);
+        }
       }
 
       const targetProvider = preferredProvider ?? provider;
@@ -680,6 +810,11 @@ useEffect(() => {
         }
       });
 
+      const promptForChannel = buildScenarioPrompt(
+        systemPromptRef.current,
+        scenarioRef.current
+      );
+
       pc.addEventListener("datachannel", (event) => {
         const channel = event.channel;
         if (!channel) return;
@@ -697,11 +832,11 @@ useEffect(() => {
           console.warn("Data channel error:", evt);
         });
         if (channel.readyState === "open") {
-          config.onDataChannelOpen?.(channel, systemPromptRef.current);
+          config.onDataChannelOpen?.(channel, promptForChannel);
         } else if (config.onDataChannelOpen) {
           channel.addEventListener(
             "open",
-            () => config.onDataChannelOpen?.(channel, systemPromptRef.current),
+            () => config.onDataChannelOpen?.(channel, promptForChannel),
             { once: true }
           );
         }
@@ -745,10 +880,7 @@ useEffect(() => {
             openChannel.addEventListener(
               "open",
               () =>
-                config.onDataChannelOpen?.(
-                  openChannel,
-                  systemPromptRef.current
-                ),
+                config.onDataChannelOpen?.(openChannel, promptForChannel),
               { once: true }
             );
           }
@@ -764,10 +896,15 @@ useEffect(() => {
       await pc.setLocalDescription(offer);
 
       try {
+        const scenarioPrompt = buildScenarioPrompt(
+          systemPromptRef.current,
+          scenarioRef.current
+        );
+
         const answerSdp = await config.createAnswer({
           apiKey,
           offer,
-          systemPrompt: systemPromptRef.current,
+          systemPrompt: scenarioPrompt,
         });
         const remoteDescription = {
           type: "answer" as const,
@@ -784,7 +921,7 @@ useEffect(() => {
       }
 
     },
-    [apiKeys, cleanup, handleDataMessage, provider, setProvider]
+    [apiKeys, cleanup, handleDataMessage, provider, setProvider, setScenarioId]
   );
 
   const clearError = useCallback(() => setError(null), []);
@@ -799,6 +936,8 @@ useEffect(() => {
       systemPrompt,
       transcriptEntries,
       feedbackEntries,
+      scenarioId,
+      activeScenario,
     }),
     [
       provider,
@@ -809,6 +948,8 @@ useEffect(() => {
       systemPrompt,
       transcriptEntries,
       feedbackEntries,
+      scenarioId,
+      activeScenario,
     ]
   );
 
@@ -835,5 +976,9 @@ useEffect(() => {
     clearError,
     feedbackEntries,
     transcriptEntries,
+    availableScenarios: patientScenarios,
+    scenarioId,
+    setScenarioId,
+    activeScenario,
   };
 }

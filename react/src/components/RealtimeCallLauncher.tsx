@@ -47,6 +47,10 @@ const RealtimeCallLauncher: React.FC = () => {
     clearError,
     feedbackEntries,
     transcriptEntries,
+    availableScenarios,
+    scenarioId,
+    setScenarioId,
+    activeScenario,
   } = useRealtimeCall();
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -131,6 +135,14 @@ const RealtimeCallLauncher: React.FC = () => {
       setApiKey(provider, event.target.value);
     },
     [provider, setApiKey, clearError]
+  );
+
+  const handleScenarioChange = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      clearError();
+      setScenarioId(event.target.value);
+    },
+    [clearError, setScenarioId]
   );
 
   const [lastSeenFeedbackCount, setLastSeenFeedbackCount] = useState(0);
@@ -274,6 +286,52 @@ const RealtimeCallLauncher: React.FC = () => {
                   );
                 })}
               </div>
+            </div>
+
+            <div className="call-section">
+              <h3>シナリオ</h3>
+              <label className="call-field-label" htmlFor="call-scenario-select">
+                臨床ストーリー
+              </label>
+              <select
+                id="call-scenario-select"
+                className="call-field-input"
+                value={scenarioId}
+                onChange={handleScenarioChange}
+              >
+                {availableScenarios.map((scenario) => (
+                  <option key={scenario.id} value={scenario.id}>
+                    {scenario.title}
+                  </option>
+                ))}
+              </select>
+              {activeScenario && (
+                <div className="call-scenario-summary">
+                  <p className="call-scenario-title">
+                    {activeScenario.shortSummary}
+                  </p>
+                  <ul className="call-scenario-list">
+                    <li>
+                      <strong>Chief complaint:</strong>{" "}
+                      {activeScenario.chiefComplaint}
+                    </li>
+                    <li>
+                      <strong>Patient:</strong>{" "}
+                      {`${activeScenario.patient.age}歳 ${activeScenario.patient.gender === "female" ? "女性" : activeScenario.patient.gender === "male" ? "男性" : activeScenario.patient.gender}`}
+                      {activeScenario.patient.occupation
+                        ? ` / ${activeScenario.patient.occupation}`
+                        : ""}
+                    </li>
+                    <li>
+                      <strong>Opening line:</strong>{" "}
+                      {activeScenario.openingStatement}
+                    </li>
+                  </ul>
+                  <p className="call-hint">
+                    追加の医療設定は下のテキストエリアで編集できます。
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="call-section">
