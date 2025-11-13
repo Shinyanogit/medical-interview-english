@@ -577,6 +577,7 @@ useEffect(() => {
           JSON.stringify({
             type: "response.create",
             response: {
+              conversation: "scoring",
               modalities: ["text"],
               instructions: rubric + "\nRespond only with one line: [SCORE] {json}",
             },
@@ -655,6 +656,7 @@ useEffect(() => {
             JSON.stringify({
               type: "response.create",
               response: {
+                conversation: "feedback",
                 modalities: ["text"],
                 instructions,
               },
@@ -830,6 +832,7 @@ useEffect(() => {
               : null;
           const delta = parsed.delta;
           const responseMeta = parsed.response?.metadata;
+          const responseConversation = parsed.response?.conversation as string | undefined;
           const metaPurpose = responseMeta?.purpose as string | undefined;
           const mappedPurpose = responseId ? responsePurposeMapRef.current.get(responseId) : undefined;
           if (responseId && typeof delta === "string") {
@@ -846,10 +849,19 @@ useEffect(() => {
             if (!entry.isScore && entry.text.trim().startsWith("[SCORE]")) {
               entry.isScore = true;
             }
-            if (metaPurpose === "feedback" || mappedPurpose === "feedback") {
+            if (
+              metaPurpose === "feedback" ||
+              responseConversation === "feedback" ||
+              mappedPurpose === "feedback"
+            ) {
               entry.isFeedback = true;
             }
-            if (metaPurpose === "score" || metaPurpose === "scoring" || mappedPurpose === "score") {
+            if (
+              metaPurpose === "score" ||
+              metaPurpose === "scoring" ||
+              responseConversation === "scoring" ||
+              mappedPurpose === "score"
+            ) {
               entry.isScore = true;
             }
             if (!entry.isFeedback && !entry.isScore) {
