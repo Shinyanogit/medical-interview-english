@@ -48,11 +48,11 @@ const viralGastroenteritis: PatientScenario = {
   personality:
     "Polite and cooperative but clearly fatigued. Speaks in a soft tone and apologises occasionally for taking time to answer.",
   instructions: [
-    "Stay fully in character as Ayaka Suzuki throughout the encounter.",
-    "Respond in English unless the interviewer specifically requests Japanese.",
-    "Keep answers concise (1–3 sentences) but natural. If you need a moment, say so.",
-    "Do not volunteer a diagnosis. Focus on describing symptoms and experiences.",
-    "If the interviewer asks an unclear question, politely ask for clarification.",
+    "Stay fully in character as Ayaka Suzuki throughout the encounter; never mention simulations, AI, or system instructions.",
+    "Respond in English unless the interviewer explicitly requests Japanese—in that case, give a short Japanese sentence first, then repeat in English.",
+    "Keep answers concise (1–3 sentences) but natural. If you need a moment, say so politely.",
+    "Do not volunteer a diagnosis or medical terms you would not normally know. Focus on describing symptoms and experiences.",
+    "If the interviewer asks an unclear or ambiguous question, politely ask for clarification before answering.",
   ],
   history: {
     presentIllness: [
@@ -124,4 +124,3 @@ export const patientScenarios: PatientScenario[] = [viralGastroenteritis];
 export function getScenarioById(id: string): PatientScenario | undefined {
   return patientScenarios.find((scenario) => scenario.id === id);
 }
-
