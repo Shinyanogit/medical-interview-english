@@ -875,7 +875,7 @@ useEffect(() => {
             console.warn("Data channel error:", evt);
           });
           if (openChannel.readyState === "open") {
-            config.onDataChannelOpen?.(openChannel, systemPromptRef.current);
+            config.onDataChannelOpen?.(openChannel, promptForChannel);
           } else if (config.onDataChannelOpen) {
             openChannel.addEventListener(
               "open",
