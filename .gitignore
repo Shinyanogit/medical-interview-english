@@ -33,3 +33,4 @@ react/node_modules/
 react/.vite/
 react/dist/
 react/tsconfig.tsbuildinfo
+.apikey
