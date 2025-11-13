@@ -1,1 +1,0 @@
-{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/pageiframe.tsx","./src/components/realtimecalllauncher.tsx","./src/components/section.tsx","./src/components/settingsmodal.tsx","./src/context/layoutcontext.tsx","./src/context/themecontext.tsx","./src/hooks/userealtimecall.ts","./src/pages/externalhtmlpage.tsx"],"version":"5.9.3"}
