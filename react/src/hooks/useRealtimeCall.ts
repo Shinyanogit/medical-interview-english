@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 export type RealtimeProvider = "openai" | "gemini";
 
@@ -60,7 +61,16 @@ const ICE_SERVERS: RTCConfiguration = {
   iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
 };
 
-function loadInitialKeys(): ApiKeys {
+function loadInitialKeys(firebaseKeys?: Record<string, string | undefined>): ApiKeys {
+  // Firebaseから取得したキーを優先
+  if (firebaseKeys) {
+    return {
+      openai: firebaseKeys.openai ?? envDefaults.openai ?? "",
+      gemini: firebaseKeys.gemini ?? envDefaults.gemini ?? "",
+    };
+  }
+
+  // Firebaseキーがない場合はlocalStorageから読み込み
   if (typeof window === "undefined") {
     return { ...envDefaults };
   }
@@ -194,17 +204,30 @@ const providerConfigs: Record<RealtimeProvider, ProviderConfig> = {
 };
 
 export default function useRealtimeCall() {
+  const { currentUser, userData, updateApiKeys } = useAuth();
   const [provider, setProvider] = useState<RealtimeProvider>("openai");
   const [status, setStatus] = useState<CallStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [systemPrompt, setSystemPrompt] = useState<string>(DEFAULT_PROMPT);
-  const [apiKeys, setApiKeys] = useState<ApiKeys>(() => loadInitialKeys());
+
+  // FirebaseからAPIキーを取得（ログイン時）、それ以外はlocalStorageから
+  const initialKeys = useMemo(() => {
+    if (currentUser && userData?.apiKeys) {
+      return loadInitialKeys(userData.apiKeys);
+    }
+    return loadInitialKeys();
+  }, [currentUser, userData]);
+
+  const [apiKeys, setApiKeys] = useState<ApiKeys>(initialKeys);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [transcriptEntries, setTranscriptEntries] = useState<TranscriptEntry[]>(
     []
   );
   const [feedbackEntries, setFeedbackEntries] = useState<FeedbackEntry[]>([]);
+
+  // Firebaseからの読み込み中かどうかを追跡（無限ループ防止）
+  const isLoadingFromFirebaseRef = useRef(false);
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
@@ -219,14 +242,57 @@ export default function useRealtimeCall() {
     Map<string, { text: string; isFeedback: boolean }>
   >(new Map());
 
+  // ユーザーデータが変更されたらAPIキーを更新（Firebaseから読み込み）
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(apiKeys));
-    } catch (storageError) {
-      console.warn("Failed to persist realtime API keys:", storageError);
+    if (currentUser && userData?.apiKeys) {
+      isLoadingFromFirebaseRef.current = true;
+      const firebaseKeys = loadInitialKeys(userData.apiKeys);
+      setApiKeys(firebaseKeys);
+      // 読み込み完了をマーク（次のレンダリングサイクルで）
+      setTimeout(() => {
+        isLoadingFromFirebaseRef.current = false;
+      }, 0);
+    } else if (!currentUser) {
+      // ログアウト時はlocalStorageから読み込み
+      isLoadingFromFirebaseRef.current = true;
+      const localKeys = loadInitialKeys();
+      setApiKeys(localKeys);
+      setTimeout(() => {
+        isLoadingFromFirebaseRef.current = false;
+      }, 0);
     }
-  }, [apiKeys]);
+  }, [currentUser, userData]);
+
+  // FirebaseまたはlocalStorageにAPIキーを保存（Firebaseからの読み込み中は保存しない）
+  useEffect(() => {
+    // Firebaseからの読み込み中は保存しない（無限ループ防止）
+    if (isLoadingFromFirebaseRef.current) {
+      return;
+    }
+
+    if (currentUser && updateApiKeys) {
+      // ログイン中はFirebaseに保存
+      updateApiKeys(apiKeys).catch((err) => {
+        console.warn("Failed to save API keys to Firebase:", err);
+        // フォールバック: localStorageにも保存
+        try {
+          if (typeof window !== "undefined") {
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(apiKeys));
+          }
+        } catch (storageError) {
+          console.warn("Failed to persist realtime API keys to localStorage:", storageError);
+        }
+      });
+    } else {
+      // ログインしていない場合はlocalStorageに保存
+      if (typeof window === "undefined") return;
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(apiKeys));
+      } catch (storageError) {
+        console.warn("Failed to persist realtime API keys:", storageError);
+      }
+    }
+  }, [apiKeys, currentUser, updateApiKeys]);
 
   useEffect(() => {
     providerRef.current = provider;

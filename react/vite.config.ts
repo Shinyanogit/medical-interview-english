@@ -147,4 +147,8 @@ const devRealtimeProxy = {
 export default defineConfig({
   plugins: [react(), devRealtimeProxy],
   base,
+  build: {
+    outDir: "../docs",
+    emptyOutDir: true,
+  },
 });

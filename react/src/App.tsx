@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ThemeProvider } from "./context/ThemeContext";
 import { LayoutProvider, useLayout } from "./context/LayoutContext";
+import { AuthProvider } from "./context/AuthContext";
 import SettingsModal from "./components/SettingsModal";
 import RealtimeCallLauncher from "./components/RealtimeCallLauncher";
 import Section from "./components/Section";
@@ -88,7 +89,7 @@ const Home: React.FC = () => {
 
 type ContentMode = "react" | "html";
 
-const App: React.FC = () => {
+const AppInner: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [contentMode, setContentMode] = useState<ContentMode>(() => {
     if (typeof window !== "undefined") {
@@ -334,6 +335,14 @@ const App: React.FC = () => {
         <RealtimeCallLauncher />
       </LayoutProvider>
     </ThemeProvider>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <AppInner />
+    </AuthProvider>
   );
 };
 
