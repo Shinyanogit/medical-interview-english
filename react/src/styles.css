@@ -1033,6 +1033,21 @@ p { margin: 12px 0; line-height: 1.8; }
   background: rgba(0, 0, 0, 0.22);
 }
 
+.call-warning {
+  background: #fff4e5;
+  border-left: 4px solid #f39c12;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  color: #7a4b00;
+  font-size: 13px;
+}
+[data-theme="dark"] .call-warning {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffd9a0;
+  border-color: #f1c40f;
+}
+
 /* Scoring (採点) */
 .grading-grid {
   display: grid;

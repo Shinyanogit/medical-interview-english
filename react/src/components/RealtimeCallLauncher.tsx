@@ -53,6 +53,8 @@ const RealtimeCallLauncher: React.FC = () => {
     scoreResult,
     endedWithoutScore,
     awaitingFinalScore,
+    feedbackFallbackActive,
+    scoreFallbackActive,
     availableScenarios,
     scenarioId,
     setScenarioId,
@@ -365,6 +367,16 @@ const RealtimeCallLauncher: React.FC = () => {
                 ×
               </button>
             </div>
+            {feedbackFallbackActive && (
+              <div className="call-warning">
+                リアルタイムフィードバックを取得できていないため、暫定的なヒントを表示しています。
+              </div>
+            )}
+            {scoreFallbackActive && (
+              <div className="call-warning">
+                採点は暫定値です。API設定やネットワーク状態をご確認ください。
+              </div>
+            )}
 
             <div className="call-status-row">
               <span className={`call-status-badge call-status-${status}`}>
@@ -530,6 +542,16 @@ const RealtimeCallLauncher: React.FC = () => {
               <button type="button" className="call-modal-close" onClick={handleHangup} aria-label="終了">×</button>
             </div>
             <div className="call-dock-body">
+              {feedbackFallbackActive && (
+                <div className="call-warning">
+                  リアルタイムフィードバックを取得できていないため、暫定的なヒントを表示しています。
+                </div>
+              )}
+              {scoreFallbackActive && (
+                <div className="call-warning">
+                  採点は暫定値です。API設定やネットワーク状態をご確認ください。
+                </div>
+              )}
               {/* プロバイダー・接続設定は設定画面に移動 */}
 
               {/* Scenario */}
@@ -616,6 +638,7 @@ const RealtimeCallLauncher: React.FC = () => {
         result={scoreResult}
         awaiting={awaitingFinalScore && !scoreResult && !endedWithoutScore}
         failed={endedWithoutScore && !scoreResult}
+        fallback={scoreFallbackActive}
       />
     </>
   );

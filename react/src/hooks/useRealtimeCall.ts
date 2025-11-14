@@ -548,6 +548,8 @@ export default function useRealtimeCall() {
   const [pendingAssistantText, setPendingAssistantText] = useState<string>("");
   const [endedWithoutScore, setEndedWithoutScore] = useState<boolean>(false);
   const [awaitingFinalScore, setAwaitingFinalScore] = useState<boolean>(false);
+  const [feedbackFallbackActive, setFeedbackFallbackActive] = useState(false);
+  const [scoreFallbackActive, setScoreFallbackActive] = useState(false);
 
 // Firebaseからの読み込み中かどうかを追跡（無限ループ防止）
   const isLoadingFromFirebaseRef = useRef(false);
@@ -587,9 +589,9 @@ export default function useRealtimeCall() {
       scoreInFlightRef.current = false;
       setAwaitingFinalScore(false);
       setEndedWithoutScore(false);
+      setScoreFallbackActive(true);
     }, 5000);
-  }, [setScoreResult, setAwaitingFinalScore, setEndedWithoutScore]);
-
+  }, [setScoreResult, setAwaitingFinalScore, setEndedWithoutScore, setScoreFallbackActive]);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
@@ -728,6 +730,8 @@ useEffect(() => {
       setPendingAssistantText("");
       setEndedWithoutScore(false);
       setAwaitingFinalScore(false);
+      setFeedbackFallbackActive(false);
+      setScoreFallbackActive(false);
       responsePurposeQueueRef.current = [];
       responsePurposeMapRef.current.clear();
       if (localScoreTimeoutRef.current) {
@@ -800,10 +804,11 @@ useEffect(() => {
         autoScoreOnHangupRef.current = false;
         setEndedWithoutScore(true);
         setAwaitingFinalScore(false);
+        setScoreFallbackActive(true);
         cleanup("idle");
       }
     }, 6000);
-  }, [cleanup, requestScoring]);
+  }, [cleanup, requestScoring, scheduleLocalScoreFallback]);
 
   const hasApiKey = useCallback(
     (target: RealtimeProvider) => {
@@ -862,6 +867,7 @@ useEffect(() => {
         const next = [...prev, entry];
         return next.slice(-50);
       });
+      setFeedbackFallbackActive(true);
     },
     []
   );
@@ -1078,6 +1084,7 @@ useEffect(() => {
                   text: text.replace(/^\[FEEDBACK\]\s*/, "").trim(),
                   timestamp: Date.now(),
                 });
+                setFeedbackFallbackActive(false);
               } else if (entry.isScore && text) {
                 const payload = text.replace(/^\[SCORE\]\s*/, "").trim();
                 try {
@@ -1097,6 +1104,7 @@ useEffect(() => {
                   lastScoreAtRef.current = Date.now();
                   setEndedWithoutScore(false);
                   setAwaitingFinalScore(false);
+                  setScoreFallbackActive(false);
                 } catch (e) {
                   console.warn("Failed to parse score JSON:", e);
                 }
@@ -1181,8 +1189,17 @@ useEffect(() => {
       setError(null);
       setTranscriptEntries([]);
       setFeedbackEntries([]);
+      transcriptRef.current = [];
+      feedbackRef.current = [];
+      setScoreResult(null);
+      setFeedbackFallbackActive(false);
+      setScoreFallbackActive(false);
       conversationItemsRef.current.clear();
       pendingResponseRef.current.clear();
+      if (localScoreTimeoutRef.current) {
+        clearTimeout(localScoreTimeoutRef.current);
+        localScoreTimeoutRef.current = null;
+      }
 
       const pc = new RTCPeerConnection(ICE_SERVERS);
       pcRef.current = pc;
@@ -1338,6 +1355,8 @@ useEffect(() => {
       endedWithoutScore,
       awaitingFinalScore,
       pendingAssistantText,
+      feedbackFallbackActive,
+      scoreFallbackActive,
       scenarioId,
       activeScenario,
     }),
@@ -1353,6 +1372,8 @@ useEffect(() => {
       scoreResult,
       endedWithoutScore,
       pendingAssistantText,
+      feedbackFallbackActive,
+      scoreFallbackActive,
       scenarioId,
       activeScenario,
     ]
@@ -1385,6 +1406,8 @@ useEffect(() => {
     endedWithoutScore,
     awaitingFinalScore,
     pendingAssistantText,
+    feedbackFallbackActive,
+    scoreFallbackActive,
     availableScenarios: patientScenarios,
     scenarioId,
     setScenarioId,

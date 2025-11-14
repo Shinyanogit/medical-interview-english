@@ -17,9 +17,10 @@ interface Props {
   result: ScoreResult | null;
   awaiting: boolean;
   failed: boolean;
+  fallback: boolean;
 }
 
-const ScoreDialog: React.FC<Props> = ({ open, onClose, result, awaiting, failed }) => {
+const ScoreDialog: React.FC<Props> = ({ open, onClose, result, awaiting, failed, fallback }) => {
   if (!open) return null;
   return (
     <div className="call-modal" role="dialog" aria-modal="true" aria-label="採点結果">
@@ -43,6 +44,9 @@ const ScoreDialog: React.FC<Props> = ({ open, onClose, result, awaiting, failed 
               <li>態度: {result.attitude} {result.reasons?.attitude ? `— ${result.reasons.attitude}` : ""}</li>
               <li>英語: {result.english} {result.reasons?.english ? `— ${result.reasons.english}` : ""}</li>
             </ul>
+            {fallback && (
+              <p className="call-hint">※ Realtime API に接続できなかったため、ローカル採点を表示しています。</p>
+            )}
           </div>
         ) : failed ? (
           <div className="call-section">
