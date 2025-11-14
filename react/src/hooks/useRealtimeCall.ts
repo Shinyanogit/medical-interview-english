@@ -175,7 +175,7 @@ type TranscriptEntry = {
 
 type FeedbackEntry = {
   id: string;
-  provider: RealtimeProvider;
+  provider: RealtimeProvider | "local";
   text: string;
   timestamp: number;
 };
@@ -196,6 +196,145 @@ export interface ScoreResult {
 const ICE_SERVERS: RTCConfiguration = {
   iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
 };
+
+const gradeFromScore = (value: number): Grade => {
+  if (value >= 0.85) return "A";
+  if (value >= 0.7) return "B";
+  if (value >= 0.55) return "C";
+  if (value >= 0.4) return "D";
+  return "E";
+};
+const gradeToNumeric = (grade: Grade): number => {
+  switch (grade) {
+    case "A":
+      return 1;
+    case "B":
+      return 2;
+    case "C":
+      return 3;
+    case "D":
+      return 4;
+    default:
+      return 5;
+  }
+};
+
+const buildLocalFeedback = (utterance: string) => {
+  const text = utterance.trim();
+  if (!text) {
+    return "Please try speaking clearly so I can provide feedback.";
+  }
+  const suggestions: string[] = [];
+  if (!/[?]/.test(text)) {
+    suggestions.push("Consider ending clinical questions with a rising tone or a question mark.");
+  }
+  if (!/(please|could you|would you|let me)/i.test(text)) {
+    suggestions.push("Polite lead-ins such as “Could you tell me…” improve bedside manner.");
+  }
+  if (text.split(/\s+/).length > 18) {
+    suggestions.push("Try shorter questions; long sentences are harder for patients to follow.");
+  }
+  if (!suggestions.length) {
+    suggestions.push("Good clarity. Keep using short, polite prompts.");
+  }
+  return suggestions.join(" ");
+};
+
+const analyzeForScore = (
+  entries: TranscriptEntry[],
+  feedbackCount: number
+): {
+  contentGrade: Grade;
+  attitudeGrade: Grade;
+  englishGrade: Grade;
+  reasons: ScoreResult["reasons"];
+} => {
+  const utterances = entries
+    .filter((e) => e.role === "user")
+    .map((e) => e.text.toLowerCase());
+  const askedName = utterances.some((u) => /your .*name|full name|may i have your name/.test(u));
+  const askedOpen = utterances.some((u) =>
+    /(what brings you|tell me more|could you tell me|can you tell me|how can i help)/.test(u)
+  );
+  const askedAnythingElse = utterances.some((u) =>
+    /(anything (else|other)|did i miss|any other concerns?)/.test(u)
+  );
+  const didSummary = utterances.some((u) =>
+    /(let me|allow me).*(summaris|summariz)|if i (understood|understand)|just to confirm/.test(u)
+  );
+  const coverageSignals = [
+    /(when|since|how long)/,
+    /(where|location|radiat)/,
+    /(severity|scale|how bad)/,
+    /(character|what kind|describe)/,
+    /(associated|other) symptoms/,
+    /(past medical|history of)/,
+    /(medication|drug|prescription)/,
+    /(allerg)/,
+    /(social history|smok|drink|occupation)/,
+    /(family history)/,
+  ];
+  const coverageHits = coverageSignals.reduce(
+    (acc, regex) => (utterances.some((u) => regex.test(u)) ? acc + 1 : acc),
+    0
+  );
+  const checkpointScore =
+    (askedName ? 0.25 : 0) +
+    (askedOpen ? 0.25 : 0) +
+    (askedAnythingElse ? 0.25 : 0) +
+    (didSummary ? 0.25 : 0);
+  const coverageScore = coverageHits / coverageSignals.length;
+  const contentGrade = gradeFromScore(0.6 * checkpointScore + 0.4 * coverageScore);
+  const attitudeGrade = gradeFromScore(
+    0.5 +
+      (askedOpen ? 0.15 : 0) +
+      (askedAnythingElse ? 0.15 : 0) +
+      (didSummary ? 0.2 : 0)
+  );
+  const englishGrade = gradeFromScore(Math.max(0.2, 1 - feedbackCount / 10));
+  const reasons: ScoreResult["reasons"] = {
+    content: askedOpen
+      ? "Asked open questions and covered core history items."
+      : "Add more open questions / summaries for better structure.",
+    attitude: askedAnythingElse
+      ? "Checked for additional concerns which shows active listening."
+      : "Try confirming if the patient has anything else to add.",
+    english:
+      feedbackCount > 0
+        ? "Some phrasing issues detected; shorter, direct questions help."
+        : "Fluent phrasing detected in fallback evaluation.",
+  };
+  reasons.overall =
+    checkpointScore > 0.6
+      ? "Solid structure detected in fallback scoring."
+      : "Add greeting, open questions, and closing confirmation for clearer flow.";
+  return { contentGrade, attitudeGrade, englishGrade, reasons };
+};
+
+const generateLocalScoreResult = (
+  entries: TranscriptEntry[],
+  feedbackCount: number
+): ScoreResult => {
+  const { contentGrade, attitudeGrade, englishGrade, reasons } = analyzeForScore(
+    entries,
+    feedbackCount
+  );
+  const overallNumeric =
+    gradeToNumeric(contentGrade) * 0.4 +
+    gradeToNumeric(attitudeGrade) * 0.3 +
+    gradeToNumeric(englishGrade) * 0.3;
+  const normalizedOverall = 1 - (overallNumeric - 1) / 4;
+  const overall = gradeFromScore(normalizedOverall);
+  return {
+    content: contentGrade,
+    attitude: attitudeGrade,
+    english: englishGrade,
+    overall,
+    reasons,
+    timestamp: Date.now(),
+  };
+};
+
 
 function loadInitialKeys(firebaseKeys?: Record<string, string | undefined>): ApiKeys {
   // Firebaseから取得したキーを優先
@@ -418,6 +557,38 @@ export default function useRealtimeCall() {
   useEffect(() => {
     scenarioRef.current = activeScenario ?? null;
   }, [activeScenario]);
+  useEffect(() => {
+    transcriptRef.current = transcriptEntries;
+  }, [transcriptEntries]);
+  useEffect(() => {
+    feedbackRef.current = feedbackEntries;
+  }, [feedbackEntries]);
+  useEffect(() => {
+    awaitingFinalScoreRef.current = awaitingFinalScore;
+    if (!awaitingFinalScore && localScoreTimeoutRef.current) {
+      clearTimeout(localScoreTimeoutRef.current);
+      localScoreTimeoutRef.current = null;
+    }
+  }, [awaitingFinalScore]);
+
+  const scheduleLocalScoreFallback = useCallback(() => {
+    if (localScoreTimeoutRef.current) {
+      clearTimeout(localScoreTimeoutRef.current);
+    }
+    localScoreTimeoutRef.current = setTimeout(() => {
+      if (!awaitingFinalScoreRef.current) {
+        return;
+      }
+      const fallback = generateLocalScoreResult(
+        transcriptRef.current,
+        feedbackRef.current.length
+      );
+      setScoreResult(fallback);
+      scoreInFlightRef.current = false;
+      setAwaitingFinalScore(false);
+      setEndedWithoutScore(false);
+    }, 5000);
+  }, [setScoreResult, setAwaitingFinalScore, setEndedWithoutScore]);
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
@@ -437,7 +608,10 @@ export default function useRealtimeCall() {
   const lastScoreAtRef = useRef<number>(0);
   const responsePurposeQueueRef = useRef<Array<"feedback" | "score">>([]);
   const responsePurposeMapRef = useRef<Map<string, "feedback" | "score">>(new Map());
-
+  const localScoreTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const transcriptRef = useRef<TranscriptEntry[]>([]);
+  const feedbackRef = useRef<FeedbackEntry[]>([]);
+  const awaitingFinalScoreRef = useRef<boolean>(false);
   // ユーザーデータが変更されたらAPIキーを更新（Firebaseから読み込み）
   useEffect(() => {
     if (currentUser && userData?.apiKeys) {
@@ -556,6 +730,10 @@ useEffect(() => {
       setAwaitingFinalScore(false);
       responsePurposeQueueRef.current = [];
       responsePurposeMapRef.current.clear();
+      if (localScoreTimeoutRef.current) {
+        clearTimeout(localScoreTimeoutRef.current);
+        localScoreTimeoutRef.current = null;
+      }
 
       setStatus(nextStatus);
     },
@@ -614,6 +792,7 @@ useEffect(() => {
       console.warn("requestScoring failed:", e);
       cleanup("idle");
     }
+    scheduleLocalScoreFallback();
     // Fallback: if scoring response not received in time, clean up
     if (endingFallbackTimerRef.current) clearTimeout(endingFallbackTimerRef.current);
     endingFallbackTimerRef.current = setTimeout(() => {
@@ -673,6 +852,16 @@ useEffect(() => {
       } catch (sendError) {
         console.warn("Failed to request feedback:", sendError);
       }
+      setFeedbackEntries((prev) => {
+        const entry: FeedbackEntry = {
+          id: `local-feedback-${Date.now()}`,
+          provider: "local",
+          text: `[Fallback] ${buildLocalFeedback(trimmed)}`,
+          timestamp: Date.now(),
+        };
+        const next = [...prev, entry];
+        return next.slice(-50);
+      });
     },
     []
   );

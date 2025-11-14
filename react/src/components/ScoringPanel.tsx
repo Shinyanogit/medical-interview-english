@@ -9,7 +9,7 @@ type TranscriptEntry = {
 
 type FeedbackEntry = {
   id: string;
-  provider: "openai" | "gemini";
+  provider: "openai" | "gemini" | "local";
   text: string;
   timestamp: number;
 };

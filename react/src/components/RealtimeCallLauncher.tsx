@@ -260,6 +260,11 @@ const RealtimeCallLauncher: React.FC = () => {
   }, [transcriptEntries]);
 
   const assistantSubtitle = pendingAssistantText || lastAssistant;
+  const providerLabel = useCallback((p: RealtimeProvider | "local") => {
+    if (p === "openai") return "OpenAI";
+    if (p === "gemini") return "Gemini";
+    return "Local";
+  }, []);
 
   const handleLauncherClick = useCallback(() => {
     if (status === "connecting" || status === "connected" || status === "ending") {
@@ -469,9 +474,7 @@ const RealtimeCallLauncher: React.FC = () => {
                     <li key={entry.id} className="call-feedback-item">
                       <div className="call-feedback-header">
                         <span className="call-feedback-provider">
-                          {entry.provider === "openai"
-                            ? "OpenAI"
-                            : "Gemini"}
+                          {providerLabel(entry.provider)}
                         </span>
                         <time
                           dateTime={new Date(entry.timestamp).toISOString()}
@@ -579,7 +582,7 @@ const RealtimeCallLauncher: React.FC = () => {
                     {feedbackEntries.map((entry) => (
                       <li key={entry.id} className="call-feedback-item">
                         <div className="call-feedback-header">
-                          <span className="call-feedback-provider">{entry.provider === "openai" ? "OpenAI" : "Gemini"}</span>
+                          <span className="call-feedback-provider">{providerLabel(entry.provider)}</span>
                           <time dateTime={new Date(entry.timestamp).toISOString()}>{formatTimestamp(entry.timestamp)}</time>
                         </div>
                         <p className="call-feedback-text">{entry.text}</p>
