@@ -52,6 +52,10 @@ const devRealtimeProxy = {
             return;
           }
           const body = await readBody(req);
+          console.log(
+            "[proxy/openai] forwarding to",
+            `${OPENAI_PROXY_TARGET}?model=${model}`
+          );
           const upstream = await fetch(
             `${OPENAI_PROXY_TARGET}?model=${encodeURIComponent(model)}`,
             {
@@ -63,6 +67,19 @@ const devRealtimeProxy = {
               body,
             }
           );
+          console.log("[proxy/openai] upstream status", upstream.status);
+          if (!upstream.ok) {
+            const text = await upstream.text();
+            console.log("[proxy/openai] upstream body", text);
+            res.statusCode = upstream.status;
+            res.end(
+              JSON.stringify({
+                error: "upstream openai error",
+                status: upstream.status,
+              })
+            );
+            return;
+          }
           const buffer = Buffer.from(await upstream.arrayBuffer());
           res.statusCode = upstream.status;
           upstream.headers.forEach((value, key) => {
@@ -95,10 +112,9 @@ const devRealtimeProxy = {
             req.url ?? "/api/gemini",
             "http://localhost"
           );
-          const pathSegment = requestUrl.pathname.replace(
-            /^\/api\/gemini\/?/,
-            ""
-          );
+          const pathSegment = requestUrl.pathname
+            .replace(/^\/api\/gemini\/?/, "")
+            .replace(/^\/+/, "");
           if (!pathSegment) {
             res.statusCode = 400;
             res.end(JSON.stringify({ error: "Missing model path" }));
@@ -111,10 +127,12 @@ const devRealtimeProxy = {
             return;
           }
           const body = await readBody(req);
+          const upstreamUrl = `${GEMINI_PROXY_TARGET}/${pathSegment}?key=${encodeURIComponent(
+            apiKey
+          )}`;
+          console.log("[proxy/gemini] forwarding to", upstreamUrl);
           const upstream = await fetch(
-            `${GEMINI_PROXY_TARGET}/${pathSegment}?key=${encodeURIComponent(
-              apiKey
-            )}`,
+            upstreamUrl,
             {
               method: "POST",
               headers: {
@@ -123,6 +141,19 @@ const devRealtimeProxy = {
               body,
             }
           );
+          console.log("[proxy/gemini] upstream status", upstream.status);
+          if (!upstream.ok) {
+            const text = await upstream.text();
+            console.log("[proxy/gemini] upstream body", text);
+            res.statusCode = upstream.status;
+            res.end(
+              JSON.stringify({
+                error: "upstream gemini error",
+                status: upstream.status,
+              })
+            );
+            return;
+          }
           const buffer = Buffer.from(await upstream.arrayBuffer());
           res.statusCode = upstream.status;
           upstream.headers.forEach((value, key) => {

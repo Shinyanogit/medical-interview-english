@@ -63,6 +63,9 @@ const RealtimeCallLauncher: React.FC = () => {
     requestScoring,
     pendingAssistantText,
   } = useRealtimeCall();
+  const isCallActive =
+    status === "connecting" || status === "connected" || status === "ending";
+  const [caseDetailsOpen, setCaseDetailsOpen] = useState(false);
 
   // Wide-screen detection for split (right dock)
   const [isWide, setIsWide] = useState<boolean>(() => {
@@ -89,7 +92,7 @@ const RealtimeCallLauncher: React.FC = () => {
   );
   // Push main document to the left when dock is visible
   useEffect(() => {
-    const showDock = (open && isWide) || ((status === "connected" || status === "connecting" || status === "ending") && isWide);
+    const showDock = (open && isWide) || (isCallActive && isWide);
     if (!showDock) {
       document.body.style.marginRight = "";
       return;
@@ -100,7 +103,7 @@ const RealtimeCallLauncher: React.FC = () => {
     };
   }, [open, isWide, status, dockWidth]);
   // Show dock when panel is open in landscape, or during call/ending
-  const showDock = (open && isWide) || ((status === "connected" || status === "connecting" || status === "ending") && isWide);
+  const showDock = (open && isWide) || (isCallActive && isWide);
   useEffect(() => {
     if (typeof window === "undefined") return;
     const max = Math.max(320, Math.floor(window.innerWidth * 0.8));
@@ -228,6 +231,10 @@ const RealtimeCallLauncher: React.FC = () => {
     handleScenarioSelect(random.id);
   }, [availableScenarios, handleScenarioSelect]);
 
+  useEffect(() => {
+    setCaseDetailsOpen(false);
+  }, [scenarioId]);
+
   const [lastSeenFeedbackCount, setLastSeenFeedbackCount] = useState(0);
 
   useEffect(() => {
@@ -275,6 +282,22 @@ const RealtimeCallLauncher: React.FC = () => {
         <p className="call-hint">
           症候カテゴリから診たい症例を選択すると、患者提示と面接のポイントが表示されます。
         </p>
+        {!isCallActive && (
+          <div className="call-provider-options">
+            {PROVIDER_OPTIONS.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                className={`call-provider-button ${provider === option.id ? "is-active" : ""}`}
+                onClick={() => onProviderChange(option.id)}
+                aria-pressed={provider === option.id}
+              >
+                <span className="call-provider-label">{option.label}</span>
+                <span className="call-provider-description">{option.description}</span>
+              </button>
+            ))}
+          </div>
+        )}
         <div className="call-scenario-actions">
           <button
             type="button"
@@ -322,41 +345,51 @@ const RealtimeCallLauncher: React.FC = () => {
         </div>
         {activeScenario && caseDetails && (
           <div className="call-case-card">
-            <h4>症例提示 / Case Presentation</h4>
-            <ul className="call-case-list">
-              <li>
-                <strong>Patient:</strong>{" "}
-                {`${caseDetails.demographicsJa}${caseDetails.demographicsJa ? " / " : ""}${caseDetails.demographicsEn}`}
-              </li>
-              <li>
-                <strong>Chief complaint:</strong>{" "}
-                {`${caseDetails.chiefComplaintJa ?? ""}${
-                  caseDetails.chiefComplaintJa ? " / " : ""
-                }${caseDetails.chiefComplaintEn}`}
-              </li>
-              {caseDetails.vitalsJa || caseDetails.vitalsEn ? (
+            <button
+              type="button"
+              className={`call-case-toggle ${caseDetailsOpen ? "is-open" : ""}`}
+              onClick={() => setCaseDetailsOpen((prev) => !prev)}
+              aria-expanded={caseDetailsOpen}
+            >
+              <span>症例提示 / Case Presentation</span>
+              <span className="call-case-toggle-icon">{caseDetailsOpen ? "▲" : "▼"}</span>
+            </button>
+            <div className={`call-collapsible ${caseDetailsOpen ? "is-open" : ""}`}>
+              <ul className="call-case-list">
                 <li>
-                  <strong>Vitals:</strong>{" "}
-                  {`${caseDetails.vitalsJa ?? ""}${caseDetails.vitalsJa ? " / " : ""}${caseDetails.vitalsEn ?? ""}`}
+                  <strong>Patient:</strong>{" "}
+                  {`${caseDetails.demographicsJa}${caseDetails.demographicsJa ? " / " : ""}${caseDetails.demographicsEn}`}
                 </li>
-              ) : null}
-              {activeScenario.shortSummary ? (
                 <li>
-                  <strong>Summary:</strong> {activeScenario.shortSummary}
+                  <strong>Chief complaint:</strong>{" "}
+                  {`${caseDetails.chiefComplaintJa ?? ""}${
+                    caseDetails.chiefComplaintJa ? " / " : ""
+                  }${caseDetails.chiefComplaintEn}`}
                 </li>
-              ) : null}
-            </ul>
-            {caseDetails.notesEn && caseDetails.notesEn.length > 0 && (
-              <>
-                <p className="call-case-notes-label">Key exam / assessment hints</p>
-                <ul className="call-case-notes">
-                  {caseDetails.notesEn.map((note) => (
-                    <li key={note}>{note}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-            {sourceLabel && <p className="call-case-source">{sourceLabel}</p>}
+                {caseDetails.vitalsJa || caseDetails.vitalsEn ? (
+                  <li>
+                    <strong>Vitals:</strong>{" "}
+                    {`${caseDetails.vitalsJa ?? ""}${caseDetails.vitalsJa ? " / " : ""}${caseDetails.vitalsEn ?? ""}`}
+                  </li>
+                ) : null}
+                {activeScenario.shortSummary ? (
+                  <li>
+                    <strong>Summary:</strong> {activeScenario.shortSummary}
+                  </li>
+                ) : null}
+              </ul>
+              {caseDetails.notesEn && caseDetails.notesEn.length > 0 && (
+                <>
+                  <p className="call-case-notes-label">Key exam / assessment hints</p>
+                  <ul className="call-case-notes">
+                    {caseDetails.notesEn.map((note) => (
+                      <li key={note}>{note}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              {sourceLabel && <p className="call-case-source">{sourceLabel}</p>}
+            </div>
           </div>
         )}
       </div>
@@ -377,6 +410,98 @@ const RealtimeCallLauncher: React.FC = () => {
     if (p === "gemini") return "Gemini";
     return "Local";
   }, []);
+
+  const renderLivePanels = () => {
+    const hasTranscriptEntries =
+      transcriptEntries.length > 0 || Boolean(pendingAssistantText);
+    return (
+      <div className="call-live-panels">
+        <div className="call-section call-live-panel">
+          <h3>会話ログ</h3>
+          {hasTranscriptEntries ? (
+            <div className="call-scroll-block">
+              <ul className="call-transcript-list">
+                {transcriptEntries.map((entry) => (
+                  <li key={entry.id} className="call-transcript-item">
+                    <span className="call-transcript-meta">
+                      <span className={`call-transcript-role role-${entry.role}`}>
+                        {entry.role === "user"
+                          ? "医師"
+                          : entry.role === "assistant"
+                          ? "患者"
+                          : "システム"}
+                      </span>
+                      <time dateTime={new Date(entry.timestamp).toISOString()}>
+                        {formatTimestamp(entry.timestamp)}
+                      </time>
+                    </span>
+                    <p className="call-transcript-text">{entry.text}</p>
+                  </li>
+                ))}
+                {pendingAssistantText && (
+                  <li className="call-transcript-item">
+                    <span className="call-transcript-meta">
+                      <span className="call-transcript-role role-assistant">患者</span>
+                      <time>{formatTimestamp(Date.now())}</time>
+                    </span>
+                    <p className="call-transcript-text">{pendingAssistantText}</p>
+                  </li>
+                )}
+              </ul>
+            </div>
+          ) : (
+            <p className="call-hint">
+              医師と患者の発話がここに表示されます。接続後に音声で話しかけてください。
+            </p>
+          )}
+        </div>
+        <div className="call-section call-live-panel">
+          <h3>リアルタイムフィードバック</h3>
+          {feedbackEntries.length === 0 ? (
+            <p className="call-hint">
+              通話中の発話内容に対するフィードバックがここに表示されます。閉じている間も通話と記録は継続します。
+            </p>
+          ) : (
+            <div className="call-scroll-block">
+              <ul className="call-feedback-list">
+                {feedbackEntries.map((entry) => (
+                  <li key={entry.id} className="call-feedback-item">
+                    <div className="call-feedback-header">
+                      <span className="call-feedback-provider">
+                        {providerLabel(entry.provider)}
+                      </span>
+                      <time dateTime={new Date(entry.timestamp).toISOString()}>
+                        {formatTimestamp(entry.timestamp)}
+                      </time>
+                    </div>
+                    {entry.utterance && (
+                      <div className="call-feedback-source">
+                        <span className="call-feedback-source-label">
+                          対象の発話
+                          {entry.utteranceTimestamp
+                            ? `（${formatTimestamp(entry.utteranceTimestamp)}）`
+                            : ""}
+                        </span>
+                        <p className="call-feedback-source-text">
+                          「{entry.utterance}」
+                        </p>
+                      </div>
+                    )}
+                    <p className="call-feedback-text">{entry.text}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const hasTranscriptContent =
+    transcriptEntries.length > 0 || Boolean(pendingAssistantText);
+  const showLivePanels = isCallActive || hasTranscriptContent || feedbackEntries.length > 0;
+  const showScenarioPanel = !isCallActive;
 
   const handleLauncherClick = useCallback(() => {
     if (status === "connecting" || status === "connected" || status === "ending") {
@@ -499,80 +624,23 @@ const RealtimeCallLauncher: React.FC = () => {
 
             {/* プロバイダー・接続設定は設定画面に移動 */}
 
-            {renderScenarioChooser()}
+            {showScenarioPanel && renderScenarioChooser()}
 
             {/* 接続（APIキー）は設定画面に移動 */}
 
             {/* 患者の設定編集はこの画面では不可（シナリオは上で選択） */}
 
-            {(transcriptEntries.length > 0 || pendingAssistantText) && (
-              <div className="call-section">
-                <h3>会話ログ</h3>
-                <ul className="call-transcript-list">
-                  {transcriptEntries.map((entry) => (
-                    <li key={entry.id} className="call-transcript-item">
-                      <span className="call-transcript-meta">
-                        <span className={`call-transcript-role role-${entry.role}`}>
-                          {entry.role === "user"
-                            ? "医師"
-                            : entry.role === "assistant"
-                            ? "患者"
-                            : "システム"}
-                        </span>
-                        <time dateTime={new Date(entry.timestamp).toISOString()}>
-                          {formatTimestamp(entry.timestamp)}
-                        </time>
-                      </span>
-                      <p className="call-transcript-text">{entry.text}</p>
-                    </li>
-                  ))}
-                  {pendingAssistantText && (
-                    <li className="call-transcript-item">
-                      <span className="call-transcript-meta">
-                        <span className="call-transcript-role role-assistant">患者</span>
-                        <time>{formatTimestamp(Date.now())}</time>
-                      </span>
-                      <p className="call-transcript-text">{pendingAssistantText}</p>
-                    </li>
-                  )}
-                </ul>
-              </div>
+            {showLivePanels && (
+              <>
+                {renderLivePanels()}
+                <ScoringPanel
+                  transcriptEntries={transcriptEntries}
+                  feedbackEntries={feedbackEntries}
+                  scenarioTitle={activeScenario?.title}
+                  scoreResult={scoreResult}
+                />
+              </>
             )}
-
-            <div className="call-section">
-              <h3>リアルタイムフィードバック</h3>
-              {feedbackEntries.length === 0 ? (
-                <p className="call-hint">
-                  通話中の発話内容に対するフィードバックがここに表示されます。
-                  閉じている間も通話は継続されます。
-                </p>
-              ) : (
-                <ul className="call-feedback-list">
-                  {feedbackEntries.map((entry) => (
-                    <li key={entry.id} className="call-feedback-item">
-                      <div className="call-feedback-header">
-                        <span className="call-feedback-provider">
-                          {providerLabel(entry.provider)}
-                        </span>
-                        <time
-                          dateTime={new Date(entry.timestamp).toISOString()}
-                        >
-                          {formatTimestamp(entry.timestamp)}
-                        </time>
-                      </div>
-                      <p className="call-feedback-text">{entry.text}</p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <ScoringPanel
-              transcriptEntries={transcriptEntries}
-              feedbackEntries={feedbackEntries}
-              scenarioTitle={activeScenario?.title}
-              scoreResult={scoreResult}
-            />
 
             {error && <p className="call-error">{error}</p>}
 
@@ -621,63 +689,21 @@ const RealtimeCallLauncher: React.FC = () => {
               {/* プロバイダー・接続設定は設定画面に移動 */}
 
               {/* Scenario */}
-              {renderScenarioChooser()}
+              {showScenarioPanel && renderScenarioChooser()}
 
               {/* 接続設定は設定画面に移動 */}
 
-              {(transcriptEntries.length > 0 || pendingAssistantText) && (
-                <div className="call-section">
-                  <h3>会話ログ</h3>
-                  <ul className="call-transcript-list">
-                    {transcriptEntries.map((entry) => (
-                      <li key={entry.id} className="call-transcript-item">
-                        <span className="call-transcript-meta">
-                          <span className={`call-transcript-role role-${entry.role}`}>
-                            {entry.role === "user" ? "医師" : entry.role === "assistant" ? "患者" : "システム"}
-                          </span>
-                          <time dateTime={new Date(entry.timestamp).toISOString()}>{formatTimestamp(entry.timestamp)}</time>
-                        </span>
-                        <p className="call-transcript-text">{entry.text}</p>
-                      </li>
-                    ))}
-                    {pendingAssistantText && (
-                      <li className="call-transcript-item">
-                        <span className="call-transcript-meta">
-                          <span className="call-transcript-role role-assistant">患者</span>
-                          <time>{formatTimestamp(Date.now())}</time>
-                        </span>
-                        <p className="call-transcript-text">{pendingAssistantText}</p>
-                      </li>
-                    )}
-                  </ul>
-                </div>
+              {showLivePanels && (
+                <>
+                  {renderLivePanels()}
+                  <ScoringPanel
+                    transcriptEntries={transcriptEntries}
+                    feedbackEntries={feedbackEntries}
+                    scenarioTitle={activeScenario?.title}
+                    scoreResult={scoreResult}
+                  />
+                </>
               )}
-
-              <div className="call-section">
-                <h3>リアルタイムフィードバック</h3>
-                {feedbackEntries.length === 0 ? (
-                  <p className="call-hint">通話中の発話内容に対するフィードバックがここに表示されます。</p>
-                ) : (
-                  <ul className="call-feedback-list">
-                    {feedbackEntries.map((entry) => (
-                      <li key={entry.id} className="call-feedback-item">
-                        <div className="call-feedback-header">
-                          <span className="call-feedback-provider">{providerLabel(entry.provider)}</span>
-                          <time dateTime={new Date(entry.timestamp).toISOString()}>{formatTimestamp(entry.timestamp)}</time>
-                        </div>
-                        <p className="call-feedback-text">{entry.text}</p>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              <ScoringPanel
-                transcriptEntries={transcriptEntries}
-                feedbackEntries={feedbackEntries}
-                scenarioTitle={activeScenario?.title}
-                scoreResult={scoreResult}
-              />
 
               {/* 通話開始/終了は🎧ボタンに集約 */}
             </div>

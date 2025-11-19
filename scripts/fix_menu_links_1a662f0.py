@@ -18,7 +18,7 @@ def find_id_in_files(id_pattern: str) -> Optional[tuple]:
     match = re.match(r'B6([A-Z])(\d+)M\d+', id_pattern)
     if not match:
         return None
-    
+
     section_letter = match.group(1)
     # セクション文字をディレクトリ番号にマッピング
     section_map = {
@@ -27,16 +27,16 @@ def find_id_in_files(id_pattern: str) -> Optional[tuple]:
         'K': '11', 'L': '12', 'M': '13', 'N': '14', 'O': '15',
         'P': '16', 'Z': '26'
     }
-    
+
     section_dir_name = section_map.get(section_letter)
     if not section_dir_name:
         return None
-    
+
     # セクションディレクトリを特定
     section_dir = BASE_DIR / section_dir_name
     if not section_dir.exists():
         return None
-    
+
     # セクション内のすべてのHTMLファイルを検索
     for html_file in sorted(section_dir.glob("*.html")):
         try:
@@ -50,7 +50,7 @@ def find_id_in_files(id_pattern: str) -> Optional[tuple]:
         except Exception as e:
             print(f"Error reading {html_file}: {e}")
             continue
-    
+
     return None
 
 def fix_menu_file(menu_file: Path):
@@ -59,10 +59,10 @@ def fix_menu_file(menu_file: Path):
     """
     with open(menu_file, 'r', encoding='utf-8') as f:
         content = f.read()
-    
+
     # 外部URLのパターンを検索（nmrefとbmrefの両方に対応）
     pattern = r'href="http://medilink-study\.com/medilink_app/(?:nmref|bmref)\?id=([^"]+)"'
-    
+
     def replace_link(match):
         id_value = match.group(1)
         result = find_id_in_files(id_value)
@@ -73,9 +73,9 @@ def fix_menu_file(menu_file: Path):
             # 見つからない場合は元のリンクを保持
             print(f"Warning: Could not find file for ID {id_value}")
             return match.group(0)
-    
+
     new_content = re.sub(pattern, replace_link, content)
-    
+
     if new_content != content:
         with open(menu_file, 'w', encoding='utf-8') as f:
             f.write(new_content)
@@ -91,15 +91,14 @@ def main():
     if not menu_dir.exists():
         print(f"Menu directory not found: {menu_dir}")
         return
-    
+
     menu_files = list(menu_dir.glob("*.html"))
     print(f"Found {len(menu_files)} menu files")
-    
+
     for menu_file in menu_files:
         fix_menu_file(menu_file)
-    
+
     print("Done!")
 
 if __name__ == '__main__':
     main()
-

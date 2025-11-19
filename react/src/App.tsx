@@ -7,6 +7,7 @@ import RealtimeCallLauncher from "./components/RealtimeCallLauncher";
 import Section from "./components/Section";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import ExternalHtmlPage from "./pages/ExternalHtmlPage";
+import SimpleRealtimeDebugger from "./components/SimpleRealtimeDebugger";
 
 const Home: React.FC = () => {
   const { layout } = useLayout();
@@ -379,6 +380,13 @@ const DebugPage: React.FC = () => {
             <p>h4 セクションも同様に制御できます。</p>
           </Section>
         </Section>
+      </Section>
+      <Section title="Realtime API デバッグ" level={2} defaultCollapsed>
+        <p>
+          Realtime API の最小構成テスターです。APIキーをそのまま入力し、
+          接続ボタンで通話が確立できるかを確認できます。
+        </p>
+        <SimpleRealtimeDebugger />
       </Section>
     </div>
   );

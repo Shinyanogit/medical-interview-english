@@ -12,6 +12,9 @@ type FeedbackEntry = {
   provider: "openai" | "gemini" | "local";
   text: string;
   timestamp: number;
+  utterance?: string;
+  utteranceTimestamp?: number;
+  utteranceId?: string;
 };
 
 type Grade = "A" | "B" | "C" | "D" | "E";

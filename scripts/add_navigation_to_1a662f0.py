@@ -251,14 +251,14 @@ body:hover .nav-controls {
 
         // 初期レイアウトを設定
         adjustSpreadLayout();
-        
+
         // ウィンドウリサイズ時にレイアウトを調整し、自動見開きもチェック
         window.addEventListener('resize', function() {{
             adjustSpreadLayout();
             checkAutoSpreadMode();
         }});
     }}
-    
+
     // ナビゲーションコントロールを追加
     const navControls = document.createElement('div');
     navControls.className = 'nav-controls';
@@ -295,10 +295,10 @@ body:hover .nav-controls {
     navControls.appendChild(spreadBtn);
     navControls.appendChild(nextBtn);
     document.body.appendChild(navControls);
-    
+
     // navControlsをグローバル変数として保持
     window.navControls = navControls;
-    
+
     // 前へボタンの動作を上書き
     prevBtn.addEventListener('click', function(e) {{
         if (spreadContainer && spreadContainer.classList.contains('active')) {{
@@ -316,7 +316,7 @@ body:hover .nav-controls {
             }}
         }}
     }});
-    
+
     // 次へボタンの動作を上書き
     nextBtn.addEventListener('click', function(e) {{
         if (spreadContainer && spreadContainer.classList.contains('active')) {{
@@ -334,14 +334,14 @@ body:hover .nav-controls {
             }}
         }}
     }});
-    
+
     // キーボードショートカット
     document.addEventListener('keydown', function(e) {{
         // 入力フィールドにフォーカスがある場合は無視
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {{
             return;
         }}
-        
+
         if (spreadContainer && spreadContainer.classList.contains('active')) {{
             // 見開きモード時は2ページ分移動
             if (e.key === 'ArrowLeft' && currentIndex >= 2) {{
@@ -379,7 +379,7 @@ body:hover .nav-controls {
             }}
         }}
     }});
-    
+
     // ページロード時に横長の場合は自動で見開きモードを有効化
     function initAutoSpreadMode() {{
         // 少し遅延させて、レイアウトが確定してからチェック
@@ -387,16 +387,16 @@ body:hover .nav-controls {
             checkAutoSpreadMode();
         }}, 100);
     }}
-    
+
     window.addEventListener('load', initAutoSpreadMode);
-    
+
     // DOMContentLoadedでもチェック（より早く実行）
     if (document.readyState === 'loading') {{
         document.addEventListener('DOMContentLoaded', initAutoSpreadMode);
     }} else {{
         initAutoSpreadMode();
     }}
-    
+
     // リサイズ時にも自動見開きをチェック
     let resizeTimeout;
     window.addEventListener('resize', function() {{
@@ -414,20 +414,25 @@ body:hover .nav-controls {
 
         if (!leftPane || !rightPane) return;
 
-        // 現在のページのファイル名を取得
+        // 現在のページのファイル名を取得（アンカー部分を除去）
         const currentUrl = window.location.href || window.location.pathname;
-        const currentFileName = currentUrl.split('/').pop();
-        
+        let currentFileName = currentUrl.split('/').pop();
+        // アンカー部分（#以降）を除去
+        if (currentFileName.includes('#')) {{
+            currentFileName = currentFileName.split('#')[0];
+        }}
+
         // 現在のファイルがallFilePathsのどのインデックスにあるかを特定
         let currentPathInList = null;
         for (let i = 0; i < allFilePaths.length; i++) {{
             const pathParts = allFilePaths[i].split('/');
-            if (pathParts[pathParts.length - 1] === currentFileName) {{
+            const fileName = pathParts[pathParts.length - 1];
+            if (fileName === currentFileName) {{
                 currentPathInList = allFilePaths[i];
                 break;
             }}
         }}
-        
+
         // 現在のページのディレクトリパスを取得（BASE_DIRからの相対パス）
         if (!currentPathInList) {{
             // 見つからない場合は、currentIndexから推測
@@ -437,39 +442,82 @@ body:hover .nav-controls {
                 return; // エラー
             }}
         }}
-        
+
+        // 現在のページの実際のディレクトリパスを取得
+        const currentPageUrl = window.location.href || window.location.pathname;
+        let currentPagePath = currentPageUrl;
+        // file://プロトコルの場合
+        if (currentPagePath.startsWith('file://')) {{
+            currentPagePath = currentPagePath.replace('file://', '');
+        }}
+        // アンカー部分を除去
+        if (currentPagePath.includes('#')) {{
+            currentPagePath = currentPagePath.split('#')[0];
+        }}
+        // ディレクトリパスを取得（最後の/以降を除去）
+        const lastSlashIndex = currentPagePath.lastIndexOf('/');
+        const currentActualDir = lastSlashIndex >= 0 ? currentPagePath.substring(0, lastSlashIndex + 1) : '';
+
         const currentDirParts = currentPathInList.split('/').slice(0, -1); // ファイル名を除く
-        
+
         // 相対パスを計算する関数
         const getRelativePath = function(targetPath) {{
             const targetDirParts = targetPath.split('/').slice(0, -1); // ファイル名を除く
             const targetFileName = targetPath.split('/').pop();
-            
+
             // 共通部分を探す
             let commonLength = 0;
             const minLength = Math.min(currentDirParts.length, targetDirParts.length);
             while (commonLength < minLength && currentDirParts[commonLength] === targetDirParts[commonLength]) {{
                 commonLength++;
             }}
-            
+
             // 現在のディレクトリからターゲットへの相対パスを計算
             const upLevels = currentDirParts.length - commonLength;
             const relativeParts = [];
-            
+
             // 上に上がる必要がある場合
             if (upLevels > 0) {{
                 relativeParts.push(...Array(upLevels).fill('..'));
             }}
-            
+
             // ターゲットの残りのパスを追加
             if (targetDirParts.length > commonLength) {{
                 relativeParts.push(...targetDirParts.slice(commonLength));
             }}
-            
+
             // ファイル名を追加
             relativeParts.push(targetFileName);
-            
-            return relativeParts.join('/');
+
+            const relativePath = relativeParts.join('/');
+
+            // file://プロトコルの場合、完全なURLを構築
+            if (window.location.protocol === 'file:') {{
+                // 現在のディレクトリから見た絶対パスを構築
+                let basePath = currentActualDir;
+                if (!basePath) {{
+                    const pathname = window.location.pathname;
+                    basePath = pathname.substring(0, pathname.lastIndexOf('/') + 1);
+                }}
+                // file://プレフィックスを除去してパス部分のみを取得
+                if (basePath.startsWith('file://')) {{
+                    basePath = basePath.replace('file://', '');
+                }}
+                // 相対パスを解決
+                const pathParts = basePath.split('/').filter(p => p && p !== '');
+                const relativeParts2 = relativePath.split('/');
+                for (const part of relativeParts2) {{
+                    if (part === '..') {{
+                        if (pathParts.length > 0) pathParts.pop();
+                    }} else if (part !== '.' && part !== '') {{
+                        pathParts.push(part);
+                    }}
+                }}
+                // file://プロトコルの完全なURLを構築
+                return 'file:///' + pathParts.join('/');
+            }}
+
+            return relativePath;
         }};
 
         // 左ページ（現在のページ）
@@ -480,7 +528,14 @@ body:hover .nav-controls {
             const leftFile = allFilePaths[leftIndex];
             if (leftFile) {{
                 const leftPath = getRelativePath(leftFile);
-                leftPane.innerHTML = '<iframe src="' + leftPath + '"></iframe>';
+                // file://プロトコルでも動作するように、現在のディレクトリから相対パスを構築
+                const leftIframe = document.createElement('iframe');
+                leftIframe.src = leftPath;
+                leftIframe.style.width = '100%';
+                leftIframe.style.height = '100%';
+                leftIframe.style.border = 'none';
+                leftPane.innerHTML = '';
+                leftPane.appendChild(leftIframe);
             }}
         }}
 
@@ -488,7 +543,14 @@ body:hover .nav-controls {
             const rightFile = allFilePaths[rightIndex];
             if (rightFile) {{
                 const rightPath = getRelativePath(rightFile);
-                rightPane.innerHTML = '<iframe src="' + rightPath + '"></iframe>';
+                // file://プロトコルでも動作するように、現在のディレクトリから相対パスを構築
+                const rightIframe = document.createElement('iframe');
+                rightIframe.src = rightPath;
+                rightIframe.style.width = '100%';
+                rightIframe.style.height = '100%';
+                rightIframe.style.border = 'none';
+                rightPane.innerHTML = '';
+                rightPane.appendChild(rightIframe);
             }} else {{
                 rightPane.innerHTML = '';
             }}
@@ -496,13 +558,13 @@ body:hover .nav-controls {
             rightPane.innerHTML = '';
         }}
     }};
-    
+
     function adjustSpreadLayout() {{
         if (!spreadContainer) return;
-        
+
         // 画面の縦横比を計算
         const aspectRatio = window.innerWidth / window.innerHeight;
-        
+
         // 横長（アスペクト比 > 1.2）の場合は左右配置、縦長の場合は上下配置
         if (aspectRatio > 1.2) {{
             spreadContainer.style.flexDirection = 'row';
@@ -538,4 +600,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

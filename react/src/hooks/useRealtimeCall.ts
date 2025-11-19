@@ -10,7 +10,7 @@ export type RealtimeProvider = "openai" | "gemini";
 
 type CallStatus = "idle" | "connecting" | "connected" | "ending" | "error";
 
-type ApiKeys = Record<RealtimeProvider, string>;
+  type ApiKeys = Record<RealtimeProvider, string>;
 
 interface StartCallOptions {
   provider?: RealtimeProvider;
@@ -225,7 +225,12 @@ type FeedbackEntry = {
   provider: RealtimeProvider | "local";
   text: string;
   timestamp: number;
+  utterance?: string;
+  utteranceTimestamp?: number;
+  utteranceId?: string;
 };
+
+type ResponsePurpose = "feedback" | "score" | "transcript";
 
 type Grade = "A" | "B" | "C" | "D" | "E";
 
@@ -266,25 +271,187 @@ const gradeToNumeric = (grade: Grade): number => {
   }
 };
 
+const normalizeUtterance = (value: string) => {
+  try {
+    return value
+      .normalize("NFKC")
+      .toLowerCase()
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[^a-z0-9\s']/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  } catch {
+    return value.toLowerCase().replace(/[^a-z0-9\s']/g, " ").replace(/\s+/g, " ").trim();
+  }
+};
+
+const QUESTION_KEYWORDS =
+  /(what|when|where|why|how|could you|would you|can you|tell me|describe|share|explain|do you|have you|are you|is there|would you mind)/i;
+const POLITE_OPENERS = /(please|could you|would you|may i|would you mind|let me|can i)/i;
+const TARGET_KEYWORDS =
+  /(pain|symptom|problem|issue|concern|stomach|abdomen|diarrhea|vomiting|fever|medication|treatment|history|anything else|other|name|allergy|medicines?|full name|duration|severity)/i;
+const ACKNOWLEDGEMENT_PHRASES = [
+  "thanks",
+  "thank you",
+  "thank you so much",
+  "thank you very much",
+  "thanks a lot",
+  "thanks so much",
+  "see you",
+  "see you later",
+  "take care",
+  "goodbye",
+  "bye",
+  "got it",
+  "okay",
+  "ok",
+  "alright",
+  "sure",
+  "of course",
+  "understood",
+  "yeah",
+  "yep",
+  "yup",
+  "right",
+  "uh huh",
+  "uh-huh",
+  "mm hmm",
+  "mm-hmm",
+];
+const SUPPORTIVE_PARAPHRASES = [
+  "Thank you for letting me know; I appreciate the details.",
+  "I understand—let's work together to sort this out.",
+  "Please tell me if anything changes or gets worse.",
+];
+const QUESTION_PARAPHRASES = [
+  "Could you describe it in a little more detail?",
+  "Would you mind walking me through how it has changed over time?",
+  "Is there anything else about it that stands out to you?",
+];
+
 const buildLocalFeedback = (utterance: string) => {
   const text = utterance.trim();
+  const jpIssues: string[] = [];
+  const improvements: string[] = [];
   if (!text) {
-    return "Please try speaking clearly so I can provide feedback.";
+    return "指摘: 音声が認識できませんでした。もう一度はっきりお話しください。\n改善案: Could you repeat that sentence?\nパラフレーズ案: 1) Could you say that again? 2) I’m sorry, could you repeat that? 3) Would you mind rephrasing it?";
   }
-  const suggestions: string[] = [];
-  if (!/[?]/.test(text)) {
-    suggestions.push("Consider ending clinical questions with a rising tone or a question mark.");
+  const lower = text.toLowerCase();
+  const normalized = normalizeUtterance(text);
+  const wordCount = text.split(/\s+/).length;
+  const isQuestion = QUESTION_KEYWORDS.test(lower) || /\?$/.test(text.trim());
+  const hasPoliteLead = POLITE_OPENERS.test(lower);
+  const hasTargetKeyword = TARGET_KEYWORDS.test(lower);
+  const isAcknowledgement = ACKNOWLEDGEMENT_PHRASES.some(
+    (phrase) => normalized === phrase || normalized.startsWith(`${phrase} `)
+  );
+  const looksTruncated = /\b(the|a|an|that|those|these|and|or|but|to|with|for|about|on|at|in|of)$/i.test(lower);
+
+  if (isAcknowledgement && !isQuestion) {
+    return `指摘: 丁寧な挨拶・クロージングができています。\n改善案: Keep using courteous phrases such as "Thank you for your time today."\nパラフレーズ案: 1) ${SUPPORTIVE_PARAPHRASES[0]} 2) ${SUPPORTIVE_PARAPHRASES[1]} 3) ${SUPPORTIVE_PARAPHRASES[2]}`;
   }
-  if (!/(please|could you|would you|let me)/i.test(text)) {
-    suggestions.push("Polite lead-ins such as “Could you tell me…” improve bedside manner.");
+
+  if (isQuestion && !hasPoliteLead) {
+    jpIssues.push("丁寧な導入句が少ないため、柔らかい依頼表現を添えるとより自然です。");
+    improvements.push('Add a polite opener such as "Could you" or "Would you mind".');
   }
-  if (text.split(/\s+/).length > 18) {
-    suggestions.push("Try shorter questions; long sentences are harder for patients to follow.");
+  if (isQuestion && !hasTargetKeyword) {
+    jpIssues.push("質問の対象が曖昧なので、聞きたい症状や期間を明示すると伝わりやすくなります。");
+    improvements.push('Name the focus, e.g., "Could you describe the abdominal pain in a bit more detail?"');
   }
-  if (!suggestions.length) {
-    suggestions.push("Good clarity. Keep using short, polite prompts.");
+  if (wordCount > 24) {
+    jpIssues.push("一文が長めなので、2文に分けると聞き取りやすくなります。");
+    improvements.push("Split the question into two shorter clauses.");
   }
-  return suggestions.join(" ");
+  if (wordCount < 4 && isQuestion) {
+    jpIssues.push("質問が短すぎるため、背景を一語付け加えると丁寧です。");
+    improvements.push('Add one detail such as "about your stomach pain" for clarity.');
+  }
+  if (looksTruncated) {
+    jpIssues.push("文末が途中で終わっているように聞こえます。");
+    improvements.push('Follow through with the final noun, e.g., "...you\'d like to add?"');
+  }
+  if (/(gonna|wanna|kinda|sorta)/.test(lower)) {
+    jpIssues.push("カジュアルな口語が含まれるので、正式な形にするとより自然です。");
+    improvements.push('Use complete forms such as "going to" or "want to".');
+  }
+  if (!jpIssues.length) {
+    return `指摘: 文法上の大きな問題はありません。語尾を柔らかくするとなお自然です。\n改善案: Keep balancing greetings with direct questions such as "Could you tell me more about the pain?"\nパラフレーズ案: 1) ${QUESTION_PARAPHRASES[0]} 2) ${QUESTION_PARAPHRASES[1]} 3) ${QUESTION_PARAPHRASES[2]}`;
+  }
+  const improvementLine =
+    improvements.length > 0
+      ? `例: ${improvements[0]}${improvements.length > 1 ? " 他にも、" + improvements.slice(1).join(" ") : ""}`
+      : "Rephrase slightly to smooth out the sentence.";
+  const paraphrases = isQuestion ? QUESTION_PARAPHRASES : SUPPORTIVE_PARAPHRASES;
+  return `指摘: ${jpIssues.join(" / ")}\n改善案: ${improvementLine}\nパラフレーズ案: 1) ${paraphrases[0]} 2) ${paraphrases[1]} 3) ${paraphrases[2]}`;
+};
+
+const looksLikeAcknowledgementOnly = (normalized: string) => {
+  if (!normalized) return false;
+  return ACKNOWLEDGEMENT_PHRASES.some(
+    (phrase) =>
+      normalized === phrase ||
+      normalized.startsWith(`${phrase} `) ||
+      normalized.endsWith(` ${phrase}`)
+  );
+};
+
+const PATIENT_SYMPTOM_HINTS =
+  /(pain|stomach|abdomen|vomit|vomiting|diarrhea|nausea|fever|chills|rash|oyster|raw|ate|food|colleague|symptom|medication|bathroom|bowel|cramp|weak|tired|tough|better|worse|name|threw up|throwing up|vomited)/i;
+const PATIENT_OPENERS = [
+  /(i (was|have|had|felt|feel|got|ate|took|started|noticed|saw))/i,
+  /(i('?m| am)\s+(feeling|having|experiencing|dealing|struggling|suffering))/i,
+  /(my (pain|stomach|abdomen|appetite|friend|colleague|symptoms|name))/i,
+  /(it('s| is)?\s+(been|getting|hurting|feeling|tough|pretty))/i,
+  /(there (is|was) (some|a))/i,
+  /^(yeah|yes|sure|of course)[, ]+(it('s| is)|i('?m| am))/i,
+  /^my name is(?!.*doctor)/i,
+];
+
+const GREETING_PATTERNS =
+  /^(hi|hello|good (morning|afternoon|evening)|nice to (meet|see) you|pleased to meet you)/i;
+
+const looksLikePatientNarrative = (text: string, normalized: string) => {
+  if (!normalized) return false;
+  const lower = text.toLowerCase();
+  if (!PATIENT_SYMPTOM_HINTS.test(lower)) {
+    return false;
+  }
+  return PATIENT_OPENERS.some((pattern) => pattern.test(text));
+};
+
+const isEchoOfAssistant = (normalized: string, lastAssistant: string) => {
+  if (!normalized || !lastAssistant) return false;
+  if (normalized === lastAssistant) return true;
+  if (normalized.length > 8 && lastAssistant.length > 8) {
+    if (normalized.includes(lastAssistant) || lastAssistant.includes(normalized)) {
+      return true;
+    }
+  }
+  return false;
+};
+
+type FeedbackDecision = "skip" | "append-only" | "full";
+
+const classifyUtteranceForFeedback = (
+  text: string,
+  normalized: string,
+  lastAssistant: string
+): FeedbackDecision => {
+  if (!normalized) {
+    return "skip";
+  }
+  if (isEchoOfAssistant(normalized, lastAssistant)) {
+    return "skip";
+  }
+  if (looksLikePatientNarrative(text, normalized)) {
+    return "skip";
+  }
+  const wordCount = normalized.split(" ").length;
+  if (looksLikeAcknowledgementOnly(normalized) || GREETING_PATTERNS.test(text) || wordCount <= 2) {
+    return "append-only";
+  }
+  return "full";
 };
 
 const analyzeForScore = (
@@ -651,6 +818,13 @@ export default function useRealtimeCall() {
   const [awaitingFinalScore, setAwaitingFinalScore] = useState<boolean>(false);
   const [feedbackFallbackActive, setFeedbackFallbackActive] = useState(false);
   const [scoreFallbackActive, setScoreFallbackActive] = useState(false);
+  const speechRecognitionSupported =
+    typeof window !== "undefined" &&
+    Boolean(
+      (window as any).SpeechRecognition ||
+        (window as any).webkitSpeechRecognition
+    );
+  const speechRecognitionRef = useRef<any>(null);
 
 // Firebaseからの読み込み中かどうかを追跡（無限ループ防止）
   const isLoadingFromFirebaseRef = useRef(false);
@@ -705,18 +879,43 @@ export default function useRealtimeCall() {
     Map<string, { role?: TranscriptEntry["role"]; text: string }>
   >(new Map());
   const pendingResponseRef = useRef<
-    Map<string, { text: string; isFeedback: boolean; isScore?: boolean }>
+    Map<
+      string,
+      {
+        text: string;
+        isFeedback: boolean;
+        isScore?: boolean;
+        isTranscript?: boolean;
+      }
+    >
   >(new Map());
   const autoScoreOnHangupRef = useRef<boolean>(false);
   const endingFallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scoreInFlightRef = useRef<boolean>(false);
   const lastScoreAtRef = useRef<number>(0);
-  const responsePurposeQueueRef = useRef<Array<"feedback" | "score">>([]);
-  const responsePurposeMapRef = useRef<Map<string, "feedback" | "score">>(new Map());
+  const responseRequestQueueRef = useRef<
+    Array<{
+      purpose: ResponsePurpose;
+      utterance?: string;
+      utteranceTimestamp?: number;
+      utteranceId?: string;
+    }>
+  >([]);
+  const responsePurposeMapRef = useRef<Map<string, ResponsePurpose>>(new Map());
+  const responseMetadataMapRef = useRef<
+    Map<string, { utterance?: string; utteranceTimestamp?: number; utteranceId?: string }>
+  >(new Map());
   const localScoreTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const transcriptRef = useRef<TranscriptEntry[]>([]);
   const feedbackRef = useRef<FeedbackEntry[]>([]);
   const awaitingFinalScoreRef = useRef<boolean>(false);
+  const transcriptRequestPendingRef = useRef<boolean>(false);
+  const queuedTranscriptRequestRef = useRef<boolean>(false);
+  const assistantResponseActiveRef = useRef<boolean>(false);
+  const lastAssistantTextRef = useRef<{ raw: string; normalized: string }>({
+    raw: "",
+    normalized: "",
+  });
   // ユーザーデータが変更されたらAPIキーを更新（Firebaseから読み込み）
   useEffect(() => {
     if (currentUser && userData?.apiKeys) {
@@ -856,8 +1055,12 @@ useEffect(() => {
       setAwaitingFinalScore(false);
       setFeedbackFallbackActive(false);
       setScoreFallbackActive(false);
-      responsePurposeQueueRef.current = [];
+      responseRequestQueueRef.current = [];
       responsePurposeMapRef.current.clear();
+      responseMetadataMapRef.current.clear();
+      transcriptRequestPendingRef.current = false;
+      queuedTranscriptRequestRef.current = false;
+      assistantResponseActiveRef.current = false;
 
       setStatus(nextStatus);
     },
@@ -873,17 +1076,16 @@ useEffect(() => {
     }
     rtcLog("requestScoring");
 
-    const rubric = `You are an examiner scoring an English-language medical interview. Evaluate ONLY the ongoing conversation in this realtime session so far (use the current session state; do not request a transcript). Output EXACTLY one line starting with [SCORE] followed by a compact JSON object.\n\nThree categories (grade A–E each) and an overall A–E:\n1) content: Did the clinician ask the patient's full name; use at least one open question; check for anything else/missed; summarize and confirm; and show overall thoroughness across core domains (HPI/OPQRST, PMH, meds, allergies, SH, FH as relevant).\n2) attitude: Voice volume/speed/tone, active listening, facilitative backchannels, avoiding interruptions/over-acknowledgement, restating/paraphrasing, note-taking as needed, empathy.\n3) english: Grammar, pronunciation, natural collocations.\n\nRules:\n- Judge based only on clinician turns present in this session.\n- If evidence is insufficient, assign a cautious lower grade and explain briefly.\n- Output JSON with keys: content, attitude, english, overall, reasons (object), metrics (object). Grades must be one of [\"A\",\"B\",\"C\",\"D\",\"E\"]. No extra text.`;
+    const rubric = `You are an examiner scoring an English-language medical interview. Evaluate ONLY the ongoing conversation in this realtime session so far (use the current session state; do not request a transcript). Output EXACTLY one line starting with [SCORE] followed by a compact JSON object.\n\nThree categories (grade A–E each) and an overall A–E:\n1) content: Name確認、オープンクエスチョン1回以上、「他に困っていることは？」等のセーフティネット、要約と確認、そして状況に応じたOPQRST/PMH/薬/アレルギー/生活歴/家族歴の網羅性。\n2) attitude: 声量/スピード/トーン、共感や傾聴、区切り・段取り、過剰な割り込みを避ける姿勢、明瞭な案内。\n3) english: 文法、発音、自然なコロケーション。\n\nRules:\n- Judge based only on clinician turns present in this session.\n- Provide reasons.content / reasons.attitude / reasons.english / reasons.overall as short Japanese bullet-style strings (2件以上) that describe strengths and具体的改善策. Mention key examples.\n- Provide metrics such as openQuestions, safetyNetUsed, summaryGiven, empathyMoments, fillerWords, translationRequests.\n- Output JSON with keys: content, attitude, english, overall, reasons, metrics. Grades must be one of [\"A\",\"B\",\"C\",\"D\",\"E\"]. No extra text.`;
 
     try {
       scoreInFlightRef.current = true;
       if (providerRef.current === "openai") {
-        responsePurposeQueueRef.current.push("score");
+        responseRequestQueueRef.current.push({ purpose: "score" });
         channel.send(
           JSON.stringify({
             type: "response.create",
             response: {
-              conversation: "scoring",
               modalities: ["text"],
               instructions: rubric + "\nRespond only with one line: [SCORE] {json}",
             },
@@ -902,6 +1104,61 @@ useEffect(() => {
       scoreInFlightRef.current = false;
     }
   }, []);
+
+  const requestTranscript = useCallback(() => {
+    if (transcriptRequestPendingRef.current) {
+      rtcLog("requestTranscript skipped - pending request in flight");
+      return;
+    }
+    const channel = dataChannelRef.current;
+    if (!channel || channel.readyState !== "open") {
+      rtcLog("requestTranscript skipped - data channel unavailable");
+      return;
+    }
+    const instructions = `Transcribe exactly what the clinician (human user) just said. Respond immediately with "[TRANSCRIPT] " followed by the verbatim English text only. Do not add commentary or translations.`;
+    transcriptRequestPendingRef.current = true;
+    rtcLog("requestTranscript dispatch", { provider: providerRef.current });
+    try {
+      if (providerRef.current === "openai") {
+        responseRequestQueueRef.current.push({ purpose: "transcript" });
+        channel.send(
+          JSON.stringify({
+            type: "response.create",
+            response: {
+              modalities: ["text"],
+              instructions,
+            },
+          })
+        );
+      } else {
+        channel.send(
+          JSON.stringify({
+            type: "input_text",
+            text: `[TRANSCRIPT_REQUEST] ${instructions}`,
+          })
+        );
+      }
+    } catch (error) {
+      transcriptRequestPendingRef.current = false;
+      rtcLog("requestTranscript failed", error);
+      console.warn("Failed to request transcript:", error);
+    }
+  }, []);
+
+  const scheduleTranscriptRequest = useCallback(() => {
+    if (transcriptRequestPendingRef.current) {
+      rtcLog("scheduleTranscriptRequest skipped - already pending");
+      return;
+    }
+    if (assistantResponseActiveRef.current) {
+      queuedTranscriptRequestRef.current = true;
+      rtcLog(
+        "scheduleTranscriptRequest queued until assistant response finishes"
+      );
+      return;
+    }
+    requestTranscript();
+  }, [requestTranscript]);
 
   const stopCall = useCallback(() => {
     rtcLog("stopCall invoked");
@@ -951,18 +1208,29 @@ useEffect(() => {
   }, []);
 
   const requestFeedback = useCallback(
-    (utterance: string) => {
+    (utterance: string, meta?: { utteranceId?: string; timestamp?: number }) => {
       const channel = dataChannelRef.current;
       if (!channel || channel.readyState !== "open") return;
       const trimmed = utterance.trim();
       if (!trimmed) return;
       rtcLog("requestFeedback", trimmed);
-
-      const instructions = `The learner just said: """${trimmed}""". Provide concise, constructive grammar and expression feedback in Japanese. Focus on one or two key corrections, and include a suggested improved sentence. Respond only as plain text, start your message with "[FEEDBACK]" and do not output audio.`;
+      const utteranceTimestamp = meta?.timestamp ?? Date.now();
+      const requestMetadata = {
+        purpose: "feedback",
+        utterance: trimmed,
+        utteranceTimestamp,
+        utteranceId: meta?.utteranceId,
+      } as const;
+      const instructions = `The clinician just said: """${trimmed}""". Provide feedback in Japanese with the following structure:\n\n1. 「指摘」: Brief Japanese explanation of any grammatical or phrasing problems or unnatural phrasing. If there is no error, state that explicitly.\n2. 「改善案」: Provide one improved English sentence that would sound natural.\n3. 「パラフレーズ案」: Provide three concise English paraphrases, numbered 1)–3), that express the same intent politely.\n\nKeep the overall response short. Return plain text that begins with "[FEEDBACK]" and never include audio.`;
 
       try {
         if (providerRef.current === "openai") {
-          responsePurposeQueueRef.current.push("feedback");
+          responseRequestQueueRef.current.push({
+            purpose: "feedback",
+            utterance: trimmed,
+            utteranceTimestamp,
+            utteranceId: meta?.utteranceId,
+          });
           channel.send(
             JSON.stringify({
               type: "response.create",
@@ -970,10 +1238,17 @@ useEffect(() => {
                 conversation: "feedback",
                 modalities: ["text"],
                 instructions,
+                metadata: requestMetadata,
               },
             })
           );
         } else {
+          responseRequestQueueRef.current.push({
+            purpose: "feedback",
+            utterance: trimmed,
+            utteranceTimestamp,
+            utteranceId: meta?.utteranceId,
+          });
           channel.send(
             JSON.stringify({
               type: "input_text",
@@ -990,6 +1265,9 @@ useEffect(() => {
           provider: "local",
           text: `[Fallback] ${buildLocalFeedback(trimmed)}`,
           timestamp: Date.now(),
+          utterance: trimmed,
+          utteranceTimestamp,
+          utteranceId: meta?.utteranceId,
         };
         const next = [...prev, entry];
         return next.slice(-50);
@@ -1001,12 +1279,21 @@ useEffect(() => {
 
   // (removed duplicate definition)
 
-  const appendTranscript = useCallback((entry: TranscriptEntry) => {
-    setTranscriptEntries((prev) => {
-      const next = [...prev, entry];
-      return next.slice(-50);
-    });
-  }, []);
+  const appendTranscript = useCallback(
+    (entry: TranscriptEntry) => {
+      setTranscriptEntries((prev) => {
+        const next = [...prev, entry];
+        return next.slice(-50);
+      });
+      if (entry.role === "assistant") {
+        lastAssistantTextRef.current = {
+          raw: entry.text,
+          normalized: normalizeUtterance(entry.text),
+        };
+      }
+    },
+    []
+  );
 
   const appendFeedback = useCallback((entry: FeedbackEntry) => {
     setFeedbackEntries((prev) => {
@@ -1014,6 +1301,122 @@ useEffect(() => {
       return next.slice(-50);
     });
   }, []);
+
+  const handleClinicianTranscript = useCallback(
+    (text: string, source: "remote" | "local" = "remote") => {
+      const trimmed = text.trim();
+      if (!trimmed) {
+        return;
+      }
+      const normalized = normalizeUtterance(trimmed);
+      const decision = classifyUtteranceForFeedback(
+        trimmed,
+        normalized,
+        lastAssistantTextRef.current.normalized
+      );
+      if (decision === "skip") {
+        rtcLog("clinician transcript skipped (likely patient/echo)", {
+          text: trimmed,
+          source,
+        });
+        return;
+      }
+      const entryTimestamp = Date.now();
+      const entryId = `${source}-clinician-${entryTimestamp}`;
+      appendTranscript({
+        id: entryId,
+        role: "user",
+        text: trimmed,
+        timestamp: entryTimestamp,
+      });
+      if (decision === "full") {
+        requestFeedback(trimmed, { utteranceId: entryId, timestamp: entryTimestamp });
+      }
+      const now = Date.now();
+      if (!scoreInFlightRef.current && now - lastScoreAtRef.current > 8000) {
+        try {
+          requestScoring();
+        } catch (scoreError) {
+          console.warn("requestScoring failed:", scoreError);
+        }
+      }
+    },
+    [appendTranscript, requestFeedback, requestScoring]
+  );
+
+  const startLocalRecognition = useCallback(() => {
+    if (!speechRecognitionSupported || speechRecognitionRef.current) {
+      return;
+    }
+    if (typeof window === "undefined") return;
+    const SpeechRecognitionCtor =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognitionCtor) {
+      return;
+    }
+    try {
+      const recognition: any = new SpeechRecognitionCtor();
+      recognition.lang = "en-US";
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.onresult = (event: any) => {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const result = event.results[i];
+          if (result.isFinal && result[0]) {
+            handleClinicianTranscript(result[0].transcript || "", "local");
+          }
+        }
+      };
+      recognition.onerror = (event: any) => {
+        console.warn("Speech recognition error:", event.error);
+      };
+      recognition.onend = () => {
+        if (
+          speechRecognitionRef.current === recognition &&
+          status === "connected"
+        ) {
+          try {
+            recognition.start();
+          } catch (restartError) {
+            console.warn("Speech recognition restart error:", restartError);
+          }
+        }
+      };
+      recognition.start();
+      speechRecognitionRef.current = recognition;
+    } catch (error) {
+      console.warn("Speech recognition init failed:", error);
+    }
+  }, [handleClinicianTranscript, speechRecognitionSupported, status]);
+
+  const stopLocalRecognition = useCallback(() => {
+    const recognition = speechRecognitionRef.current;
+    if (!recognition) return;
+    recognition.onresult = null;
+    recognition.onerror = null;
+    recognition.onend = null;
+    try {
+      recognition.stop();
+    } catch (error) {
+      console.warn("Speech recognition stop error:", error);
+    }
+    speechRecognitionRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    if (!speechRecognitionSupported) {
+      return;
+    }
+    if (status === "connected") {
+      startLocalRecognition();
+    } else {
+      stopLocalRecognition();
+    }
+    return () => {
+      stopLocalRecognition();
+    };
+  }, [speechRecognitionSupported, startLocalRecognition, stopLocalRecognition, status]);
 
   const handleDataMessage = useCallback(
     (event: MessageEvent, supportsFeedback?: boolean) => {
@@ -1088,7 +1491,234 @@ useEffect(() => {
         return;
       }
 
-      switch (parsed.type) {
+      const applyResponseTextDelta = (
+        responseId: string | null,
+        deltaValue?: string,
+        responsePayload?: any
+      ) => {
+        if (!responseId || typeof deltaValue !== "string") {
+          return;
+        }
+        const entry =
+          pendingResponseRef.current.get(responseId) || {
+            text: "",
+            isFeedback: false,
+            isScore: false,
+            isTranscript: false,
+          };
+        entry.text += deltaValue;
+        const trimmed = entry.text.trim();
+        rtcLog("response delta captured", {
+          responseId,
+          chars: deltaValue.length,
+          totalChars: entry.text.length,
+        });
+        const appliedPurpose =
+          responseId && responsePurposeMapRef.current.get(responseId);
+        const systemPurpose =
+          appliedPurpose ||
+          responsePayload?.metadata?.purpose ||
+          responsePayload?.conversation;
+        if (!entry.isFeedback && trimmed.startsWith("[FEEDBACK]")) {
+          entry.isFeedback = true;
+        }
+        if (!entry.isScore && trimmed.startsWith("[SCORE]")) {
+          entry.isScore = true;
+        }
+        if (!entry.isTranscript && trimmed.startsWith("[TRANSCRIPT]")) {
+          entry.isTranscript = true;
+        }
+        const metaPurpose = responsePayload?.metadata?.purpose as string | undefined;
+        const responseConversation = responsePayload?.conversation as string | undefined;
+        const mappedPurpose = responseId
+          ? responsePurposeMapRef.current.get(responseId)
+          : undefined;
+        if (
+          metaPurpose === "feedback" ||
+          responseConversation === "feedback" ||
+          mappedPurpose === "feedback"
+        ) {
+          entry.isFeedback = true;
+        }
+        if (
+          metaPurpose === "score" ||
+          metaPurpose === "scoring" ||
+          responseConversation === "scoring" ||
+          mappedPurpose === "score"
+        ) {
+          entry.isScore = true;
+        }
+        if (
+          mappedPurpose === "transcript" ||
+          metaPurpose === "transcript" ||
+          responseConversation === "transcript"
+        ) {
+          entry.isTranscript = true;
+        }
+        if (!systemPurpose && !entry.isFeedback && !entry.isScore && !entry.isTranscript) {
+          assistantResponseActiveRef.current = true;
+        }
+        if (!entry.isFeedback && !entry.isScore && !entry.isTranscript) {
+          setPendingAssistantText(entry.text);
+        }
+        pendingResponseRef.current.set(responseId, entry);
+      };
+
+      const finalizePendingResponse = (
+        responseId?: string | null,
+        responsePayload?: any
+      ) => {
+        if (!responseId) return;
+        const entry = pendingResponseRef.current.get(responseId);
+        if (!entry) return;
+        const text = entry.text.trim();
+        const mappedPurpose = responsePurposeMapRef.current.get(responseId);
+        const effectivePurpose =
+          mappedPurpose ||
+          (entry.isFeedback
+            ? "feedback"
+            : entry.isScore
+            ? "score"
+            : entry.isTranscript
+            ? "transcript"
+            : text.startsWith("[FEEDBACK]")
+            ? "feedback"
+            : text.startsWith("[SCORE]")
+            ? "score"
+            : text.startsWith("[TRANSCRIPT]")
+            ? "transcript"
+            : undefined);
+
+        const storedMeta = responseMetadataMapRef.current.get(responseId);
+        const payloadMeta =
+          responsePayload && typeof responsePayload.metadata === "object"
+            ? (responsePayload.metadata as Record<string, unknown>)
+            : null;
+        const utterance =
+          (typeof payloadMeta?.utterance === "string"
+            ? payloadMeta.utterance
+            : undefined) ?? storedMeta?.utterance;
+        const utteranceTimestamp =
+          (typeof payloadMeta?.utteranceTimestamp === "number"
+            ? payloadMeta.utteranceTimestamp
+            : undefined) ?? storedMeta?.utteranceTimestamp;
+        const utteranceId =
+          (typeof payloadMeta?.utteranceId === "string"
+            ? payloadMeta.utteranceId
+            : undefined) ?? storedMeta?.utteranceId;
+
+        if (entry.isFeedback && text) {
+          const trimmedText = text.trim();
+          const isStructuredFeedback =
+            /^\[FEEDBACK\]/.test(trimmedText) || /指摘[:：]/.test(trimmedText);
+          if (!isStructuredFeedback) {
+            rtcLog("dropping response marked as feedback without markers", {
+              responseId,
+              text: trimmedText.slice(0, 140),
+            });
+            setFeedbackFallbackActive(true);
+            responseMetadataMapRef.current.delete(responseId);
+            pendingResponseRef.current.delete(responseId);
+            responsePurposeMapRef.current.delete(responseId);
+            setPendingAssistantText("");
+            return;
+          }
+          appendFeedback({
+            id: responseId,
+            provider: providerRef.current,
+            text: trimmedText.replace(/^\[FEEDBACK\]\s*/, "").trim(),
+            timestamp: Date.now(),
+            utterance,
+            utteranceTimestamp,
+            utteranceId,
+          });
+          setFeedbackFallbackActive(false);
+        } else if (entry.isScore && text) {
+          const payload = text.replace(/^\[SCORE\]\s*/, "").trim();
+          try {
+            const data = JSON.parse(payload);
+            const result: ScoreResult = {
+              content: data.content,
+              attitude: data.attitude,
+              english: data.english,
+              overall: data.overall,
+              reasons: data.reasons,
+              metrics: data.metrics,
+              timestamp: Date.now(),
+              raw: data,
+            };
+            setScoreResult(result);
+            scoreInFlightRef.current = false;
+            lastScoreAtRef.current = Date.now();
+            setEndedWithoutScore(false);
+            setAwaitingFinalScore(false);
+            setScoreFallbackActive(false);
+            rtcLog("score payload parsed (finalized)", {
+              grades: result,
+              raw: data,
+            });
+          } catch (e) {
+            console.warn("Failed to parse score JSON:", e);
+          }
+        } else if (effectivePurpose === "transcript" && text) {
+          transcriptRequestPendingRef.current = false;
+          const cleaned = text.replace(/^\[TRANSCRIPT\]\s*/i, "");
+          if (cleaned) {
+            handleClinicianTranscript(cleaned, "remote");
+          }
+        } else if (text) {
+          appendTranscript({
+            id: responseId,
+            role: "assistant",
+            text,
+            timestamp: Date.now(),
+          });
+        }
+
+        responseMetadataMapRef.current.delete(responseId);
+        pendingResponseRef.current.delete(responseId);
+        setPendingAssistantText("");
+        rtcLog("response finalized", {
+          responseId,
+          purpose: effectivePurpose,
+          length: text.length,
+          scorePending: scoreInFlightRef.current,
+        });
+        if (entry.isTranscript) {
+          transcriptRequestPendingRef.current = false;
+          if (
+            queuedTranscriptRequestRef.current &&
+            !assistantResponseActiveRef.current
+          ) {
+            queuedTranscriptRequestRef.current = false;
+            scheduleTranscriptRequest();
+          }
+        }
+        if (!effectivePurpose) {
+          assistantResponseActiveRef.current = false;
+          if (
+            queuedTranscriptRequestRef.current &&
+            !transcriptRequestPendingRef.current
+          ) {
+            queuedTranscriptRequestRef.current = false;
+            scheduleTranscriptRequest();
+          }
+        }
+        if (entry.isScore && autoScoreOnHangupRef.current) {
+          autoScoreOnHangupRef.current = false;
+          cleanup("idle");
+        }
+        responsePurposeMapRef.current.delete(responseId);
+      };
+
+      const type = parsed.type as string;
+
+      if (type === "input_audio_buffer.speech_stopped") {
+        scheduleTranscriptRequest();
+        return;
+      }
+
+      switch (type) {
         case "conversation.item.created": {
           const itemId = parsed.item?.id;
           if (typeof itemId === "string") {
@@ -1131,23 +1761,7 @@ useEffect(() => {
           if (typeof itemId === "string") {
             const item = conversationItemsRef.current.get(itemId);
             if (item?.role === "user" && item.text.trim()) {
-              const transcriptText = item.text.trim();
-              appendTranscript({
-                id: `${itemId}-transcript`,
-                role: "user",
-                text: transcriptText,
-                timestamp: Date.now(),
-              });
-              if (supportsFeedback) {
-                requestFeedback(transcriptText);
-              }
-              // Live scoring trigger (throttled)
-              const now = Date.now();
-              if (!scoreInFlightRef.current && now - lastScoreAtRef.current > 8000) {
-                try {
-                  requestScoring();
-                } catch {}
-              }
+              handleClinicianTranscript(item.text, "remote");
             }
           }
           break;
@@ -1160,45 +1774,74 @@ useEffect(() => {
               : typeof parsed.response?.id === "string"
               ? parsed.response.id
               : null;
-          const delta = parsed.delta;
-          const responseMeta = parsed.response?.metadata;
-          const responseConversation = parsed.response?.conversation as string | undefined;
-          const metaPurpose = responseMeta?.purpose as string | undefined;
-          const mappedPurpose = responseId ? responsePurposeMapRef.current.get(responseId) : undefined;
-          if (responseId && typeof delta === "string") {
-            const entry =
-              pendingResponseRef.current.get(responseId) || {
-                text: "",
-                isFeedback: false,
-                isScore: false,
-              };
-            entry.text += delta;
-            if (!entry.isFeedback && entry.text.trim().startsWith("[FEEDBACK]")) {
-              entry.isFeedback = true;
+          applyResponseTextDelta(responseId, parsed.delta, parsed.response);
+          break;
+        }
+        case "response.content_part.added":
+        case "response.content_part.delta": {
+          const responseId =
+            typeof parsed.response_id === "string"
+              ? parsed.response_id
+              : typeof parsed.response?.id === "string"
+              ? parsed.response.id
+              : null;
+          const part = parsed.content_part || parsed.part;
+          const text =
+            typeof part?.text === "string"
+              ? part.text
+              : typeof part?.content === "string"
+              ? part.content
+              : undefined;
+          applyResponseTextDelta(responseId, text, parsed.response);
+          break;
+        }
+        case "response.output_item.added": {
+          const responseId =
+            typeof parsed.response_id === "string"
+              ? parsed.response_id
+              : typeof parsed.response?.id === "string"
+              ? parsed.response.id
+              : null;
+          const item = parsed.item;
+          let text: string | undefined;
+          if (item?.content && Array.isArray(item.content)) {
+            for (const part of item.content) {
+              if (typeof part?.text === "string") {
+                text = (text || "") + part.text;
+              } else if (
+                part?.type === "output_text" &&
+                typeof part?.content === "string"
+              ) {
+                text = (text || "") + part.content;
+              }
             }
-            if (!entry.isScore && entry.text.trim().startsWith("[SCORE]")) {
-              entry.isScore = true;
-            }
-            if (
-              metaPurpose === "feedback" ||
-              responseConversation === "feedback" ||
-              mappedPurpose === "feedback"
-            ) {
-              entry.isFeedback = true;
-            }
-            if (
-              metaPurpose === "score" ||
-              metaPurpose === "scoring" ||
-              responseConversation === "scoring" ||
-              mappedPurpose === "score"
-            ) {
-              entry.isScore = true;
-            }
-            if (!entry.isFeedback && !entry.isScore) {
-              setPendingAssistantText(entry.text);
-            }
-            pendingResponseRef.current.set(responseId, entry);
           }
+          applyResponseTextDelta(responseId, text, parsed.response);
+          break;
+        }
+        case "response.audio_transcript.delta": {
+          const responseId =
+            typeof parsed.response_id === "string"
+              ? parsed.response_id
+              : typeof parsed.response?.id === "string"
+              ? parsed.response.id
+              : null;
+          const role =
+            parsed.audio_role ||
+            parsed.role ||
+            parsed.item?.role ||
+            parsed.response?.role;
+          if (role === "user" && typeof parsed.delta === "string") {
+            handleClinicianTranscript(parsed.delta, "remote");
+          } else {
+            applyResponseTextDelta(responseId, parsed.delta, parsed.response);
+          }
+          break;
+        }
+        case "response.audio_transcript.done":
+        case "response.audio.done":
+        case "response.audio_transcript.generated": {
+          // no-op; handled via delta/done combination
           break;
         }
         case "response.completed": {
@@ -1209,71 +1852,63 @@ useEffect(() => {
               : typeof parsed.response?.id === "string"
               ? parsed.response.id
               : null;
-          if (responseId) {
-            const entry = pendingResponseRef.current.get(responseId);
-            if (entry) {
-              const text = entry.text.trim();
-              if (entry.isFeedback && text) {
-                appendFeedback({
-                  id: responseId,
-                  provider: providerRef.current,
-                  text: text.replace(/^\[FEEDBACK\]\s*/, "").trim(),
-                  timestamp: Date.now(),
-                });
-                setFeedbackFallbackActive(false);
-              } else if (entry.isScore && text) {
-                const payload = text.replace(/^\[SCORE\]\s*/, "").trim();
-                try {
-                  const data = JSON.parse(payload);
-                  const result: ScoreResult = {
-                    content: data.content,
-                    attitude: data.attitude,
-                    english: data.english,
-                    overall: data.overall,
-                    reasons: data.reasons,
-                    metrics: data.metrics,
-                    timestamp: Date.now(),
-                    raw: data,
-                  };
-                  setScoreResult(result);
-                  scoreInFlightRef.current = false;
-                  lastScoreAtRef.current = Date.now();
-                  setEndedWithoutScore(false);
-                  setAwaitingFinalScore(false);
-                  setScoreFallbackActive(false);
-                  rtcLog("score payload parsed via response.completed", {
-                    grades: result,
-                    raw: data,
-                  });
-                } catch (e) {
-                  console.warn("Failed to parse score JSON:", e);
-                }
-              } else if (text) {
-                appendTranscript({
-                  id: responseId,
-                  role: "assistant",
-                  text,
-                  timestamp: Date.now(),
-                });
-              }
-              pendingResponseRef.current.delete(responseId);
-              setPendingAssistantText("");
-              if (entry.isScore && autoScoreOnHangupRef.current) {
-                autoScoreOnHangupRef.current = false;
-                cleanup("idle");
-              }
-            }
-            responsePurposeMapRef.current.delete(responseId);
-          }
+          finalizePendingResponse(responseId, parsed.response);
+          break;
+        }
+        case "response.output_item.done":
+        case "response.content_part.done": {
+          const responseId =
+            typeof parsed.response_id === "string"
+              ? parsed.response_id
+              : typeof parsed.response?.id === "string"
+              ? parsed.response.id
+              : null;
+          finalizePendingResponse(responseId, parsed.response);
+          break;
+        }
+        case "response.done": {
+          const responseId =
+            typeof parsed.response_id === "string"
+              ? parsed.response_id
+              : typeof parsed.response?.id === "string"
+              ? parsed.response.id
+              : parsed.response?.output?.[0]?.response_id ?? null;
+          finalizePendingResponse(responseId, parsed.response);
           break;
         }
         case "response.created": {
           const responseId = parsed.response?.id;
           if (typeof responseId === "string") {
-            const nextPurpose = responsePurposeQueueRef.current.shift();
-            if (nextPurpose) {
-              responsePurposeMapRef.current.set(responseId, nextPurpose);
+            const nextRequest = responseRequestQueueRef.current.shift();
+            if (nextRequest) {
+              responsePurposeMapRef.current.set(responseId, nextRequest.purpose);
+              if (
+                nextRequest.utterance ||
+                nextRequest.utteranceTimestamp ||
+                nextRequest.utteranceId
+              ) {
+                responseMetadataMapRef.current.set(responseId, {
+                  utterance: nextRequest.utterance,
+                  utteranceTimestamp: nextRequest.utteranceTimestamp,
+                  utteranceId: nextRequest.utteranceId,
+                });
+              }
             }
+          }
+          break;
+        }
+        case "error": {
+          const message =
+            parsed.error?.message ||
+            parsed.error?.code ||
+            "Realtime provider error";
+          console.error("Realtime session error:", parsed.error || parsed);
+          setError(message);
+          if (
+            parsed.error?.code === "conversation_already_has_active_response"
+          ) {
+            transcriptRequestPendingRef.current = false;
+            queuedTranscriptRequestRef.current = true;
           }
           break;
         }
@@ -1283,7 +1918,7 @@ useEffect(() => {
         }
       }
     },
-    [appendFeedback, appendTranscript, requestFeedback]
+    [appendFeedback, appendTranscript, requestFeedback, requestTranscript, scheduleTranscriptRequest, handleClinicianTranscript]
   );
 
   const startCall = useCallback(

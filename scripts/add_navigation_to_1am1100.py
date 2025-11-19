@@ -415,15 +415,20 @@ body:hover .nav-controls {
 
         if (!leftPane || !rightPane) return;
 
-        // 現在のページのファイル名を取得
+        // 現在のページのファイル名を取得（アンカー部分を除去）
         const currentUrl = window.location.href || window.location.pathname;
-        const currentFileName = currentUrl.split('/').pop();
+        let currentFileName = currentUrl.split('/').pop();
+        // アンカー部分（#以降）を除去
+        if (currentFileName.includes('#')) {{
+            currentFileName = currentFileName.split('#')[0];
+        }}
 
         // 現在のファイルがallFilePathsのどのインデックスにあるかを特定
         let currentPathInList = null;
         for (let i = 0; i < allFilePaths.length; i++) {{
             const pathParts = allFilePaths[i].split('/');
-            if (pathParts[pathParts.length - 1] === currentFileName) {{
+            const fileName = pathParts[pathParts.length - 1];
+            if (fileName === currentFileName) {{
                 currentPathInList = allFilePaths[i];
                 break;
             }}
@@ -438,6 +443,21 @@ body:hover .nav-controls {
                 return; // エラー
             }}
         }}
+
+        // 現在のページの実際のディレクトリパスを取得
+        const currentPageUrl = window.location.href || window.location.pathname;
+        let currentPagePath = currentPageUrl;
+        // file://プロトコルの場合
+        if (currentPagePath.startsWith('file://')) {{
+            currentPagePath = currentPagePath.replace('file://', '');
+        }}
+        // アンカー部分を除去
+        if (currentPagePath.includes('#')) {{
+            currentPagePath = currentPagePath.split('#')[0];
+        }}
+        // ディレクトリパスを取得（最後の/以降を除去）
+        const lastSlashIndex = currentPagePath.lastIndexOf('/');
+        const currentActualDir = lastSlashIndex >= 0 ? currentPagePath.substring(0, lastSlashIndex + 1) : '';
 
         const currentDirParts = currentPathInList.split('/').slice(0, -1); // ファイル名を除く
 
@@ -470,7 +490,35 @@ body:hover .nav-controls {
             // ファイル名を追加
             relativeParts.push(targetFileName);
 
-            return relativeParts.join('/');
+            const relativePath = relativeParts.join('/');
+
+            // file://プロトコルの場合、完全なURLを構築
+            if (window.location.protocol === 'file:') {{
+                // 現在のディレクトリから見た絶対パスを構築
+                let basePath = currentActualDir;
+                if (!basePath) {{
+                    const pathname = window.location.pathname;
+                    basePath = pathname.substring(0, pathname.lastIndexOf('/') + 1);
+                }}
+                // file://プレフィックスを除去してパス部分のみを取得
+                if (basePath.startsWith('file://')) {{
+                    basePath = basePath.replace('file://', '');
+                }}
+                // 相対パスを解決
+                const pathParts = basePath.split('/').filter(p => p && p !== '');
+                const relativeParts2 = relativePath.split('/');
+                for (const part of relativeParts2) {{
+                    if (part === '..') {{
+                        if (pathParts.length > 0) pathParts.pop();
+                    }} else if (part !== '.' && part !== '') {{
+                        pathParts.push(part);
+                    }}
+                }}
+                // file://プロトコルの完全なURLを構築
+                return 'file:///' + pathParts.join('/');
+            }}
+
+            return relativePath;
         }};
 
         // 左ページ（現在のページ）
@@ -481,7 +529,14 @@ body:hover .nav-controls {
             const leftFile = allFilePaths[leftIndex];
             if (leftFile) {{
                 const leftPath = getRelativePath(leftFile);
-                leftPane.innerHTML = '<iframe src="' + leftPath + '"></iframe>';
+                // file://プロトコルでも動作するように、現在のディレクトリから相対パスを構築
+                const leftIframe = document.createElement('iframe');
+                leftIframe.src = leftPath;
+                leftIframe.style.width = '100%';
+                leftIframe.style.height = '100%';
+                leftIframe.style.border = 'none';
+                leftPane.innerHTML = '';
+                leftPane.appendChild(leftIframe);
             }}
         }}
 
@@ -489,7 +544,14 @@ body:hover .nav-controls {
             const rightFile = allFilePaths[rightIndex];
             if (rightFile) {{
                 const rightPath = getRelativePath(rightFile);
-                rightPane.innerHTML = '<iframe src="' + rightPath + '"></iframe>';
+                // file://プロトコルでも動作するように、現在のディレクトリから相対パスを構築
+                const rightIframe = document.createElement('iframe');
+                rightIframe.src = rightPath;
+                rightIframe.style.width = '100%';
+                rightIframe.style.height = '100%';
+                rightIframe.style.border = 'none';
+                rightPane.innerHTML = '';
+                rightPane.appendChild(rightIframe);
             }} else {{
                 rightPane.innerHTML = '';
             }}
