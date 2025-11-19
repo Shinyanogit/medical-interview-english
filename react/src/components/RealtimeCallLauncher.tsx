@@ -4,6 +4,7 @@ import useRealtimeCall, {
 } from "../hooks/useRealtimeCall";
 import ScoringPanel from "./ScoringPanel";
 import ScoreDialog from "./ScoreDialog";
+import { symptomCategories } from "../data/patientScenarios";
 
 const PROVIDER_OPTIONS: Array<{
   id: RealtimeProvider;
@@ -213,13 +214,19 @@ const RealtimeCallLauncher: React.FC = () => {
     [provider, setApiKey, clearError]
   );
 
-  const handleScenarioChange = useCallback(
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleScenarioSelect = useCallback(
+    (nextScenarioId: string) => {
       clearError();
-      setScenarioId(event.target.value);
+      setScenarioId(nextScenarioId);
     },
     [clearError, setScenarioId]
   );
+  const handleRandomScenario = useCallback(() => {
+    if (!availableScenarios.length) return;
+    const random =
+      availableScenarios[Math.floor(Math.random() * availableScenarios.length)];
+    handleScenarioSelect(random.id);
+  }, [availableScenarios, handleScenarioSelect]);
 
   const [lastSeenFeedbackCount, setLastSeenFeedbackCount] = useState(0);
 
@@ -252,6 +259,109 @@ const RealtimeCallLauncher: React.FC = () => {
     const minutes = date.getMinutes().toString().padStart(2, "0");
     return `${hours}:${minutes}`;
   }, []);
+
+  const renderScenarioChooser = () => {
+    const caseDetails = activeScenario?.casePresentation;
+    const sourceLabel =
+      activeScenario?.source?.type === "pdf"
+        ? `ロールプレイ資料 ${activeScenario.source.reference ?? ""}`.trim()
+        : activeScenario?.source?.type === "custom"
+        ? "Custom scenario"
+        : undefined;
+
+    return (
+      <div className="call-section">
+        <h3>シナリオ</h3>
+        <p className="call-hint">
+          症候カテゴリから診たい症例を選択すると、患者提示と面接のポイントが表示されます。
+        </p>
+        <div className="call-scenario-actions">
+          <button
+            type="button"
+            className="call-random-button"
+            onClick={handleRandomScenario}
+          >
+            🎲 ランダム出題
+          </button>
+          <span className="call-scenario-count">
+            全{availableScenarios.length}症例
+          </span>
+        </div>
+        <div className="call-symptom-browser">
+          {symptomCategories.map((category) => (
+            <div key={category.id} className="call-symptom-category">
+              <div className="call-symptom-category-header">
+                <span className="call-symptom-category-roman">{category.roman}.</span>
+                <div>
+                  <div className="call-symptom-category-label-ja">{category.labelJa}</div>
+                  <div className="call-symptom-category-label-en">{category.labelEn}</div>
+                </div>
+              </div>
+              <div className="call-symptom-list">
+                {category.symptoms.map((symptom) => (
+                  <button
+                    key={symptom.scenarioId}
+                    type="button"
+                    className={`call-symptom-pill ${scenarioId === symptom.scenarioId ? "is-active" : ""}`}
+                    onClick={() => handleScenarioSelect(symptom.scenarioId)}
+                    aria-pressed={scenarioId === symptom.scenarioId}
+                  >
+                    <span className="call-symptom-pill-order">{symptom.order}.</span>
+                    <span className="call-symptom-pill-label">
+                      <span className="call-symptom-pill-label-ja">{symptom.labelJa}</span>
+                      <span className="call-symptom-pill-label-en">{symptom.labelEn}</span>
+                      {symptom.variant ? (
+                        <span className="call-symptom-pill-variant">({symptom.variant})</span>
+                      ) : null}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        {activeScenario && caseDetails && (
+          <div className="call-case-card">
+            <h4>症例提示 / Case Presentation</h4>
+            <ul className="call-case-list">
+              <li>
+                <strong>Patient:</strong>{" "}
+                {`${caseDetails.demographicsJa}${caseDetails.demographicsJa ? " / " : ""}${caseDetails.demographicsEn}`}
+              </li>
+              <li>
+                <strong>Chief complaint:</strong>{" "}
+                {`${caseDetails.chiefComplaintJa ?? ""}${
+                  caseDetails.chiefComplaintJa ? " / " : ""
+                }${caseDetails.chiefComplaintEn}`}
+              </li>
+              {caseDetails.vitalsJa || caseDetails.vitalsEn ? (
+                <li>
+                  <strong>Vitals:</strong>{" "}
+                  {`${caseDetails.vitalsJa ?? ""}${caseDetails.vitalsJa ? " / " : ""}${caseDetails.vitalsEn ?? ""}`}
+                </li>
+              ) : null}
+              {activeScenario.shortSummary ? (
+                <li>
+                  <strong>Summary:</strong> {activeScenario.shortSummary}
+                </li>
+              ) : null}
+            </ul>
+            {caseDetails.notesEn && caseDetails.notesEn.length > 0 && (
+              <>
+                <p className="call-case-notes-label">Key exam / assessment hints</p>
+                <ul className="call-case-notes">
+                  {caseDetails.notesEn.map((note) => (
+                    <li key={note}>{note}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {sourceLabel && <p className="call-case-source">{sourceLabel}</p>}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const lastAssistant = useMemo(() => {
     for (let i = transcriptEntries.length - 1; i >= 0; i--) {
@@ -389,51 +499,7 @@ const RealtimeCallLauncher: React.FC = () => {
 
             {/* プロバイダー・接続設定は設定画面に移動 */}
 
-            <div className="call-section">
-              <h3>シナリオ</h3>
-              <label className="call-field-label" htmlFor="call-scenario-select">
-                臨床ストーリー
-              </label>
-              <select
-                id="call-scenario-select"
-                className="call-field-input"
-                value={scenarioId}
-                onChange={handleScenarioChange}
-              >
-                {availableScenarios.map((scenario) => (
-                  <option key={scenario.id} value={scenario.id}>
-                    {scenario.title}
-                  </option>
-                ))}
-              </select>
-              {activeScenario && (
-                <div className="call-scenario-summary">
-                  <p className="call-scenario-title">
-                    {activeScenario.shortSummary}
-                  </p>
-                  <ul className="call-scenario-list">
-                    <li>
-                      <strong>Chief complaint:</strong>{" "}
-                      {activeScenario.chiefComplaint}
-                    </li>
-                    <li>
-                      <strong>Patient:</strong>{" "}
-                      {`${activeScenario.patient.age}歳 ${activeScenario.patient.gender === "female" ? "女性" : activeScenario.patient.gender === "male" ? "男性" : activeScenario.patient.gender}`}
-                      {activeScenario.patient.occupation
-                        ? ` / ${activeScenario.patient.occupation}`
-                        : ""}
-                    </li>
-                    <li>
-                      <strong>Opening line:</strong>{" "}
-                      {activeScenario.openingStatement}
-                    </li>
-                  </ul>
-                  <p className="call-hint">
-                    追加の医療設定は下のテキストエリアで編集できます。
-                  </p>
-                </div>
-              )}
-            </div>
+            {renderScenarioChooser()}
 
             {/* 接続（APIキー）は設定画面に移動 */}
 
@@ -555,15 +621,7 @@ const RealtimeCallLauncher: React.FC = () => {
               {/* プロバイダー・接続設定は設定画面に移動 */}
 
               {/* Scenario */}
-              <div className="call-section">
-                <h3>シナリオ</h3>
-                <label className="call-field-label" htmlFor="call-scenario-select-dock">臨床ストーリー</label>
-                <select id="call-scenario-select-dock" className="call-field-input" value={scenarioId} onChange={handleScenarioChange}>
-                  {availableScenarios.map((scenario) => (
-                    <option key={scenario.id} value={scenario.id}>{scenario.title}</option>
-                  ))}
-                </select>
-              </div>
+              {renderScenarioChooser()}
 
               {/* 接続設定は設定画面に移動 */}
 

@@ -17,6 +17,15 @@ interface StartCallOptions {
   scenarioId?: string;
 }
 
+type VoicePreferences = {
+  openai?: string;
+  gemini?: string;
+};
+
+interface ProviderSessionOptions {
+  voicePreferences?: VoicePreferences;
+}
+
 interface ProviderConfig {
   id: RealtimeProvider;
   label: string;
@@ -26,7 +35,11 @@ interface ProviderConfig {
     systemPrompt: string;
   }) => Promise<string>;
   dataChannelLabel?: string;
-  onDataChannelOpen?: (channel: RTCDataChannel, prompt: string) => void;
+  onDataChannelOpen?: (
+    channel: RTCDataChannel,
+    prompt: string,
+    options?: ProviderSessionOptions
+  ) => void;
   supportsFeedback?: boolean;
 }
 
@@ -43,6 +56,14 @@ You are role-playing as a standardized patient during an English-language medica
 `.trim();
 
 const DEFAULT_SCENARIO_ID = patientScenarios[0]?.id ?? "";
+
+const rtcLog = (...args: unknown[]) => {
+  try {
+    console.log("[RTC]", ...args);
+  } catch {
+    // noop
+  }
+};
 
 function buildScenarioPrompt(
   basePrompt: string,
@@ -105,6 +126,30 @@ function buildScenarioPrompt(
         .join("\n")}`
     );
   }
+  if (scenario.history.familyHistory?.length) {
+    historySections.push(
+      `Family History:\n${scenario.history.familyHistory
+        .map((line) => `- ${line}`)
+        .join("\n")}`
+    );
+  }
+
+  const casePresentationLines: string[] = [];
+  if (scenario.casePresentation) {
+    casePresentationLines.push(
+      "Case presentation context:",
+      `- Demographics: ${scenario.casePresentation.demographicsEn}`,
+      `- Chief complaint: ${scenario.casePresentation.chiefComplaintEn}`
+    );
+    if (scenario.casePresentation.vitalsEn) {
+      casePresentationLines.push(`- Vitals: ${scenario.casePresentation.vitalsEn}`);
+    }
+    if (scenario.casePresentation.notesEn?.length) {
+      scenario.casePresentation.notesEn.forEach((note) =>
+        casePresentationLines.push(`- ${note}`)
+      );
+    }
+  }
 
   return [
     basePrompt,
@@ -123,6 +168,8 @@ ${scenario.patient.occupation ? `- Occupation: ${scenario.patient.occupation}` :
     "Scenario-specific behaviour guidelines:",
     ...scenario.instructions.map((line) => `- ${line}`),
     "",
+    ...(casePresentationLines.length ? casePresentationLines : []),
+    casePresentationLines.length ? "" : undefined,
     ...historySections,
     "",
     "Information disclosure plan:",
@@ -364,6 +411,28 @@ function loadInitialKeys(firebaseKeys?: Record<string, string | undefined>): Api
   }
 }
 
+const isYoungerAdult = (age?: number) => (typeof age === "number" ? age < 50 : true);
+
+const getVoicePreferences = (scenario?: PatientScenario | null): VoicePreferences => {
+  const age = scenario?.patient.age;
+  const gender = scenario?.patient.gender;
+
+  if (gender === "male") {
+    return isYoungerAdult(age)
+      ? { openai: "alloy", gemini: "en-US-Chirp3-HD-Charon" }
+      : { openai: "ash", gemini: "en-US-Chirp3-HD-Charon" };
+  }
+  if (gender === "female") {
+    return isYoungerAdult(age)
+      ? { openai: "ballad", gemini: "en-US-Chirp3-HD-Leda" }
+      : { openai: "sage", gemini: "en-US-Chirp3-HD-Leda" };
+  }
+  if (gender === "non-binary") {
+    return { openai: isYoungerAdult(age) ? "ballad" : "sage", gemini: "en-US-Chirp3-HD-Leda" };
+  }
+  return { openai: "sage", gemini: "en-US-Chirp3-HD-Leda" };
+};
+
 const providerConfigs: Record<RealtimeProvider, ProviderConfig> = {
   openai: {
     id: "openai",
@@ -401,16 +470,23 @@ const providerConfigs: Record<RealtimeProvider, ProviderConfig> = {
       return answer;
     },
     dataChannelLabel: "oai-events",
-    onDataChannelOpen: (channel, prompt) => {
+    onDataChannelOpen: (channel, prompt, opts) => {
       const trimmed = prompt.trim();
-      if (!trimmed) return;
+      const sessionPayload: Record<string, unknown> = {};
+      if (trimmed) {
+        sessionPayload.instructions = trimmed;
+      }
+      if (opts?.voicePreferences?.openai) {
+        sessionPayload.voice = opts.voicePreferences.openai;
+      }
+      if (!Object.keys(sessionPayload).length) {
+        return;
+      }
       try {
         channel.send(
           JSON.stringify({
             type: "session.update",
-            session: {
-              instructions: trimmed,
-            },
+            session: sessionPayload,
           })
         );
       } catch (error) {
@@ -422,6 +498,9 @@ const providerConfigs: Record<RealtimeProvider, ProviderConfig> = {
               response: {
                 conversation: "default",
                 instructions: trimmed,
+                ...(opts?.voicePreferences?.openai
+                  ? { voice: opts.voicePreferences.openai }
+                  : {}),
               },
             })
           );
@@ -491,7 +570,29 @@ const providerConfigs: Record<RealtimeProvider, ProviderConfig> = {
       return answer;
     },
     dataChannelLabel: "client-events",
-    onDataChannelOpen: (channel, prompt) => {
+    onDataChannelOpen: (channel, prompt, opts) => {
+      const voiceName = opts?.voicePreferences?.gemini;
+      if (voiceName) {
+        try {
+          channel.send(
+            JSON.stringify({
+              type: "client_event",
+              clientEvent: {
+                eventType: "SET_VOICE",
+                speechConfig: {
+                  voiceConfig: {
+                    prebuiltVoiceConfig: {
+                      voiceName,
+                    },
+                  },
+                },
+              },
+            })
+          );
+        } catch (voiceError) {
+          console.warn("Failed to set Gemini voice preference:", voiceError);
+        }
+      }
       const trimmed = prompt.trim();
       if (!trimmed) return;
       try {
@@ -577,10 +678,12 @@ export default function useRealtimeCall() {
     if (localScoreTimeoutRef.current) {
       clearTimeout(localScoreTimeoutRef.current);
     }
+    rtcLog("scheduleLocalScoreFallback armed");
     localScoreTimeoutRef.current = setTimeout(() => {
       if (!awaitingFinalScoreRef.current) {
         return;
       }
+      rtcLog("scheduleLocalScoreFallback fired - using local transcript scoring");
       const fallback = generateLocalScoreResult(
         transcriptRef.current,
         feedbackRef.current.length
@@ -686,8 +789,25 @@ useEffect(() => {
 
   const cleanup = useCallback(
     (nextStatus: CallStatus = "idle") => {
+      rtcLog("cleanup invoked", { nextStatus });
+      if (endingFallbackTimerRef.current) {
+        clearTimeout(endingFallbackTimerRef.current);
+        endingFallbackTimerRef.current = null;
+      }
+      if (localScoreTimeoutRef.current) {
+        clearTimeout(localScoreTimeoutRef.current);
+        localScoreTimeoutRef.current = null;
+      }
+      autoScoreOnHangupRef.current = false;
+      scoreInFlightRef.current = false;
+      awaitingFinalScoreRef.current = false;
       const pc = pcRef.current;
       if (pc) {
+        rtcLog("closing peer connection", {
+          connectionState: pc.connectionState,
+          iceConnectionState: pc.iceConnectionState,
+          signalingState: pc.signalingState,
+        });
         try {
           pc.onconnectionstatechange = null;
           pc.onicecandidate = null;
@@ -700,6 +820,10 @@ useEffect(() => {
       pcRef.current = null;
 
       if (dataChannelRef.current) {
+        rtcLog("closing data channel", {
+          readyState: dataChannelRef.current.readyState,
+          label: dataChannelRef.current.label,
+        });
         try {
           const channel = dataChannelRef.current;
           channel.onopen = null;
@@ -734,10 +858,6 @@ useEffect(() => {
       setScoreFallbackActive(false);
       responsePurposeQueueRef.current = [];
       responsePurposeMapRef.current.clear();
-      if (localScoreTimeoutRef.current) {
-        clearTimeout(localScoreTimeoutRef.current);
-        localScoreTimeoutRef.current = null;
-      }
 
       setStatus(nextStatus);
     },
@@ -747,7 +867,11 @@ useEffect(() => {
   // Request AI scoring of the conversation so far (session-referenced)
   const requestScoring = useCallback(() => {
     const channel = dataChannelRef.current;
-    if (!channel || channel.readyState !== "open") return;
+    if (!channel || channel.readyState !== "open") {
+      rtcLog("requestScoring skipped - data channel unavailable");
+      return;
+    }
+    rtcLog("requestScoring");
 
     const rubric = `You are an examiner scoring an English-language medical interview. Evaluate ONLY the ongoing conversation in this realtime session so far (use the current session state; do not request a transcript). Output EXACTLY one line starting with [SCORE] followed by a compact JSON object.\n\nThree categories (grade A–E each) and an overall A–E:\n1) content: Did the clinician ask the patient's full name; use at least one open question; check for anything else/missed; summarize and confirm; and show overall thoroughness across core domains (HPI/OPQRST, PMH, meds, allergies, SH, FH as relevant).\n2) attitude: Voice volume/speed/tone, active listening, facilitative backchannels, avoiding interruptions/over-acknowledgement, restating/paraphrasing, note-taking as needed, empathy.\n3) english: Grammar, pronunciation, natural collocations.\n\nRules:\n- Judge based only on clinician turns present in this session.\n- If evidence is insufficient, assign a cautious lower grade and explain briefly.\n- Output JSON with keys: content, attitude, english, overall, reasons (object), metrics (object). Grades must be one of [\"A\",\"B\",\"C\",\"D\",\"E\"]. No extra text.`;
 
@@ -780,6 +904,7 @@ useEffect(() => {
   }, []);
 
   const stopCall = useCallback(() => {
+    rtcLog("stopCall invoked");
     setError(null);
     setStatus("ending");
     // Stop local audio tracks so audio ends, but keep the data channel for scoring
@@ -805,6 +930,7 @@ useEffect(() => {
         setEndedWithoutScore(true);
         setAwaitingFinalScore(false);
         setScoreFallbackActive(true);
+        rtcLog("ending fallback timer fired without remote score");
         cleanup("idle");
       }
     }, 6000);
@@ -830,6 +956,7 @@ useEffect(() => {
       if (!channel || channel.readyState !== "open") return;
       const trimmed = utterance.trim();
       if (!trimmed) return;
+      rtcLog("requestFeedback", trimmed);
 
       const instructions = `The learner just said: """${trimmed}""". Provide concise, constructive grammar and expression feedback in Japanese. Focus on one or two key corrections, and include a suggested improved sentence. Respond only as plain text, start your message with "[FEEDBACK]" and do not output audio.`;
 
@@ -916,6 +1043,7 @@ useEffect(() => {
       if (!parsed || typeof parsed !== "object" || !parsed.type) {
         const candidate = textPayload.trim();
         if (candidate.startsWith("[FEEDBACK]")) {
+          rtcLog("feedback payload (text only)", candidate);
           appendFeedback({
             id: `feedback-${Date.now()}`,
             provider: providerRef.current,
@@ -923,6 +1051,7 @@ useEffect(() => {
             timestamp: Date.now(),
           });
         } else if (candidate.startsWith("[SCORE]")) {
+          rtcLog("score payload (text only)", candidate);
           const jsonPart = candidate.replace(/^\[SCORE\]\s*/, "").trim();
           try {
             const data = JSON.parse(jsonPart);
@@ -939,6 +1068,7 @@ useEffect(() => {
             setScoreResult(result);
             scoreInFlightRef.current = false;
             lastScoreAtRef.current = Date.now();
+            rtcLog("score payload parsed", { grades: result, raw: data });
             if (endingFallbackTimerRef.current) {
               clearTimeout(endingFallbackTimerRef.current);
               endingFallbackTimerRef.current = null;
@@ -952,6 +1082,8 @@ useEffect(() => {
           } catch (e) {
             console.warn("Failed to parse score JSON:", e);
           }
+        } else {
+          rtcLog("unparsed text payload", candidate);
         }
         return;
       }
@@ -981,6 +1113,7 @@ useEffect(() => {
         case "conversation.item.input_audio_transcription.delta": {
           const itemId = parsed.item_id;
           const delta = parsed.delta;
+          rtcLog("transcription.delta", parsed);
           if (typeof itemId === "string" && typeof delta === "string") {
             const target =
               conversationItemsRef.current.get(itemId) || {
@@ -994,6 +1127,7 @@ useEffect(() => {
         }
         case "conversation.item.input_audio_transcription.completed": {
           const itemId = parsed.item_id;
+          rtcLog("transcription.completed", parsed);
           if (typeof itemId === "string") {
             const item = conversationItemsRef.current.get(itemId);
             if (item?.role === "user" && item.text.trim()) {
@@ -1019,6 +1153,7 @@ useEffect(() => {
           break;
         }
         case "response.output_text.delta": {
+          rtcLog("response.delta", parsed);
           const responseId =
             typeof parsed.response_id === "string"
               ? parsed.response_id
@@ -1067,6 +1202,7 @@ useEffect(() => {
           break;
         }
         case "response.completed": {
+          rtcLog("response.completed", parsed);
           const responseId =
             typeof parsed.response_id === "string"
               ? parsed.response_id
@@ -1105,6 +1241,10 @@ useEffect(() => {
                   setEndedWithoutScore(false);
                   setAwaitingFinalScore(false);
                   setScoreFallbackActive(false);
+                  rtcLog("score payload parsed via response.completed", {
+                    grades: result,
+                    raw: data,
+                  });
                 } catch (e) {
                   console.warn("Failed to parse score JSON:", e);
                 }
@@ -1137,8 +1277,10 @@ useEffect(() => {
           }
           break;
         }
-        default:
+        default: {
+          rtcLog("unhandled datachannel message", parsed);
           break;
+        }
       }
     },
     [appendFeedback, appendTranscript, requestFeedback]
@@ -1149,9 +1291,15 @@ useEffect(() => {
       provider: preferredProvider,
       scenarioId: requestedScenarioId,
     }: StartCallOptions = {}) => {
+      rtcLog("startCall invoked", {
+        preferredProvider,
+        requestedScenarioId,
+        currentProvider: provider,
+      });
       if (!navigator.mediaDevices?.getUserMedia) {
         setError("このブラウザではマイクへのアクセスがサポートされていません。");
         setStatus("error");
+        rtcLog("startCall aborted: getUserMedia not supported");
         return;
       }
 
@@ -1160,6 +1308,7 @@ useEffect(() => {
         if (foundScenario) {
           scenarioRef.current = foundScenario;
           setScenarioId(foundScenario.id);
+          rtcLog("scenario set for call", { scenarioId: foundScenario.id });
         }
       }
 
@@ -1168,6 +1317,7 @@ useEffect(() => {
       if (!config) {
         setError("対応していないプロバイダーが選択されています。");
         setStatus("error");
+        rtcLog("startCall aborted: provider config missing", { targetProvider });
         return;
       }
 
@@ -1175,11 +1325,13 @@ useEffect(() => {
       if (!apiKey) {
         setError("APIキーが設定されていません。設定後に再度お試しください。");
         setStatus("error");
+        rtcLog("startCall aborted: missing API key", { targetProvider });
         return;
       }
 
       if (pcRef.current) {
         console.warn("Call already active; ignoring duplicate start request.");
+        rtcLog("startCall ignored because pcRef already exists");
         return;
       }
 
@@ -1202,11 +1354,25 @@ useEffect(() => {
       }
 
       const pc = new RTCPeerConnection(ICE_SERVERS);
+      rtcLog("RTCPeerConnection created", { provider: targetProvider });
       pcRef.current = pc;
 
+      pc.addEventListener("signalingstatechange", () => {
+        rtcLog("signalingstatechange", pc.signalingState);
+      });
+      pc.addEventListener("iceconnectionstatechange", () => {
+        rtcLog("iceconnectionstatechange", pc.iceConnectionState);
+      });
+      pc.addEventListener("icegatheringstatechange", () => {
+        rtcLog("icegatheringstatechange", pc.iceGatheringState);
+      });
+      pc.addEventListener("icecandidateerror", (event) => {
+        rtcLog("icecandidateerror", event);
+      });
       pc.addEventListener("connectionstatechange", () => {
         if (!pcRef.current) return;
         const state = pcRef.current.connectionState;
+        rtcLog("connectionstatechange", state);
         if (state === "connected") {
           setStatus("connected");
         } else if (state === "failed") {
@@ -1220,11 +1386,13 @@ useEffect(() => {
       pc.addEventListener("track", (event) => {
         const [stream] = event.streams;
         if (stream) {
+          rtcLog("remote media track received");
           remoteStreamRef.current = stream;
           setRemoteStream(stream);
         }
       });
 
+      const voicePreferences = getVoicePreferences(scenarioRef.current);
       const promptForChannel = buildScenarioPrompt(
         systemPromptRef.current,
         scenarioRef.current
@@ -1233,6 +1401,10 @@ useEffect(() => {
       pc.addEventListener("datachannel", (event) => {
         const channel = event.channel;
         if (!channel) return;
+        rtcLog("datachannel event (remote)", {
+          label: channel.label,
+          readyState: channel.readyState,
+        });
         dataChannelRef.current = channel;
         const handleMessage = (messageEvent: MessageEvent) =>
           handleDataMessage(messageEvent, config.supportsFeedback);
@@ -1247,11 +1419,19 @@ useEffect(() => {
           console.warn("Data channel error:", evt);
         });
         if (channel.readyState === "open") {
-          config.onDataChannelOpen?.(channel, promptForChannel);
+          rtcLog("remote data channel already open");
+          config.onDataChannelOpen?.(channel, promptForChannel, {
+            voicePreferences,
+          });
         } else if (config.onDataChannelOpen) {
           channel.addEventListener(
             "open",
-            () => config.onDataChannelOpen?.(channel, promptForChannel),
+            () => {
+              rtcLog("remote data channel opened");
+              config.onDataChannelOpen?.(channel, promptForChannel, {
+                voicePreferences,
+              });
+            },
             { once: true }
           );
         }
@@ -1261,11 +1441,15 @@ useEffect(() => {
         const local = await navigator.mediaDevices.getUserMedia({ audio: true });
         localStreamRef.current = local;
         setLocalStream(local);
+        rtcLog("microphone stream acquired", {
+          trackCount: local.getTracks().length,
+        });
         local
           .getTracks()
           .forEach((track) => pc.addTrack(track, localStreamRef.current!));
       } catch (mediaError) {
         console.error("Failed to obtain microphone:", mediaError);
+        rtcLog("startCall aborted: getUserMedia failed", mediaError);
         setError("マイクへアクセスできませんでした。権限設定をご確認ください。");
         cleanup("error");
         return;
@@ -1275,6 +1459,9 @@ useEffect(() => {
       if (config.dataChannelLabel) {
         try {
           dataChannel = pc.createDataChannel(config.dataChannelLabel);
+          rtcLog("created outgoing data channel", {
+            label: config.dataChannelLabel,
+          });
           dataChannelRef.current = dataChannel;
           const openChannel = dataChannel;
           const handleMessage = (messageEvent: MessageEvent) =>
@@ -1290,17 +1477,25 @@ useEffect(() => {
             console.warn("Data channel error:", evt);
           });
           if (openChannel.readyState === "open") {
-            config.onDataChannelOpen?.(openChannel, promptForChannel);
+            rtcLog("outgoing data channel already open");
+            config.onDataChannelOpen?.(openChannel, promptForChannel, {
+              voicePreferences,
+            });
           } else if (config.onDataChannelOpen) {
             openChannel.addEventListener(
               "open",
-              () =>
-                config.onDataChannelOpen?.(openChannel, promptForChannel),
+              () => {
+                rtcLog("outgoing data channel opened");
+                config.onDataChannelOpen?.(openChannel, promptForChannel, {
+                  voicePreferences,
+                });
+              },
               { once: true }
             );
           }
         } catch (channelError) {
           console.warn("Data channel creation failed:", channelError);
+          rtcLog("data channel creation failed", channelError);
         }
       }
 
@@ -1309,6 +1504,7 @@ useEffect(() => {
         offerToReceiveVideo: false,
       });
       await pc.setLocalDescription(offer);
+      rtcLog("local description set", { sdpBytes: offer.sdp?.length ?? 0 });
 
       try {
         const scenarioPrompt = buildScenarioPrompt(
@@ -1326,8 +1522,10 @@ useEffect(() => {
           sdp: answerSdp,
         };
         await pc.setRemoteDescription(remoteDescription);
+        rtcLog("remote description set");
       } catch (apiError) {
         console.error("Realtime call negotiation failed:", apiError);
+        rtcLog("startCall failed during answer exchange", apiError);
         setError(
           apiError instanceof Error ? apiError.message : String(apiError)
         );

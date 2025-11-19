@@ -1,7 +1,74 @@
+import rawData from "./generatedScenarios.json";
+
+type RawScenario = (typeof rawData.scenarios)[number];
+type RawCategory = (typeof rawData.categories)[number];
+type RawPresentEntry = RawScenario["presentIllness"][number];
+
+const DEFAULT_INSTRUCTIONS = rawData.instructions;
+const CATEGORY_PERSONALITY = rawData.personalities;
+
+const BASE_CLOSING =
+  "Once the clinician explains the plan, thank them and ask briefly what to expect next.";
+
+const cleanText = (value?: string) =>
+  (value || "")
+    .replace(/\s+/g, " ")
+    .replace(/\s+([,.;:])/g, "$1")
+    .trim();
+
+const sentenceCase = (value?: string) => {
+  const text = cleanText(value);
+  if (!text) return text;
+  return text.charAt(0).toUpperCase() + text.slice(1);
+};
+
+export interface CasePresentation {
+  demographicsJa: string;
+  demographicsEn: string;
+  chiefComplaintJa: string;
+  chiefComplaintEn: string;
+  vitalsJa?: string;
+  vitalsEn?: string;
+  notesEn?: string[];
+}
+
+export interface ScenarioCategoryInfo {
+  id: string;
+  roman: string;
+  labelJa: string;
+  labelEn: string;
+  order: number;
+  symptomOrder: number;
+  symptomLabel: {
+    ja: string;
+    en: string;
+    variant?: number | null;
+  };
+}
+
+export interface SymptomLink {
+  scenarioId: string;
+  labelJa: string;
+  labelEn: string;
+  order: number;
+  variant?: number | null;
+}
+
+export interface SymptomCategory {
+  id: string;
+  roman: string;
+  labelJa: string;
+  labelEn: string;
+  order: number;
+  symptoms: SymptomLink[];
+}
+
 export interface PatientScenario {
   id: string;
   title: string;
   shortSummary: string;
+  category: ScenarioCategoryInfo;
+  casePresentation: CasePresentation;
   patient: {
     name: string;
     age: number;
@@ -19,6 +86,7 @@ export interface PatientScenario {
     medications?: string[];
     allergies?: string[];
     socialHistory?: string[];
+    familyHistory?: string[];
   };
   disclosurePlan: {
     spontaneous: string[];
@@ -29,13 +97,168 @@ export interface PatientScenario {
     avoidUnlessNecessary?: string[];
   };
   closingRemark?: string;
+  source?: {
+    type: "pdf" | "custom";
+    reference?: string;
+  };
 }
+
+const categoryLookup = new Map<string, RawCategory>(
+  rawData.categories.map((cat) => [cat.id, cat])
+);
+
+const mapPresentIllness = (entries: RawPresentEntry[]) =>
+  entries
+    .map((entry) => ({
+      cue: entry.cue,
+      detail: cleanText(entry.textEn),
+    }))
+    .filter((entry) => !!entry.detail);
+
+const buildPdfScenario = (raw: RawScenario): PatientScenario => {
+  const category = categoryLookup.get(raw.categoryId);
+  if (!category) {
+    throw new Error(`Unknown category ${raw.categoryId}`);
+  }
+  const resolvedGender =
+    raw.patient.gender === "female" || raw.patient.gender === "male"
+      ? raw.patient.gender
+      : "other";
+  const presentEntries = mapPresentIllness(raw.presentIllness);
+  const historyPresentIllness =
+    presentEntries.length > 0
+      ? presentEntries.map((entry) => entry.detail)
+      : [sentenceCase(raw.caseNotes.summaryEn) || sentenceCase(raw.patient.chiefComplaintEn)];
+
+  const socialHistory = [
+    ...(raw.history.socialHistory ?? []),
+    ...(raw.otherHistory ?? []),
+  ]
+    .map(cleanText)
+    .filter(Boolean);
+
+  const history = {
+    presentIllness: historyPresentIllness,
+    pastMedicalHistory: (raw.history.pastMedicalHistory ?? [])
+      .map(cleanText)
+      .filter(Boolean),
+    medications: (raw.history.medications ?? []).map(cleanText).filter(Boolean),
+    allergies: (raw.history.allergies ?? []).map(cleanText).filter(Boolean),
+    socialHistory,
+    familyHistory: (raw.history.familyHistory ?? [])
+      .map(cleanText)
+      .filter(Boolean),
+  };
+
+  const casePresentation: CasePresentation = {
+    demographicsJa: raw.patient.demographicsJa,
+    demographicsEn: cleanText(raw.patient.demographicsEn),
+    chiefComplaintJa: raw.patient.chiefComplaintJa,
+    chiefComplaintEn: sentenceCase(raw.patient.chiefComplaintEn),
+    vitalsJa: cleanText(raw.patient.vitalsJa?.replace(/^バイタル[:：]\s*/, "")),
+    vitalsEn: cleanText(raw.patient.vitalsEn),
+    notesEn: [
+      cleanText(raw.caseNotes.summaryEn),
+      cleanText(raw.caseNotes.objectiveEn),
+      cleanText(raw.caseNotes.planEn),
+    ].filter(Boolean),
+  };
+
+  const title = `${raw.symptomLabelJa} / ${sentenceCase(raw.symptomLabelEn)}`;
+  const shortSummary =
+    casePresentation.notesEn?.[0] ||
+    `${casePresentation.demographicsEn} with ${casePresentation.chiefComplaintEn}.`;
+  const openingStatement = history.presentIllness[0] || shortSummary;
+
+  const disclosurePlan = {
+    spontaneous: history.presentIllness.slice(0, 2),
+    ifAsked: presentEntries.slice(2).map((entry) => ({
+      cue: entry.cue,
+      detail: entry.detail,
+    })),
+  };
+
+  const scenarioCategory: ScenarioCategoryInfo = {
+    id: category.id,
+    roman: category.roman,
+    labelJa: category.label_ja,
+    labelEn: category.label_en,
+    order: category.order,
+    symptomOrder: raw.symptomOrder,
+    symptomLabel: {
+      ja: raw.symptomLabelJa,
+      en: sentenceCase(raw.symptomLabelEn),
+      variant: raw.symptomVariant ?? undefined,
+    },
+  };
+
+  return {
+    id: raw.id,
+    title,
+    shortSummary,
+    category: scenarioCategory,
+    casePresentation,
+    patient: {
+      name: raw.patient.name,
+      age: raw.patient.age,
+      gender: resolvedGender,
+    },
+    chiefComplaint: casePresentation.chiefComplaintEn,
+    openingStatement,
+    personality:
+      CATEGORY_PERSONALITY[raw.categoryRoman as keyof typeof CATEGORY_PERSONALITY] ??
+      "Calm and cooperative while describing symptoms plainly.",
+    instructions: [...DEFAULT_INSTRUCTIONS],
+    history,
+    disclosurePlan,
+    closingRemark: BASE_CLOSING,
+    source: {
+      type: "pdf",
+      reference: `Night ${raw.nightNumber}`,
+    },
+  };
+};
+
+const pdfScenarios = rawData.scenarios.map(buildPdfScenario);
+
+const supplementalCategory: SymptomCategory = {
+  id: "custom-cases",
+  roman: "EX",
+  labelJa: "追加シナリオ",
+  labelEn: "Additional Scenarios",
+  order: 99,
+  symptoms: [],
+};
 
 const viralGastroenteritis: PatientScenario = {
   id: "viral-gastroenteritis",
   title: "ウイルス性腸炎 / Viral Gastroenteritis",
   shortSummary:
-    "26歳女性。2日前からの水様性下痢と嘔吐。発症前日に屋台で食事をしている。発熱は軽度、血便なし。",
+    "26-year-old nursery teacher with two days of watery diarrhea and vomiting after eating at a seaside stall.",
+  category: {
+    id: supplementalCategory.id,
+    roman: supplementalCategory.roman,
+    labelJa: supplementalCategory.labelJa,
+    labelEn: supplementalCategory.labelEn,
+    order: supplementalCategory.order,
+    symptomOrder: 1,
+    symptomLabel: {
+      ja: "ウイルス性腸炎",
+      en: "Viral gastroenteritis",
+    },
+  },
+  casePresentation: {
+    demographicsJa: "26歳女性",
+    demographicsEn: "26-year-old female",
+    chiefComplaintJa: "2日前からの下痢と嘔吐",
+    chiefComplaintEn: "Watery diarrhea and vomiting for two days",
+    vitalsEn: "Low-grade fever 37.8°C last night with mild tachycardia; currently stable but fatigued.",
+    notesEn: [
+      "Symptoms started about 36 hours after eating at a seaside food stall with colleagues.",
+      "Six to seven watery stools per day and several episodes of non-bloody emesis.",
+      "Feels light-headed on standing but can keep down small amounts of rice porridge and oral rehydration solution.",
+    ],
+  },
   patient: {
     name: "Suzuki Ayaka",
     age: 26,
@@ -117,9 +340,61 @@ const viralGastroenteritis: PatientScenario = {
   },
   closingRemark:
     "If the interviewer reassures you or provides a plan, respond with relief and ask how long recovery might take.",
+  source: {
+    type: "custom",
+  },
 };
 
-export const patientScenarios: PatientScenario[] = [viralGastroenteritis];
+supplementalCategory.symptoms.push({
+  scenarioId: viralGastroenteritis.id,
+  labelJa: viralGastroenteritis.category.symptomLabel.ja,
+  labelEn: viralGastroenteritis.category.symptomLabel.en,
+  order: viralGastroenteritis.category.symptomOrder,
+});
+
+const combinedScenarios = [...pdfScenarios, viralGastroenteritis].sort((a, b) => {
+  if (a.category.order === b.category.order) {
+    return a.category.symptomOrder - b.category.symptomOrder;
+  }
+  return a.category.order - b.category.order;
+});
+
+const baseCategories: SymptomCategory[] = rawData.categories
+  .map((cat) => ({
+    id: cat.id,
+    roman: cat.roman,
+    labelJa: cat.label_ja,
+    labelEn: cat.label_en,
+    order: cat.order,
+    symptoms: [] as SymptomLink[],
+  }))
+  .sort((a, b) => a.order - b.order);
+
+const displayCategoryMap = new Map(baseCategories.map((cat) => [cat.id, cat]));
+
+pdfScenarios.forEach((scenario) => {
+  const holder = displayCategoryMap.get(scenario.category.id);
+  if (!holder) return;
+  holder.symptoms.push({
+    scenarioId: scenario.id,
+    labelJa: scenario.category.symptomLabel.ja,
+    labelEn: scenario.category.symptomLabel.en,
+    order: scenario.category.symptomOrder,
+    variant: scenario.category.symptomLabel.variant,
+  });
+});
+
+baseCategories.forEach((cat) =>
+  cat.symptoms.sort((a, b) => a.order - b.order)
+);
+
+const categoryList: SymptomCategory[] = [...baseCategories];
+if (supplementalCategory.symptoms.length > 0) {
+  categoryList.push(supplementalCategory);
+}
+
+export const symptomCategories = categoryList;
+export const patientScenarios = combinedScenarios;
 
 export function getScenarioById(id: string): PatientScenario | undefined {
   return patientScenarios.find((scenario) => scenario.id === id);

@@ -841,39 +841,170 @@ p { margin: 12px 0; line-height: 1.8; }
   min-height: 120px;
 }
 
-.call-scenario-summary {
-  margin-top: 12px;
-  padding: 12px 14px;
-  background: rgba(52, 152, 219, 0.08);
-  border: 1px solid rgba(52, 152, 219, 0.18);
-  border-radius: 10px;
-}
-[data-theme="dark"] .call-scenario-summary {
-  background: rgba(52, 152, 219, 0.18);
-  border-color: rgba(52, 152, 219, 0.32);
-}
-.call-scenario-title {
-  font-size: 13px;
-  color: var(--text-color);
-  margin-bottom: 8px;
-  line-height: 1.5;
-}
-.call-scenario-list {
-  margin: 0 0 8px 18px;
-  padding: 0;
-  list-style: disc;
-  color: var(--text-color-secondary);
-  font-size: 13px;
-  line-height: 1.5;
-}
-.call-scenario-list li {
-  margin-bottom: 4px;
-}
-
 .call-hint {
   font-size: 12px;
   color: var(--text-color-tertiary);
   line-height: 1.5;
+}
+
+.call-scenario-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+.call-random-button {
+  border: none;
+  border-radius: 999px;
+  background: rgba(52, 152, 219, 0.12);
+  color: var(--heading-color);
+  font-weight: 600;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.call-random-button:hover {
+  background: rgba(52, 152, 219, 0.22);
+  transform: translateY(-1px);
+}
+.call-scenario-count {
+  font-size: 12px;
+  color: var(--text-color-tertiary);
+}
+
+.call-symptom-browser {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 260px;
+  overflow-y: auto;
+  margin-top: 12px;
+  padding-right: 4px;
+}
+
+.call-symptom-category {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.02);
+}
+[data-theme="dark"] .call-symptom-category {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.call-symptom-category-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.call-symptom-category-roman {
+  font-weight: 700;
+  color: var(--border-color);
+}
+.call-symptom-category-label-ja {
+  font-weight: 600;
+  color: var(--heading-color-secondary);
+}
+.call-symptom-category-label-en {
+  font-size: 12px;
+  color: var(--text-color-tertiary);
+}
+
+.call-symptom-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.call-symptom-pill {
+  border: 1px solid rgba(52, 152, 219, 0.25);
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: transparent;
+  color: var(--text-color);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+[data-theme="dark"] .call-symptom-pill {
+  border-color: rgba(52, 152, 219, 0.45);
+}
+.call-symptom-pill:hover {
+  background: rgba(52, 152, 219, 0.12);
+}
+.call-symptom-pill.is-active {
+  background: rgba(52, 152, 219, 0.2);
+  border-color: var(--border-color);
+  color: var(--heading-color);
+}
+.call-symptom-pill-order {
+  font-weight: 600;
+  color: var(--border-color);
+}
+.call-symptom-pill-label {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  line-height: 1.2;
+}
+.call-symptom-pill-label-en {
+  font-size: 10px;
+  color: var(--text-color-tertiary);
+}
+.call-symptom-pill-variant {
+  font-size: 10px;
+  color: var(--text-color-tertiary);
+}
+
+.call-case-card {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(52, 152, 219, 0.25);
+  background: rgba(52, 152, 219, 0.08);
+}
+[data-theme="dark"] .call-case-card {
+  background: rgba(52, 152, 219, 0.18);
+  border-color: rgba(52, 152, 219, 0.4);
+}
+.call-case-card h4 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  color: var(--heading-color);
+}
+.call-case-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: var(--text-color);
+}
+.call-case-list li {
+  margin-bottom: 6px;
+}
+.call-case-notes-label {
+  margin: 10px 0 6px;
+  font-size: 12px;
+  color: var(--text-color-secondary);
+  font-weight: 600;
+}
+.call-case-notes {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-color);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.call-case-source {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-color-tertiary);
 }
 
 .call-error {
