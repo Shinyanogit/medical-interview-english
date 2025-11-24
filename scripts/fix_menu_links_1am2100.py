@@ -52,8 +52,8 @@ def fix_menu_file(menu_file: Path):
     with open(menu_file, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    # 外部URLのパターンを検索
-    pattern = r'href="http://medilink-study\.com/medilink_app/nmref\?id=([^"]+)"'
+    # 外部URLのパターンを検索（sdref / nmref 両方に対応）
+    pattern = r'href="https?://medilink-study\.com/medilink_app/(?:sdref|nmref)\?id=([^"]+)"'
 
     def replace_link(match):
         id_value = match.group(1)

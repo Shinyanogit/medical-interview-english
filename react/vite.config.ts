@@ -3,7 +3,10 @@ import react from "@vitejs/plugin-react";
 import type { IncomingMessage, ServerResponse } from "http";
 
 const isProduction = process.env.NODE_ENV === "production";
-const base = isProduction ? "/medical-interview-english/" : "/";
+const isVercel = !!process.env.VERCEL;
+// Vercel配信時はルート直下に置かれるので base="/" にする。GitHub Pages向けなど
+// サブパス配信が必要な場合は従来通りのパスを使う。
+const base = isProduction && !isVercel ? "/medical-interview-english/" : "/";
 
 const OPENAI_PROXY_TARGET =
   process.env.OPENAI_REALTIME_BASE_URL ||
@@ -179,7 +182,8 @@ export default defineConfig({
   plugins: [react(), devRealtimeProxy],
   base,
   build: {
-    outDir: "../docs",
+    // Vercelでは dist に出力、それ以外（GitHub Pages等）では docs に出力
+    outDir: isVercel ? "dist" : "../docs",
     emptyOutDir: true,
   },
 });
