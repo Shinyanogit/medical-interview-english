@@ -118,16 +118,14 @@ const SimpleRealtimeDebugger: React.FC = () => {
         label: "Gemini Live",
         dataChannelLabel: "client-events",
         describeEndpoint: () =>
-          `${geminiBaseUrl}/${encodeURIComponent(geminiModel)}:connect`,
+          `${geminiBaseUrl}?model=${encodeURIComponent(geminiModel)}`,
         createAnswer: async ({ apiKey, offer }) => {
-          let url = `${geminiBaseUrl}/${encodeURIComponent(
-            geminiModel
-          )}:connect`;
+          let url = `${geminiBaseUrl}?model=${encodeURIComponent(geminiModel)}`;
           const headers: HeadersInit = {
             "Content-Type": "application/sdp",
           };
           if (import.meta.env.PROD) {
-            url = `${url}?key=${encodeURIComponent(apiKey)}`;
+            url = `${url}&key=${encodeURIComponent(apiKey)}`;
           } else {
             headers["X-Api-Key"] = apiKey;
           }
