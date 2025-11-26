@@ -67,7 +67,8 @@ export default async function handler(req: any, res: any) {
       res.setHeader(key, value);
     });
 
-    res.status(upstreamResponse.status).send(buffer);
+    res.status(upstreamResponse.status);
+    res.end(buffer);
   } catch (error) {
     console.error("Gemini proxy error:", error);
     res.status(500).json({
