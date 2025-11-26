@@ -545,6 +545,35 @@ p { margin: 12px 0; line-height: 1.8; }
   grid-column: 1 / -1;
 }
 
+/* Section images */
+.figure-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+  width: 100%;
+  margin: 4px 0 12px;
+}
+.section-figure {
+  flex: 0 0 auto;
+  width: 220px;
+  margin: 0 12px 8px 0;
+}
+.section-figure img {
+  display: block;
+  width: 100%;
+  max-width: 220px;
+  max-height: 200px;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px var(--shadow);
+  object-fit: contain;
+}
+.figure-row ul {
+  flex: 1 1 260px;
+  margin: 0;
+}
+
 .call-launcher {
   position: fixed;
   right: 24px;
