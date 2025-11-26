@@ -77,9 +77,7 @@ const ChestPage: React.FC = () => {
         ← トップページに戻る
       </Link>
       <h1>胸部</h1>
-      <p className="description">
-        胸部診察の英語表現です。もし痛みや不快感があれば、すぐに伝えてもらうことを事前に説明してから診察を始めます。
-      </p>
+
 
       <Section title="頸部血管（Neck Vessels）" level={2} defaultCollapsed={false}>
         <Section title="視診（Inspection）" level={3} defaultCollapsed={false}>
@@ -607,7 +605,7 @@ const ChestPage: React.FC = () => {
       </div>
 
       {showLegacy && (
-        <Section title="旧版（Chest legacy）" level={2} defaultCollapsed={false}>
+        <Section title="旧版（Chest legacy）" level={2} defaultCollapsed={false} fullWidth>
           <PageIframe src={legacyUrl} title="胸部診察（旧版）" />
         </Section>
       )}

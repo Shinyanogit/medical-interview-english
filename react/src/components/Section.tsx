@@ -5,16 +5,32 @@ type Props = {
   level?: 2 | 3 | 4;
   defaultCollapsed?: boolean;
   children?: React.ReactNode;
+  fullWidth?: boolean;
+  className?: string;
 };
 
-const Section: React.FC<Props> = ({ title, level = 2, defaultCollapsed = true, children }) => {
+const Section: React.FC<Props> = ({
+  title,
+  level = 2,
+  defaultCollapsed = true,
+  children,
+  fullWidth = false,
+  className = "",
+}) => {
   const [collapsed, setCollapsed] = useState<boolean>(defaultCollapsed);
   const contentId = useId();
 
   const HeadingTag = (`h${level}` as unknown) as keyof JSX.IntrinsicElements;
+  const classes = [
+    "section",
+    fullWidth ? "section-full" : "",
+    className || "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <div className="section">
+    <div className={classes}>
       <HeadingTag
         className={collapsed ? 'collapsed' : ''}
         role="button"
@@ -36,4 +52,3 @@ const Section: React.FC<Props> = ({ title, level = 2, defaultCollapsed = true, c
 };
 
 export default Section;
-

@@ -539,6 +539,12 @@ p { margin: 12px 0; line-height: 1.8; }
 .indent-1 li { margin-left: 24px; }
 .indent-2 li { margin-left: 40px; }
 
+/* Allow specific sections to span full width in grid layouts */
+.section-full {
+  width: 100%;
+  grid-column: 1 / -1;
+}
+
 .call-launcher {
   position: fixed;
   right: 24px;
