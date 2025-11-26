@@ -129,6 +129,11 @@ const SimpleRealtimeDebugger: React.FC = () => {
           } else {
             headers["X-Api-Key"] = apiKey;
           }
+          console.log("[simple-gemini] createAnswer request", {
+            url,
+            isProxyEndpoint: geminiBaseUrl.startsWith("/"),
+            hasApiKey: Boolean(apiKey),
+          });
           const response = await fetch(url, {
             method: "POST",
             headers,

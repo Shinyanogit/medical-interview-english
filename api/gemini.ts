@@ -55,11 +55,33 @@ export default async function handler(req: any, res: any) {
   )}:connect?alt=sdp&key=${encodeURIComponent(apiKey)}`;
 
   try {
+    console.log("[api/gemini] incoming", {
+      method: req.method,
+      url: req.url,
+      pathSegment: model,
+      hasApiKey: Boolean(apiKey),
+      headers: {
+        "content-type": req.headers["content-type"],
+        "x-api-key": req.headers["x-api-key"] ? "<present>" : "<missing>",
+      },
+      upstreamUrl,
+    });
+
     const upstreamResponse = await fetch(upstreamUrl, {
       method: "POST",
       headers: { "Content-Type": "application/sdp" },
       body: await readBody(req),
     });
+
+    const status = upstreamResponse.status;
+    const ct = upstreamResponse.headers.get("content-type") || "";
+    const dbgBody =
+      status >= 400 && ct.includes("application/json")
+        ? await upstreamResponse.text()
+        : undefined;
+    if (dbgBody) {
+      console.log("[api/gemini] upstream error body", dbgBody);
+    }
 
     const buffer = Buffer.from(await upstreamResponse.arrayBuffer());
 

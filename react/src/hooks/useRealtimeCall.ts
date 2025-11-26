@@ -698,6 +698,12 @@ const providerConfigs: Record<RealtimeProvider, ProviderConfig> = {
         headers["X-Api-Key"] = apiKey;
       }
 
+      rtcLog("[gemini] createAnswer request", {
+        endpoint: url,
+        isProxyEndpoint,
+        hasApiKey: Boolean(apiKey),
+      });
+
       const response = await fetch(url, {
         method: "POST",
         headers,
