@@ -1,19 +1,16 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
-
-// Gemini Live (native audio) proxy for Vercel.
-// Follows https://ai.google.dev/gemini-api/docs/live and forwards SDP offers to :connect.
+// Gemini Live (native audio) proxy for Vercel (no external type imports to avoid build-time type errors).
 const GEMINI_API_BASE =
   process.env.GOOGLE_GEMINI_BASE_URL ||
   "https://generativelanguage.googleapis.com/v1beta/models";
 
-async function readBody(req: VercelRequest): Promise<Buffer> {
+async function readBody(req: any): Promise<Buffer> {
   if (req.body) {
     if (typeof req.body === "string") return Buffer.from(req.body);
     if (Buffer.isBuffer(req.body)) return req.body;
   }
   return await new Promise<Buffer>((resolve, reject) => {
     const chunks: Buffer[] = [];
-    req.on("data", (chunk) =>
+    req.on("data", (chunk: any) =>
       chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
     );
     req.on("end", () => resolve(Buffer.concat(chunks)));
@@ -21,7 +18,7 @@ async function readBody(req: VercelRequest): Promise<Buffer> {
   });
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
     return;
