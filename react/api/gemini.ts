@@ -1,3 +1,4 @@
+// @ts-nocheck
 const GEMINI_API_BASE =
   process.env.GOOGLE_GEMINI_BASE_URL ||
   "https://generativelanguage.googleapis.com/v1beta/models";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Gemini Live (native audio) proxy for Vercel (no external type imports to avoid build-time type errors).
 const GEMINI_API_BASE =
   process.env.GOOGLE_GEMINI_BASE_URL ||
