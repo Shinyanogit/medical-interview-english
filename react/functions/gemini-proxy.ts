@@ -4,6 +4,21 @@ const GEMINI_API_BASE =
   process.env.GOOGLE_GEMINI_BASE_URL ||
   "https://generativelanguage.googleapis.com/v1beta/models";
 
+async function readBody(req: VercelRequest): Promise<Buffer> {
+  if (req.body) {
+    if (typeof req.body === "string") return Buffer.from(req.body);
+    if (Buffer.isBuffer(req.body)) return req.body;
+  }
+  return await new Promise<Buffer>((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    req.on("data", (chunk) =>
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+    );
+    req.on("end", () => resolve(Buffer.concat(chunks)));
+    req.on("error", reject);
+  });
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
@@ -19,15 +34,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const model = req.query.model;
-  if (typeof model !== "string" || !model.length) {
+  const pathSegment =
+    (req.query.model as string | undefined) ||
+    (Array.isArray(req.query.path)
+      ? req.query.path.join("/")
+      : (req.query.path as string | undefined)) ||
+    "";
+  if (!pathSegment) {
     res.status(400).json({ error: "Missing model in request path" });
     return;
   }
 
   const upstreamUrl = `${GEMINI_API_BASE}/${encodeURIComponent(
-    model
-  )}:connect?key=${encodeURIComponent(apiKey)}`;
+    pathSegment
+  )}:connect?alt=sdp&key=${encodeURIComponent(apiKey)}`;
 
   try {
     const upstreamResponse = await fetch(upstreamUrl, {
@@ -35,7 +55,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       headers: {
         "Content-Type": "application/sdp",
       },
-      body: req.body,
+      body: await readBody(req),
     });
 
     const buffer = Buffer.from(await upstreamResponse.arrayBuffer());
@@ -53,4 +73,3 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 }
-

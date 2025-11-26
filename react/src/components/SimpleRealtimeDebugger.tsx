@@ -17,7 +17,7 @@ const OPENAI_DEFAULT_URL =
     : "/api/openai");
 
 const GEMINI_DEFAULT_MODEL =
-  import.meta.env.VITE_GEMINI_LIVE_MODEL || "gemini-1.5-flash-latest";
+  import.meta.env.VITE_GEMINI_LIVE_MODEL || "gemini-2.5-flash-live";
 const GEMINI_DEFAULT_BASE_URL =
   import.meta.env.VITE_GEMINI_LIVE_BASE_URL ||
   (import.meta.env.PROD

@@ -1,5 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
+// Gemini Live (native audio) proxy for Vercel.
+// Follows https://ai.google.dev/gemini-api/docs/live and forwards SDP offers to :connect.
 const GEMINI_API_BASE =
   process.env.GOOGLE_GEMINI_BASE_URL ||
   "https://generativelanguage.googleapis.com/v1beta/models";
@@ -36,37 +38,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  // Accept /api/gemini/:model or /api/gemini?model=...
+  // Accept both /api/gemini/:model and /api/gemini?model=...
   const pathSegment =
     (req.query.model as string | undefined) ||
     (Array.isArray(req.query.path)
       ? req.query.path.join("/")
       : (req.query.path as string | undefined)) ||
     "";
-  if (!pathSegment) {
+
+  const model = pathSegment || "";
+  if (!model) {
     res.status(400).json({ error: "Missing model in request path" });
     return;
   }
 
   const upstreamUrl = `${GEMINI_API_BASE}/${encodeURIComponent(
-    pathSegment
+    model
   )}:connect?alt=sdp&key=${encodeURIComponent(apiKey)}`;
 
   try {
     const upstreamResponse = await fetch(upstreamUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/sdp",
-      },
+      headers: { "Content-Type": "application/sdp" },
       body: await readBody(req),
     });
 
     const buffer = Buffer.from(await upstreamResponse.arrayBuffer());
 
-    for (const [key, value] of upstreamResponse.headers.entries()) {
-      if (key.toLowerCase() === "content-length") continue;
+    upstreamResponse.headers.forEach((value, key) => {
+      if (key.toLowerCase() === "content-length") return;
       res.setHeader(key, value);
-    }
+    });
 
     res.status(upstreamResponse.status).send(buffer);
   } catch (error) {
