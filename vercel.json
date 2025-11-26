@@ -1,7 +1,7 @@
 {
   "version": 2,
   "builds": [
-    { "src": "react/api/**/*.ts", "use": "@vercel/node" },
+    { "src": "api/**/*.ts", "use": "@vercel/node" },
     {
       "src": "react/package.json",
       "use": "@vercel/static-build",
@@ -9,7 +9,7 @@
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "react/api/$1" },
+    { "src": "/api/(.*)", "dest": "api/$1" },
     { "src": "/(.*)", "dest": "react/dist/$1" }
   ]
 }
