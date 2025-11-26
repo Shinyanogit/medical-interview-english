@@ -205,13 +205,11 @@ const OPENAI_DEFAULT_URL =
     : "/api/openai");
 
 const GEMINI_DEFAULT_MODEL =
-  import.meta.env.VITE_GEMINI_LIVE_MODEL || "gemini-live-2.5-flash-preview";
-// 本番環境では直接Gemini APIを呼び出す（GitHub Pagesではプロキシが使えない）
+  import.meta.env.VITE_GEMINI_LIVE_MODEL || "gemini-1.5-flash-latest";
+// デフォルトではサーバープロキシ経由（/api/gemini）にする。
+// 直叩きが必要な場合のみ VITE_GEMINI_LIVE_BASE_URL を指定する。
 const GEMINI_DEFAULT_BASE_URL =
-  import.meta.env.VITE_GEMINI_LIVE_BASE_URL ||
-  (import.meta.env.PROD
-    ? "https://generativelanguage.googleapis.com/v1beta/models"
-    : "/api/gemini");
+  import.meta.env.VITE_GEMINI_LIVE_BASE_URL || "/api/gemini";
 
 type TranscriptEntry = {
   id: string;
@@ -682,23 +680,19 @@ const providerConfigs: Record<RealtimeProvider, ProviderConfig> = {
     id: "gemini",
     label: "Gemini Live 2.5 Flash (Google)",
     createAnswer: async ({ apiKey, offer }) => {
-      const endpoint = `${GEMINI_DEFAULT_BASE_URL}/${encodeURIComponent(
+      const endpoint = `${GEMINI_DEFAULT_BASE_URL}?model=${encodeURIComponent(
         GEMINI_DEFAULT_MODEL
-      )}:connect`;
+      )}`;
 
-      // 本番環境では直接Gemini APIを呼び出す（クエリパラメータでAPIキーを渡す）
-      let url = endpoint;
-      if (import.meta.env.PROD) {
-        // 本番環境: APIキーをクエリパラメータとして追加
-        url = `${endpoint}?key=${encodeURIComponent(apiKey)}`;
-      }
+      const isProxyEndpoint = GEMINI_DEFAULT_BASE_URL.startsWith("/");
 
-      const headers: HeadersInit = {
-        "Content-Type": "application/sdp",
-      };
+      // プロキシ経由ならヘッダーでキーを渡す。直叩きの場合はクエリパラメータに含める。
+      const headers: HeadersInit = { "Content-Type": "application/sdp" };
+      const url = isProxyEndpoint
+        ? endpoint
+        : `${endpoint}&key=${encodeURIComponent(apiKey)}`;
 
-      if (!import.meta.env.PROD) {
-        // 開発環境: プロキシ経由（X-Api-Keyを使用）
+      if (isProxyEndpoint) {
         headers["X-Api-Key"] = apiKey;
       }
 

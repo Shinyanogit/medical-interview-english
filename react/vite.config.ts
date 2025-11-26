@@ -115,9 +115,12 @@ const devRealtimeProxy = {
             req.url ?? "/api/gemini",
             "http://localhost"
           );
-          const pathSegment = requestUrl.pathname
-            .replace(/^\/api\/gemini\/?/, "")
-            .replace(/^\/+/, "");
+          const pathSegment =
+            requestUrl.pathname
+              .replace(/^\/api\/gemini\/?/, "")
+              .replace(/^\/+/, "") ||
+            requestUrl.searchParams.get("model") ||
+            "";
           if (!pathSegment) {
             res.statusCode = 400;
             res.end(JSON.stringify({ error: "Missing model path" }));
@@ -130,7 +133,7 @@ const devRealtimeProxy = {
             return;
           }
           const body = await readBody(req);
-          const upstreamUrl = `${GEMINI_PROXY_TARGET}/${pathSegment}?key=${encodeURIComponent(
+          const upstreamUrl = `${GEMINI_PROXY_TARGET}/${pathSegment}:connect?key=${encodeURIComponent(
             apiKey
           )}`;
           console.log("[proxy/gemini] forwarding to", upstreamUrl);
@@ -153,6 +156,7 @@ const devRealtimeProxy = {
               JSON.stringify({
                 error: "upstream gemini error",
                 status: upstream.status,
+                body: text,
               })
             );
             return;
