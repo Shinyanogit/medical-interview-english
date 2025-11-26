@@ -208,8 +208,10 @@ const GEMINI_DEFAULT_MODEL =
   import.meta.env.VITE_GEMINI_LIVE_MODEL || "gemini-2.5-flash-live";
 // デフォルトではサーバープロキシ経由（/api/gemini）にする。
 // 直叩きが必要な場合のみ VITE_GEMINI_LIVE_BASE_URL を指定する。
-const GEMINI_DEFAULT_BASE_URL =
-  import.meta.env.VITE_GEMINI_LIVE_BASE_URL || "/api/gemini";
+// 本番では必ず自前プロキシ経由にする（ブラウザ直叩きはCORS/キー漏洩になる）
+const GEMINI_DEFAULT_BASE_URL = import.meta.env.PROD
+  ? "/api/gemini"
+  : import.meta.env.VITE_GEMINI_LIVE_BASE_URL || "/api/gemini";
 
 type TranscriptEntry = {
   id: string;

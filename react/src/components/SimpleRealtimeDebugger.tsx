@@ -18,11 +18,10 @@ const OPENAI_DEFAULT_URL =
 
 const GEMINI_DEFAULT_MODEL =
   import.meta.env.VITE_GEMINI_LIVE_MODEL || "gemini-2.5-flash-live";
-const GEMINI_DEFAULT_BASE_URL =
-  import.meta.env.VITE_GEMINI_LIVE_BASE_URL ||
-  (import.meta.env.PROD
-    ? "https://generativelanguage.googleapis.com/v1beta/models"
-    : "/api/gemini");
+// 本番では必ず自前プロキシ経由にする（ブラウザ直叩きはCORS/キー漏洩になる）
+const GEMINI_DEFAULT_BASE_URL = import.meta.env.PROD
+  ? "/api/gemini"
+  : import.meta.env.VITE_GEMINI_LIVE_BASE_URL || "/api/gemini";
 
 const DEFAULT_PROMPT = `You are a cooperative standardized patient speaking natural English. Keep replies short (1-2 sentences). Avoid role leakage.`;
 
