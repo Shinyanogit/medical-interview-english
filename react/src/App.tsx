@@ -7,6 +7,7 @@ import RealtimeCallLauncher from "./components/RealtimeCallLauncher";
 import Section from "./components/Section";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import ExternalHtmlPage from "./pages/ExternalHtmlPage";
+import ChestPage from "./pages/ChestPage";
 import SimpleRealtimeDebugger from "./components/SimpleRealtimeDebugger";
 
 const Home: React.FC = () => {
@@ -282,9 +283,17 @@ const AppInner: React.FC = () => {
             />
             <Route
               path="/chest"
-              element={renderPage("胸部", buildAppPath("legacy/chest.html"), {
-                enableAudio: true,
-              })}
+              element={<ChestPage />}
+            />
+            <Route
+              path="/chest/old"
+              element={renderPage(
+                "胸部（旧版）",
+                buildAppPath("legacy/chest.html"),
+                {
+                  enableAudio: true,
+                }
+              )}
             />
             <Route
               path="/abdomen"

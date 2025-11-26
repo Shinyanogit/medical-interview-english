@@ -17,7 +17,7 @@ const OPENAI_DEFAULT_URL =
     : "/api/openai");
 
 const GEMINI_DEFAULT_MODEL =
-  import.meta.env.VITE_GEMINI_LIVE_MODEL || "gemini-live-2.5-flash-preview";
+  import.meta.env.VITE_GEMINI_LIVE_MODEL || "gemini-1.5-flash-latest";
 const GEMINI_DEFAULT_BASE_URL =
   import.meta.env.VITE_GEMINI_LIVE_BASE_URL ||
   (import.meta.env.PROD
@@ -333,7 +333,7 @@ const SimpleRealtimeDebugger: React.FC = () => {
         });
       } else {
         let url = `${geminiBaseUrl}/${encodeURIComponent(
-          geminiModel || "gemini-live-2.5-flash-preview"
+          geminiModel || "gemini-1.5-flash-latest"
         )}`;
         if (import.meta.env.PROD) {
           url = `${url}?key=${encodeURIComponent(apiKey)}`;

@@ -1,0 +1,15 @@
+{
+  "file": {
+    "name": "files/5by45ley4k8k",
+    "displayName": "AUDIO",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": "86400",
+    "createTime": "2025-11-24T02:01:16.794715Z",
+    "updateTime": "2025-11-24T02:01:16.794715Z",
+    "expirationTime": "2025-11-26T02:01:15.163204468Z",
+    "sha256Hash": "ZjhkYWM4MjM1MGFlYjI1MjdiMGNkYTAxMTI4ZDEyZDQzYjcwMWZhMTIwNDliN2U4MmYxZTYwMzI3NTY0MDQ4Mg==",
+    "uri": "https://generativelanguage.googleapis.com/v1beta/files/5by45ley4k8k",
+    "state": "ACTIVE",
+    "source": "UPLOADED"
+  }
+}
