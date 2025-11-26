@@ -1,3 +1,15 @@
 {
-  "version": 2
+  "version": 2,
+  "builds": [
+    { "src": "react/api/**/*.ts", "use": "@vercel/node" },
+    {
+      "src": "react/package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist" }
+    }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "react/api/$1" },
+    { "src": "/(.*)", "dest": "react/dist/$1" }
+  ]
 }
