@@ -1491,3 +1491,58 @@ p { margin: 12px 0; line-height: 1.8; }
   line-height: 1.5;
   z-index: 50;
 }
+
+/* Interview QA blocks */
+.qa-section {
+  background: var(--card-bg);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.qa-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+.qa-item:first-of-type { border-top: none; padding-top: 0; }
+
+.qa-text .question {
+  margin: 0 0 6px;
+  font-weight: 700;
+  color: var(--heading-color-secondary);
+}
+.qa-text .answer {
+  margin: 0;
+  color: var(--text-color-secondary);
+  line-height: 1.6;
+}
+
+.qa-controls button,
+.primary-button {
+  border: 1px solid var(--border-color);
+  background: var(--border-color);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.qa-controls button:hover,
+.primary-button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+.qa-controls button.playing { background: #10b981; border-color: #10b981; }
+
+@media (max-width: 640px) {
+  .qa-item {
+    grid-template-columns: 1fr;
+  }
+}
