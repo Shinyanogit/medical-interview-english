@@ -85,21 +85,6 @@ const Home: React.FC = () => {
           <div className="section-title">プレゼン</div>
           <div className="section-subtitle">Presentation</div>
         </Link>
-        <Link to="/interview/english" className="section-card">
-          <div className="section-icon">🎤</div>
-          <div className="section-title">英語面接</div>
-          <div className="section-subtitle">Heme/Onc Q&A + Audio</div>
-        </Link>
-        <Link to="/interview/japanese" className="section-card">
-          <div className="section-icon">🗾</div>
-          <div className="section-title">日本語面接</div>
-          <div className="section-subtitle">想定質問・回答メモ</div>
-        </Link>
-        <Link to="/interview/consult" className="section-card">
-          <div className="section-icon">🤝</div>
-          <div className="section-title">お悩み相談</div>
-          <div className="section-subtitle">家族説明・合意形成</div>
-        </Link>
         <Link to="/debug" className="section-card">
           <div className="section-icon">🧪</div>
           <div className="section-title">デバッグ</div>
@@ -346,37 +331,6 @@ const AppInner: React.FC = () => {
                   enableAudio: true,
                 }
               )}
-            />
-            <Route
-              path="/interview/english"
-              element={
-                <InterviewPage
-                  title="英語面接（血液腫瘍内科）"
-                  sections={englishHemeOncQA}
-                  enableAudio={true}
-                  audioFolder="audio-interview"
-                />
-              }
-            />
-            <Route
-              path="/interview/japanese"
-              element={
-                <InterviewPage
-                  title="日本語面接"
-                  sections={japaneseInterviewQA}
-                  enableAudio={false}
-                />
-              }
-            />
-            <Route
-              path="/interview/consult"
-              element={
-                <InterviewPage
-                  title="医療面接（お悩み相談）"
-                  sections={consultInterviewQA}
-                  enableAudio={false}
-                />
-              }
             />
             <Route path="/debug" element={<DebugPage />} />
           </Routes>
