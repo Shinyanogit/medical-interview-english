@@ -562,7 +562,28 @@ const HeadNeckPage: React.FC = () => {
               <img {...bindImage(imageMap.otoscope, "外耳道・鼓膜の観察")} />
             </div>
             <div className="text-block">
-              {renderQuestions(["反対側を向いて下さい。/まっすぐ向いてください。"])}
+              {renderQuestions([
+                {
+                  text:
+                    "Please turn your head to the other side, and then face straight ahead.",
+                  content: (
+                    <>
+                      {/* 反対側を向いて下さい。/まっすぐ向いてください。 */}
+                      Please{" "}
+                      <b>turn your head to the other side</b>{" "}
+                      <span className="paraphrase">
+                        (look the other way)
+                      </span>
+                      , and then{" "}
+                      <b>face straight ahead</b>{" "}
+                      <span className="paraphrase">
+                        (look straight ahead)
+                      </span>
+                      .
+                    </>
+                  ),
+                },
+              ])}
             </div>
           </div>
         </Section>
@@ -860,7 +881,22 @@ const HeadNeckPage: React.FC = () => {
           <p>(圧痛・腫瘤確認)</p>
         </Section>
         <Section title="顎下腺の触診 (Palpation of Submandibular Gland)" level={3}>
-          <p>軽く顎を引いてください。</p>
+          {renderQuestions([
+            {
+              text: "Please tuck your chin in slightly.",
+              content: (
+                <>
+                  {/* 軽く顎を引いてください。 */}
+                  Please{" "}
+                  <b>tuck your chin in slightly</b>{" "}
+                  <span className="paraphrase">
+                    (slightly pull your chin back)
+                  </span>
+                  .
+                </>
+              ),
+            },
+          ])}
           <div className="section-figure">
             <img {...bindImage(imageMap.submandibular, "顎下腺の触診")} />
           </div>

@@ -41,6 +41,7 @@ NEW_PHRASES = [
     "I am going to gently pull on your ear; please let me know if it hurts.",
     "Next, I will examine your nose and sinuses.",
     "I am going to press on your face; please tell me if you feel any pain.",
+    "Please turn your head to the other side, and then face straight ahead.",
     "Next, I will examine your mouth and throat. Please relax.",
     "I am going to use this tongue depressor to gently touch inside your mouth.",
     "Please tell me if you feel any pain.",
