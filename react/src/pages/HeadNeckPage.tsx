@@ -65,7 +65,10 @@ const HeadNeckPage: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [currentKey, setCurrentKey] = useState<string | null>(null);
 
-  const bindImage = (src: string, alt: string) => ({
+  const bindImage = (
+    src: string,
+    alt: string
+  ): React.ImgHTMLAttributes<HTMLImageElement> => ({
     src,
     alt,
     loading: "lazy",
