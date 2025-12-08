@@ -186,8 +186,8 @@ export default defineConfig({
   plugins: [react(), devRealtimeProxy],
   base,
   build: {
-    // Vercelでは dist に出力、それ以外（GitHub Pages等）では docs に出力
-    outDir: isVercel ? "dist" : "../docs",
+    // Vercel デプロイに合わせて常に dist に出力
+    outDir: "dist",
     emptyOutDir: true,
   },
 });
