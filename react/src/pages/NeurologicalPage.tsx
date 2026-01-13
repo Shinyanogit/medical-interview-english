@@ -23,6 +23,21 @@ const NeurologicalPage: React.FC = () => {
     () => buildAppPath("legacy/neurological.html"),
     []
   );
+  const imageMap = useMemo(
+    () => ({
+      visualField: buildAppPath("images/neurological/1.jpg"),
+      softPalate: buildAppPath("images/neurological/2.jpg"),
+      sternocleidomastoid: buildAppPath("images/neurological/3.jpg"),
+      keepHandsSteady: buildAppPath("images/neurological/4.jpg"),
+      moveArm: buildAppPath("images/neurological/5.jpg"),
+      involuntary: buildAppPath("images/neurological/6.jpg"),
+      pushLegDown: buildAppPath("images/neurological/7.jpg"),
+    }),
+    []
+  );
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(
+    null
+  );
   const [audioMap, setAudioMap] = useState<Record<string, string> | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentItemRef = useRef<HTMLLIElement | null>(null);
@@ -96,6 +111,17 @@ const NeurologicalPage: React.FC = () => {
     };
   }, [handlePlay]);
 
+  const bindImage = (
+    src: string,
+    alt: string
+  ): React.ImgHTMLAttributes<HTMLImageElement> => ({
+    src,
+    alt,
+    loading: "lazy",
+    className: "zoomable",
+    onClick: () => setLightbox({ src, alt }),
+  });
+
   const layoutClass =
     layout === "two-column"
       ? "layout-two-column"
@@ -112,51 +138,58 @@ const NeurologicalPage: React.FC = () => {
 
       <Section title="脳神経の診察 (Cranial Nerve Examination)" level={2}>
         <Section title="視野 (Visual Field)" level={3}>
-          <ul>
-            <li className="question-item" data-text="I'm going to test your visual fields.">
-              <div className="question-text">
-                I'm going to test{" "}
-                <span className="paraphrase">(check, examine, assess)</span>{" "}
-                your <b>visual fields</b>{" "}
-                <span className="paraphrase">
-                  (peripheral vision, side vision)
-                </span>
-                .
-              </div>
-            </li>
-            <li className="question-item" data-text="Please cover your left eye with your left hand.">
-              <div className="question-text">
-                Please{" "}
-                <span className="paraphrase">(Could you, Would you)</span>{" "}
-                <b>cover your left eye</b> with your left hand.
-              </div>
-            </li>
-            <li className="question-item" data-text="Please look straight at my eye.">
-              <div className="question-text">
-                Please{" "}
-                <span className="paraphrase">(Could you, Would you)</span>{" "}
-                <b>look straight at my eye</b>{" "}
-                <span className="paraphrase">
-                  (look directly at me, keep your eyes on mine)
-                </span>
-                .
-              </div>
-            </li>
-            <li className="question-item" data-text="I am going to put my hands like this.">
-              <div className="question-text">
-                I am going to <b>put my hands like this</b>{" "}
-                <span className="paraphrase">
-                  (右下、左上に両手を配置)
-                </span>
-                .
-              </div>
-            </li>
-            <li className="question-item" data-text="If my finger moves, please point to the finger.">
-              <div className="question-text">
-                If my finger moves, please <b>point to the finger</b>.
-              </div>
-            </li>
-          </ul>
+          <div className="figure-with-text">
+            <div className="section-figure">
+              <img {...bindImage(imageMap.visualField, "視野の診察")} />
+            </div>
+            <div className="text-block">
+              <ul>
+                <li className="question-item" data-text="I'm going to test your visual fields.">
+                  <div className="question-text">
+                    I'm going to test{" "}
+                    <span className="paraphrase">(check, examine, assess)</span>{" "}
+                    your <b>visual fields</b>{" "}
+                    <span className="paraphrase">
+                      (peripheral vision, side vision)
+                    </span>
+                    .
+                  </div>
+                </li>
+                <li className="question-item" data-text="Please cover your left eye with your left hand.">
+                  <div className="question-text">
+                    Please{" "}
+                    <span className="paraphrase">(Could you, Would you)</span>{" "}
+                    <b>cover your left eye</b> with your left hand.
+                  </div>
+                </li>
+                <li className="question-item" data-text="Please look straight at my eye.">
+                  <div className="question-text">
+                    Please{" "}
+                    <span className="paraphrase">(Could you, Would you)</span>{" "}
+                    <b>look straight at my eye</b>{" "}
+                    <span className="paraphrase">
+                      (look directly at me, keep your eyes on mine)
+                    </span>
+                    .
+                  </div>
+                </li>
+                <li className="question-item" data-text="I am going to put my hands like this.">
+                  <div className="question-text">
+                    I am going to <b>put my hands like this</b>{" "}
+                    <span className="paraphrase">
+                      (右下、左上に両手を配置)
+                    </span>
+                    .
+                  </div>
+                </li>
+                <li className="question-item" data-text="If my finger moves, please point to the finger.">
+                  <div className="question-text">
+                    If my finger moves, please <b>point to the finger</b>.
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
           <p className="description">両手の上下左右を入れ替え再度実施。</p>
         </Section>
         <Section title="眼球運動・眼振 (Extraocular Movements and Nystagmus)" level={3}>
@@ -397,29 +430,36 @@ const NeurologicalPage: React.FC = () => {
           title="軟口蓋・咽頭後壁の動き (Soft Palate and Posterior Pharynx Movement)"
           level={3}
         >
-          <ul>
-            <li className="question-item" data-text="Open your mouth and say ah.">
-              <div className="question-text">
-                Open your mouth{" "}
-                <span className="paraphrase">(Open wide)</span> and{" "}
-                <b>say ah</b>{" "}
-                <span className="paraphrase">(make an ah sound)</span>.
-              </div>
-            </li>
-            <li className="question-item" data-text="I am going to use this stick to gently press your tongue.">
-              <div className="question-text">
-                I am going to use this stick to gently <b>press your tongue</b>.
-              </div>
-            </li>
-            <li className="question-item" data-text="I'm looking at the back of your throat.">
-              <div className="question-text">
-                I'm looking at{" "}
-                <span className="paraphrase">(examining, inspecting)</span> the{" "}
-                <b>back of your throat</b>{" "}
-                <span className="paraphrase">(pharynx, throat)</span>.
-              </div>
-            </li>
-          </ul>
+          <div className="figure-with-text">
+            <div className="section-figure">
+              <img {...bindImage(imageMap.softPalate, "軟口蓋・咽頭後壁の動き")} />
+            </div>
+            <div className="text-block">
+              <ul>
+                <li className="question-item" data-text="Open your mouth and say ah.">
+                  <div className="question-text">
+                    Open your mouth{" "}
+                    <span className="paraphrase">(Open wide)</span> and{" "}
+                    <b>say ah</b>{" "}
+                    <span className="paraphrase">(make an ah sound)</span>.
+                  </div>
+                </li>
+                <li className="question-item" data-text="I am going to use this stick to gently press your tongue.">
+                  <div className="question-text">
+                    I am going to use this stick to gently <b>press your tongue</b>.
+                  </div>
+                </li>
+                <li className="question-item" data-text="I'm looking at the back of your throat.">
+                  <div className="question-text">
+                    I'm looking at{" "}
+                    <span className="paraphrase">(examining, inspecting)</span> the{" "}
+                    <b>back of your throat</b>{" "}
+                    <span className="paraphrase">(pharynx, throat)</span>.
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
         </Section>
         <Section title="舌 (Tongue)" level={3}>
           <ul>
@@ -456,62 +496,69 @@ const NeurologicalPage: React.FC = () => {
           </ul>
         </Section>
         <Section title="胸鎖乳突筋 (Sternocleidomastoid)" level={3}>
-          <ul>
-            <li className="question-item" data-text="I'm going to test your neck muscles.">
-              <div className="question-text">
-                I'm going to test{" "}
-                <span className="paraphrase">(check, examine, assess)</span> your{" "}
-                <b>neck muscles</b>{" "}
-                <span className="paraphrase">(neck strength)</span>.
-              </div>
-            </li>
-            <li className="question-item" data-text="Please shrug your shoulders.">
-              <div className="question-text">
-                Please{" "}
-                <span className="paraphrase">(Could you, Would you)</span>{" "}
-                <b>shrug your shoulders</b>{" "}
-                <span className="paraphrase">
-                  (lift your shoulders, raise your shoulders)
-                </span>
-                .
-              </div>
-            </li>
-            <li className="question-item" data-text="Turn your head to the left.">
-              <div className="question-text">
-                <b>Turn your head</b>{" "}
-                <span className="paraphrase">
-                  (Move your head, Rotate your head)
-                </span>{" "}
-                to the left <span className="paraphrase">(left side)</span>.{" "}
-                <span className="paraphrase">
-                  (→患者の左頬と右肩に手を添える)
-                </span>
-              </div>
-            </li>
-            <li className="question-item" data-text="I am going to pull your chin back with my left hand.">
-              <div className="question-text">
-                I am going to <b>pull your chin back</b> with my left hand.
-              </div>
-            </li>
-            <li className="question-item" data-text="Don't let me turn your head.">
-              <div className="question-text">
-                <b>Don't let me turn your head</b>{" "}
-                <span className="paraphrase">
-                  (Try not to let me, Resist when I)
-                </span>{" "}
-                .
-              </div>
-            </li>
-            <li className="question-item" data-text="Now turn to the right.">
-              <div className="question-text">
-                Now <b>turn to the right</b>{" "}
-                <span className="paraphrase">(move, rotate)</span>.{" "}
-                <span className="paraphrase">
-                  (→右側でも上記を同様に行う)
-                </span>
-              </div>
-            </li>
-          </ul>
+          <div className="figure-with-text">
+            <div className="section-figure">
+              <img {...bindImage(imageMap.sternocleidomastoid, "胸鎖乳突筋の診察")} />
+            </div>
+            <div className="text-block">
+              <ul>
+                <li className="question-item" data-text="I'm going to test your neck muscles.">
+                  <div className="question-text">
+                    I'm going to test{" "}
+                    <span className="paraphrase">(check, examine, assess)</span> your{" "}
+                    <b>neck muscles</b>{" "}
+                    <span className="paraphrase">(neck strength)</span>.
+                  </div>
+                </li>
+                <li className="question-item" data-text="Please shrug your shoulders.">
+                  <div className="question-text">
+                    Please{" "}
+                    <span className="paraphrase">(Could you, Would you)</span>{" "}
+                    <b>shrug your shoulders</b>{" "}
+                    <span className="paraphrase">
+                      (lift your shoulders, raise your shoulders)
+                    </span>
+                    .
+                  </div>
+                </li>
+                <li className="question-item" data-text="Turn your head to the left.">
+                  <div className="question-text">
+                    <b>Turn your head</b>{" "}
+                    <span className="paraphrase">
+                      (Move your head, Rotate your head)
+                    </span>{" "}
+                    to the left <span className="paraphrase">(left side)</span>.{" "}
+                    <span className="paraphrase">
+                      (→患者の左頬と右肩に手を添える)
+                    </span>
+                  </div>
+                </li>
+                <li className="question-item" data-text="I am going to pull your chin back with my left hand.">
+                  <div className="question-text">
+                    I am going to <b>pull your chin back</b> with my left hand.
+                  </div>
+                </li>
+                <li className="question-item" data-text="Don't let me turn your head.">
+                  <div className="question-text">
+                    <b>Don't let me turn your head</b>{" "}
+                    <span className="paraphrase">
+                      (Try not to let me, Resist when I)
+                    </span>{" "}
+                    .
+                  </div>
+                </li>
+                <li className="question-item" data-text="Now turn to the right.">
+                  <div className="question-text">
+                    Now <b>turn to the right</b>{" "}
+                    <span className="paraphrase">(move, rotate)</span>.{" "}
+                    <span className="paraphrase">
+                      (→右側でも上記を同様に行う)
+                    </span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
         </Section>
       </Section>
 
@@ -538,16 +585,25 @@ const NeurologicalPage: React.FC = () => {
                 .
               </div>
             </li>
-            <li className="question-item" data-text="Keep your hands steady.">
-              <div className="question-text">
-                <b>Keep your hands steady</b>{" "}
-                <span className="paraphrase">
-                  (Hold your hands still, Don't let your hands drift)
-                </span>
-                .
-              </div>
-            </li>
           </ul>
+          <div className="figure-with-text">
+            <div className="section-figure">
+              <img {...bindImage(imageMap.keepHandsSteady, "Keep your hands steady")} />
+            </div>
+            <div className="text-block">
+              <ul>
+                <li className="question-item" data-text="Keep your hands steady.">
+                  <div className="question-text">
+                    <b>Keep your hands steady</b>{" "}
+                    <span className="paraphrase">
+                      (Hold your hands still, Don't let your hands drift)
+                    </span>
+                    .
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
         </Section>
         <Section
           title="握力と上肢の徒手筋力テスト (Grip Strength and Manual Muscle Testing of Upper Extremities)"
@@ -642,53 +698,69 @@ const NeurologicalPage: React.FC = () => {
                 .
               </div>
             </li>
-            <li className="question-item" data-text="I'm going to move your arm.">
-              <div className="question-text">
-                I'm going to <b>move your arm</b>{" "}
-                <span className="paraphrase">(bend, flex)</span>.
-              </div>
-            </li>
           </ul>
+          <div className="figure-with-text">
+            <div className="section-figure">
+              <img {...bindImage(imageMap.moveArm, "筋トーヌス（肘関節）")} />
+            </div>
+            <div className="text-block">
+              <ul>
+                <li className="question-item" data-text="I'm going to move your arm.">
+                  <div className="question-text">
+                    I'm going to <b>move your arm</b>{" "}
+                    <span className="paraphrase">(bend, flex)</span>.
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
         </Section>
         <Section title="上半身の不随意運動 (Involuntary Movements of Upper Body)" level={3}>
-          <ul>
-            <li className="question-item" data-text="I'm going to look for any involuntary movements.">
-              <div className="question-text">
-                I'm going to look for any <b>involuntary movements</b>{" "}
-                <span className="paraphrase">
-                  (abnormal movements, tremors, twitches)
-                </span>
-                .
-              </div>
-            </li>
-            <li className="question-item" data-text="Please put your hands on your knees like this, and just relax.">
-              <div className="question-text">
-                Please <b>put your hands on your knees</b> like this, and just
-                relax.
-              </div>
-            </li>
-            <li className="question-item" data-text="Spread your fingers a little like this, hold your hand out in front of you, and leave it like this.">
-              <div className="question-text">
-                Spread your fingers a little like this,{" "}
-                <b>hold your hand out in front of you</b>, and leave it like
-                this.
-              </div>
-            </li>
-            <li className="question-item" data-text="Turn your wrist up and hold it there like this.">
-              <div className="question-text">
-                <b>Turn your wrist up</b> and hold it there like this.
-              </div>
-            </li>
-            <li className="question-item" data-text="Do you notice any tremors or shaking?">
-              <div className="question-text">
-                Do you notice any <b>tremors</b>{" "}
-                <span className="paraphrase">
-                  (shaking, shivering)
-                </span>{" "}
-                or shaking?
-              </div>
-            </li>
-          </ul>
+          <div className="figure-with-text">
+            <div className="section-figure">
+              <img {...bindImage(imageMap.involuntary, "上半身の不随意運動")} />
+            </div>
+            <div className="text-block">
+              <ul>
+                <li className="question-item" data-text="I'm going to look for any involuntary movements.">
+                  <div className="question-text">
+                    I'm going to look for any <b>involuntary movements</b>{" "}
+                    <span className="paraphrase">
+                      (abnormal movements, tremors, twitches)
+                    </span>
+                    .
+                  </div>
+                </li>
+                <li className="question-item" data-text="Please put your hands on your knees like this, and just relax.">
+                  <div className="question-text">
+                    Please <b>put your hands on your knees</b> like this, and just
+                    relax.
+                  </div>
+                </li>
+                <li className="question-item" data-text="Spread your fingers a little like this, hold your hand out in front of you, and leave it like this.">
+                  <div className="question-text">
+                    Spread your fingers a little like this,{" "}
+                    <b>hold your hand out in front of you</b>, and leave it like
+                    this.
+                  </div>
+                </li>
+                <li className="question-item" data-text="Turn your wrist up and hold it there like this.">
+                  <div className="question-text">
+                    <b>Turn your wrist up</b> and hold it there like this.
+                  </div>
+                </li>
+                <li className="question-item" data-text="Do you notice any tremors or shaking?">
+                  <div className="question-text">
+                    Do you notice any <b>tremors</b>{" "}
+                    <span className="paraphrase">
+                      (shaking, shivering)
+                    </span>{" "}
+                    or shaking?
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
         </Section>
         <Section title="鼻指鼻試験 (Finger-to-Nose Test)" level={3}>
           <ul>
@@ -871,15 +943,26 @@ const NeurologicalPage: React.FC = () => {
                 towards your chest.
               </div>
             </li>
-            <li className="question-item" data-text="Don't let me push your leg down.">
-              <div className="question-text">
-                <b>Don't let me push your leg down</b>{" "}
-                <span className="paraphrase">
-                  (Try not to let me, Resist when I)
-                </span>
-                .
-              </div>
-            </li>
+          </ul>
+          <div className="figure-with-text">
+            <div className="section-figure">
+              <img {...bindImage(imageMap.pushLegDown, "下肢の徒手筋力テスト")} />
+            </div>
+            <div className="text-block">
+              <ul>
+                <li className="question-item" data-text="Don't let me push your leg down.">
+                  <div className="question-text">
+                    <b>Don't let me push your leg down</b>{" "}
+                    <span className="paraphrase">
+                      (Try not to let me, Resist when I)
+                    </span>
+                    .
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <ul>
             <li className="question-item" data-text="Hold your leg out straight.">
               <div className="question-text">
                 <b>Hold your leg out straight</b>{" "}
@@ -1144,6 +1227,13 @@ const NeurologicalPage: React.FC = () => {
         <Section title="旧版（Neurological legacy）" level={2} fullWidth>
           <PageIframe src={legacyUrl} title="神経診察（旧版）" />
         </Section>
+      )}
+
+      {lightbox && (
+        <div className="lightbox" onClick={() => setLightbox(null)}>
+          <img src={lightbox.src} alt={lightbox.alt} />
+          <p className="lightbox-caption">クリックで閉じる</p>
+        </div>
       )}
     </div>
   );
