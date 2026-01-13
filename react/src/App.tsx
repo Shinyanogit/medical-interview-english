@@ -9,6 +9,7 @@ import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import ExternalHtmlPage from "./pages/ExternalHtmlPage";
 import ChestPage from "./pages/ChestPage";
 import HeadNeckPage from "./pages/HeadNeckPage";
+import NeurologicalPage from "./pages/NeurologicalPage";
 import SimpleRealtimeDebugger from "./components/SimpleRealtimeDebugger";
 import InterviewPage from "./pages/InterviewPage";
 import {
@@ -314,8 +315,12 @@ const AppInner: React.FC = () => {
             />
             <Route
               path="/neurological"
+              element={<NeurologicalPage />}
+            />
+            <Route
+              path="/neurological/old"
               element={renderPage(
-                "神経",
+                "神経（旧版）",
                 buildAppPath("legacy/neurological.html"),
                 {
                   enableAudio: true,
