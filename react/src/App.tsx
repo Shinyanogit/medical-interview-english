@@ -59,28 +59,13 @@ const Home: React.FC = () => {
       <div className="sections-grid">
         <Link to="/medical-interview" className="section-card">
           <div className="section-icon">🗣️</div>
-          <div className="section-title">医療面接</div>
+          <div className="section-title">問診</div>
           <div className="section-subtitle">Medical Interview</div>
         </Link>
-        <Link to="/head-neck" className="section-card">
-          <div className="section-icon">🧑‍⚕️</div>
-          <div className="section-title">頭頸部</div>
-          <div className="section-subtitle">Head & Neck</div>
-        </Link>
-        <Link to="/chest" className="section-card">
-          <div className="section-icon">🫁</div>
-          <div className="section-title">胸部</div>
-          <div className="section-subtitle">Chest</div>
-        </Link>
-        <Link to="/abdomen" className="section-card">
-          <div className="section-icon">🫃</div>
-          <div className="section-title">腹部</div>
-          <div className="section-subtitle">Abdomen</div>
-        </Link>
-        <Link to="/neurological" className="section-card">
-          <div className="section-icon">🧠</div>
-          <div className="section-title">神経</div>
-          <div className="section-subtitle">Neurological</div>
+        <Link to="/physical-exam" className="section-card">
+          <div className="section-icon">🩺</div>
+          <div className="section-title">身体診察</div>
+          <div className="section-subtitle">Physical Examination</div>
         </Link>
         <Link to="/presentation" className="section-card">
           <div className="section-icon">📊</div>
@@ -255,12 +240,14 @@ const AppInner: React.FC = () => {
   const renderPage = (
     baseTitle: string,
     url: string,
-    options?: { enableAudio?: boolean }
+    options?: { enableAudio?: boolean; backTo?: string; backLabel?: string }
   ) => (
     <ExternalHtmlPage
       title={baseTitle}
       url={url}
       enableAudio={options?.enableAudio}
+      backTo={options?.backTo}
+      backLabel={options?.backLabel}
     />
   );
 
@@ -270,10 +257,11 @@ const AppInner: React.FC = () => {
         <BrowserRouter basename={import.meta.env.BASE_URL}>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/physical-exam" element={<PhysicalExamPage />} />
             <Route
               path="/medical-interview"
               element={renderPage(
-                "医療面接",
+                "問診",
                 buildAppPath("legacy/medical-interview.html"),
                 {
                   enableAudio: true,
@@ -312,6 +300,8 @@ const AppInner: React.FC = () => {
               path="/abdomen"
               element={renderPage("腹部", buildAppPath("legacy/abdomen.html"), {
                 enableAudio: true,
+                backTo: "/physical-exam",
+                backLabel: "← 身体診察に戻る",
               })}
             />
             <Route
@@ -373,6 +363,51 @@ const App: React.FC = () => {
 };
 
 export default App;
+
+const PhysicalExamPage: React.FC = () => {
+  const { layout } = useLayout();
+  return (
+    <div
+      className={`container ${
+        layout === "two-column"
+          ? "layout-two-column"
+          : layout === "single-column"
+          ? "layout-single-column"
+          : ""
+      }`}
+    >
+      <Link to="/" className="back-link">
+        ← トップページに戻る
+      </Link>
+      <h1>身体診察</h1>
+      <p className="description">
+        各部位の身体診察で使う英語表現を学ぶ
+      </p>
+      <div className="sections-grid">
+        <Link to="/head-neck" className="section-card">
+          <div className="section-icon">🧑‍⚕️</div>
+          <div className="section-title">頭頸部</div>
+          <div className="section-subtitle">Head & Neck</div>
+        </Link>
+        <Link to="/chest" className="section-card">
+          <div className="section-icon">🫁</div>
+          <div className="section-title">胸部</div>
+          <div className="section-subtitle">Chest</div>
+        </Link>
+        <Link to="/abdomen" className="section-card">
+          <div className="section-icon">🫃</div>
+          <div className="section-title">腹部</div>
+          <div className="section-subtitle">Abdomen</div>
+        </Link>
+        <Link to="/neurological" className="section-card">
+          <div className="section-icon">🧠</div>
+          <div className="section-title">神経</div>
+          <div className="section-subtitle">Neurological</div>
+        </Link>
+      </div>
+    </div>
+  );
+};
 
 const DebugPage: React.FC = () => {
   const { layout } = useLayout();

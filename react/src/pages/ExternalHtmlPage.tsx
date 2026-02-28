@@ -17,6 +17,8 @@ type Props = {
   url: string;
   title: string;
   enableAudio?: boolean;
+  backTo?: string;
+  backLabel?: string;
 };
 
 async function fetchText(url: string) {
@@ -25,7 +27,7 @@ async function fetchText(url: string) {
   return await res.text();
 }
 
-const ExternalHtmlPage: React.FC<Props> = ({ url, title, enableAudio = false }) => {
+const ExternalHtmlPage: React.FC<Props> = ({ url, title, enableAudio = false, backTo = "/", backLabel = "← トップページに戻る" }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,7 +76,7 @@ const ExternalHtmlPage: React.FC<Props> = ({ url, title, enableAudio = false }) 
   const layoutClass = layout === 'two-column' ? 'layout-two-column' : layout === 'single-column' ? 'layout-single-column' : '';
   return (
     <div className={`container ${layoutClass}`}>
-      <Link to="/" className="back-link">← トップページに戻る</Link>
+      <Link to={backTo} className="back-link">{backLabel}</Link>
       <h1>{title}</h1>
       {loading && <p>読み込み中...</p>}
       {error && <p className="description">読み込みエラー: {error}</p>}

@@ -163,8 +163,8 @@ const HeadNeckPage: React.FC = () => {
 
   return (
     <div className={`container ${layoutClass}`}>
-      <Link to="/" className="back-link">
-        ← トップページに戻る
+      <Link to="/physical-exam" className="back-link">
+        ← 身体診察に戻る
       </Link>
       <h1>頭頸部</h1>
 
