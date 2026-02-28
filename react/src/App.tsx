@@ -12,6 +12,7 @@ import HeadNeckPage from "./pages/HeadNeckPage";
 import NeurologicalPage from "./pages/NeurologicalPage";
 import SimpleRealtimeDebugger from "./components/SimpleRealtimeDebugger";
 import InterviewPage from "./pages/InterviewPage";
+import CasePresentationPage from "./pages/CasePresentationPage";
 import {
   consultInterviewQA,
   englishHemeOncQA,
@@ -329,8 +330,12 @@ const AppInner: React.FC = () => {
             />
             <Route
               path="/presentation"
+              element={<CasePresentationPage />}
+            />
+            <Route
+              path="/presentation/old"
               element={renderPage(
-                "プレゼン",
+                "プレゼン（旧版）",
                 buildAppPath("legacy/presentation.html"),
                 {
                   enableAudio: true,

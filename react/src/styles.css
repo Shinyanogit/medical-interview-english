@@ -1555,3 +1555,185 @@ p { margin: 12px 0; line-height: 1.8; }
     grid-template-columns: 1fr;
   }
 }
+
+/* ================================================================
+   Case Presentation — tabs, audio player, callouts, vocab tables
+   ================================================================ */
+
+/* Tabs */
+.case-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 16px 0;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0;
+}
+.case-tab {
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  color: var(--text-color);
+  font-size: 0.9em;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.case-tab:hover {
+  color: var(--border-color);
+}
+.case-tab.active {
+  color: var(--border-color);
+  border-bottom-color: var(--border-color);
+  font-weight: 700;
+}
+.case-tab-content {
+  margin-top: 8px;
+}
+
+/* Audio Highlight Player */
+.audio-highlight-player {
+  padding: 10px 14px;
+  border-left: 3px solid #4a9eff;
+  background: rgba(74, 158, 255, 0.03);
+  border-radius: 4px;
+  line-height: 1.8;
+  transition: all 0.3s;
+  margin: 4px 0;
+}
+.audio-highlight-player.playing {
+  background: rgba(74, 158, 255, 0.12);
+  border-left-color: #f05050;
+}
+.ahp-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.ahp-indicator {
+  font-size: 0.8em;
+  color: #4a9eff;
+  cursor: pointer;
+  user-select: none;
+}
+.ahp-indicator.active {
+  color: #f05050;
+}
+.ahp-chain-btn {
+  font-size: 0.8em;
+  color: #777;
+  cursor: pointer;
+  user-select: none;
+}
+.ahp-chain-btn.active {
+  color: #f05050;
+}
+
+/* Token styles */
+.audio-token {
+  cursor: pointer;
+  padding: 1px 2px;
+  border-radius: 3px;
+  transition: background 0.15s, color 0.15s;
+}
+.audio-bold {
+  font-weight: bold;
+  color: #b44820;
+}
+.audio-word {
+  font-style: italic;
+}
+.audio-paren {
+  color: #999;
+  font-size: 0.72em;
+  opacity: 0.62;
+}
+.audio-token.highlight {
+  background: #ffd700 !important;
+  color: #000 !important;
+}
+
+[data-theme="dark"] .audio-bold {
+  color: #f0a840;
+}
+[data-theme="dark"] .audio-paren {
+  color: #777;
+}
+
+/* Callout blocks (Obsidian-style) */
+details.callout {
+  margin: 8px 0;
+  border-radius: 6px;
+  padding: 0;
+  border-left: 4px solid;
+}
+details.callout > summary {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9em;
+  list-style: none;
+  user-select: none;
+}
+details.callout > summary::-webkit-details-marker { display: none; }
+details.callout > summary::before {
+  content: "▸ ";
+  transition: transform 0.15s;
+}
+details.callout[open] > summary::before {
+  content: "▾ ";
+}
+.callout-content {
+  padding: 4px 12px 8px;
+  font-size: 0.9em;
+}
+
+/* Callout types */
+.callout-tip { border-color: #10b981; background: rgba(16, 185, 129, 0.06); }
+.callout-tip > summary { color: #10b981; }
+.callout-note { border-color: #4a9eff; background: rgba(74, 158, 255, 0.06); }
+.callout-note > summary { color: #4a9eff; }
+.callout-example { border-color: #8b5cf6; background: rgba(139, 92, 246, 0.06); }
+.callout-example > summary { color: #8b5cf6; }
+.callout-info { border-color: #06b6d4; background: rgba(6, 182, 212, 0.06); }
+.callout-info > summary { color: #06b6d4; }
+.callout-warning { border-color: #f59e0b; background: rgba(245, 158, 11, 0.06); }
+.callout-warning > summary { color: #f59e0b; }
+
+/* Vocab tables */
+.vocab-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85em;
+}
+.vocab-table th,
+.vocab-table td {
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+  text-align: left;
+  vertical-align: top;
+}
+.vocab-table th {
+  background: rgba(74, 158, 255, 0.08);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.vocab-table tr:hover {
+  background: rgba(74, 158, 255, 0.04);
+}
+
+/* Responsive tabs */
+@media (max-width: 480px) {
+  .case-tab {
+    padding: 6px 10px;
+    font-size: 0.8em;
+  }
+  .audio-highlight-player {
+    padding: 8px 10px;
+    font-size: 0.92em;
+  }
+}

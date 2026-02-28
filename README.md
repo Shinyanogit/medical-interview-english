@@ -12,6 +12,7 @@
   - 胸部診察（視診、触診、打診、聴診）
   - 腹部診察（視診、聴診、打診、触診）
   - 神経診察（意識レベル、脳神経、運動系、感覚系、反射、協調運動、歩行）
+- **症例プレゼンテーション**: 英語症例プレゼンの型・定型表現・実践例（SLE・RA症例）を音声付きで学習。単語レベルのハイライト同期再生、通し再生機能搭載
 - **音声再生機能**: 各英語表現をクリックすると、OpenAI TTS API（tts-1-hdモデル）で生成された高品質な音声が再生されます
 - **レスポンシブデザイン**: スマートフォン、タブレット、PCで快適に閲覧可能
 - **ダークモード**: システム設定に応じて自動切り替え、または手動切り替え可能
@@ -86,7 +87,36 @@
 - 広い画面（iPad、Macなど）で2段組レイアウトを実装
 - 相槌・共感表現のセクションを追加
 
-### 9. 身体診察ページの追加（2024年12月）
+### 9. React化とFirebase統合（2024年12月〜2025年11月）
+- React 18 + TypeScript + Vite でフロントエンドをリビルド
+- react-router-dom v6 によるクライアントサイドルーティング
+- Firebase Authentication / Firestore でユーザー認証・APIキー管理を導入
+- OpenAI / Gemini Realtime API とWebRTC通話を統合
+- 頭頸部・胸部・神経のReact版ページを新規作成（レガシーHTML版も `/old` ルートで維持）
+
+### 10. 症例プレゼンテーションページの追加（2026年2月）
+- **新規Reactコンポーネント**:
+  - `AudioHighlightPlayer.tsx`: 単語レベルのタイムスタンプ同期ハイライト再生コンポーネント
+  - `CasePresentationPage.tsx`: 6タブ構成のメインページ
+  - `casePresentationData.ts`: 全コンテンツの構造化データ（1,168行）
+
+- **6タブ構成**:
+  - 全体像: SAD原則、12項目、Diagnostic Framing、Semantic Qualifiers等
+  - テンプレート: 定型表現集（折りたたみ式）
+  - SLE症例: 7セクション×音声付きプレゼンテーション
+  - RA症例: 7セクション×音声付きプレゼンテーション
+  - 場面別: SNAPPS / I-PASS / SBAR 各フォーマット×音声
+  - ボキャブラリー: 267語の医学英語表現テーブル
+
+- **音声機能**:
+  - 19個のMP3音声ファイル（SLE 8 + RA 8 + GPA 3）
+  - 17個のタイムスタンプJSONファイル（単語レベル）
+  - 単語クリック → 対応位置からシーク再生
+  - 再生中の単語を黄色ハイライト（80msインターバル）
+  - セクション再生 / 通し再生（AudioChainContext で複数プレイヤー連携）
+  - iOS autoplay unlock 対応
+
+### 身体診察ページの追加（2024年12月）
 - **新規ページの作成**:
   - `head-neck.html`: 頭頸部診察（93個の英語表現）
   - `abdomen.html`: 腹部診察（58個の英語表現）
@@ -190,9 +220,11 @@ python embed_audio_map.py
 
 ## 技術スタック
 
-- **HTML/CSS/JavaScript**: フロントエンド
+- **React 18 + TypeScript + Vite**: メインフロントエンド（`react/` ディレクトリ）
+- **HTML/CSS/JavaScript**: レガシーページ（`react/public/legacy/`）
 - **OpenAI TTS API**: 音声生成（tts-1-hdモデル）
 - **Python**: 音声ファイル生成スクリプト
+- **Firebase Auth + Firestore**: ユーザー認証・APIキー管理
 
 ## 注意事項
 
