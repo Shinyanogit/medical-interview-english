@@ -75,6 +75,10 @@ body {
   .container:not(.layout-single-column) > h1 { grid-column: 1 / -1; margin-bottom: 20px; }
   /* Ensure the home cards section spans full width in two-column container */
   .container:not(.layout-single-column) > .sections-grid { grid-column: 1 / -1; }
+  .container:not(.layout-single-column) > .back-link,
+  .container:not(.layout-single-column) > .description,
+  .container:not(.layout-single-column) > .case-tabs,
+  .container:not(.layout-single-column) > .case-tab-content { grid-column: 1 / -1; }
 }
 
 /* 2段組みレイアウトはデスクトップのみ */
@@ -89,6 +93,10 @@ body {
 
   .container.layout-two-column > h1 { grid-column: 1 / -1; margin-bottom: 20px; }
   .container.layout-two-column > .sections-grid { grid-column: 1 / -1; }
+  .container.layout-two-column > .back-link,
+  .container.layout-two-column > .description,
+  .container.layout-two-column > .case-tabs,
+  .container.layout-two-column > .case-tab-content { grid-column: 1 / -1; }
 }
 
 .container.layout-single-column { display: block; }

@@ -72,11 +72,6 @@ const Home: React.FC = () => {
           <div className="section-title">プレゼン</div>
           <div className="section-subtitle">Presentation</div>
         </Link>
-        <Link to="/debug" className="section-card">
-          <div className="section-icon">🧪</div>
-          <div className="section-title">デバッグ</div>
-          <div className="section-subtitle">Debug / Sandbox</div>
-        </Link>
       </div>
     </div>
   );
